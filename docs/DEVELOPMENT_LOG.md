@@ -1941,3 +1941,45 @@ The database can now hold ordered, timed, editable captions without modifying pr
 ### Next
 
 Add the minimal `CaptionCue` Eloquent model and relationship needed before persisting generated cues.
+
+## 2026-08-23 — Step 9.1b
+
+### Goal
+
+Add the minimum Eloquent representation and relationships for persisted caption cues.
+
+### Changes
+
+- Added `App\Models\CaptionCue` with fillable editable fields and integer casts for order and timing.
+- Added the inverse `videoProject` relationship.
+- Added an ordered `captionCues` relationship to `VideoProject`.
+- Added focused feature tests for persistence, integer casts, relationship traversal, project-local ordering, and cascading deletion.
+- Kept the transient generated representation as `App\ValueObjects\CaptionCue`; the namespaces distinguish it from the saved model.
+- No generated cues were persisted and no page, endpoint, factory, seeder, or dependency changed.
+
+### Decisions
+
+- Set cue ownership through the project relationship rather than allowing `video_project_id` through mass assignment.
+- Return a project's saved cues in their explicit `order` by default.
+- Do not add a factory or seeder until reusable fixture states or demo data create a concrete need.
+
+### Verification
+
+- Laravel Pint formatted the changed PHP files successfully.
+- The focused model suite passes: 2 tests and 13 assertions.
+- The complete Pest suite passes: 99 tests and 256 assertions.
+- `git diff --check` completed with no errors.
+- No browser behavior changed in this backend-only step.
+
+### Result
+
+Laravel can now create, retrieve, order, and associate saved caption cues through `VideoProject` without using raw database queries.
+
+### Problems / Notes
+
+- Existing projects still have no saved cue rows.
+- The project page still reads transient cues generated from NeMo JSON.
+
+### Next
+
+Add one tested application action that persists generated cues only when the project has no saved cues.

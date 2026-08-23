@@ -1,11 +1,11 @@
 # Current
 
-- Add the minimal `CaptionCue` persistence model for the approved table.
+- Persist generated cues only when a project has no saved cues.
 
 # Next
 
-- Persist generated cues only when a project has no saved cues.
 - Read saved cues as the editable source of truth on the project page.
+- Add validated cue-text update persistence.
 
 # Later
 
@@ -83,6 +83,7 @@
 - Phase 8.3: Rendered the active cue directly over native video playback with one fixed browser-preview style.
 - Phase 8.3b: Removed the forced 16:9 preview and preserved each source video's intrinsic aspect ratio.
 - Phase 9.1a: Approved persisted cues as the editable source of truth and added the reversible `caption_cues` migration.
+- Phase 9.1b: Added the tested `CaptionCue` Eloquent model and ordered project relationships.
 
 # Rejected / Out of Scope
 

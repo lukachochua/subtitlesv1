@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
 /**
@@ -20,6 +21,11 @@ use Illuminate\Support\Carbon;
 #[Fillable(['original_filename', 'disk', 'path', 'mime_type', 'size_bytes', 'duration_ms'])]
 class VideoProject extends Model
 {
+    public function captionCues(): HasMany
+    {
+        return $this->hasMany(CaptionCue::class)->orderBy('order');
+    }
+
     /**
      * @return array<string, string>
      */

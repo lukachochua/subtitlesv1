@@ -1,11 +1,11 @@
 # Current
 
-- Manually verify saved text, cue seeking, and start-time editing against project 5 playback.
+- Manually verify saved text, cue seeking, and start/end-time editing against project 5 playback.
 
 # Next
 
-- Add validated end-time editing and its frontend control.
 - Establish and document complete timestamp invariants and overlap policy.
+- Define and implement cue splitting behavior.
 
 # Later
 
@@ -91,6 +91,7 @@
 - Phase 9.1g: Added per-cue text forms wired through Wayfinder to saved caption rows.
 - Phase 9.2: Added accessible cue-number controls that seek native video to each cue's start.
 - Phase 9.3: Added validated start-time persistence and a per-cue millisecond editing control.
+- Phase 9.4: Added validated end-time persistence and a per-cue millisecond editing control.
 
 # Rejected / Out of Scope
 

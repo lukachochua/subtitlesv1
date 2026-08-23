@@ -6,6 +6,7 @@ import { findActiveCaptionCue } from '@/lib/caption-cues';
 import { home } from '@/routes';
 import { media as videoProjectMedia } from '@/routes/video-projects';
 import { update as updateCaptionCue } from '@/routes/video-projects/caption-cues';
+import { update as updateCaptionCueEndTime } from '@/routes/video-projects/caption-cues/end-time';
 import { update as updateCaptionCueStartTime } from '@/routes/video-projects/caption-cues/start-time';
 
 interface VideoProject {
@@ -385,7 +386,80 @@ const seekToCue = (cue: CaptionCue): void => {
                                 <td
                                     class="px-6 py-4 font-mono whitespace-nowrap"
                                 >
-                                    {{ formatCueTime(cue.end_ms) }}
+                                    <Form
+                                        v-if="cue.id !== null"
+                                        v-bind="
+                                            updateCaptionCueEndTime.form({
+                                                videoProject: videoProject.id,
+                                                captionCue: cue.id,
+                                            })
+                                        "
+                                        :error-bag="`caption-cue-end-time-${cue.id}`"
+                                        :options="{ preserveScroll: true }"
+                                        set-defaults-on-success
+                                        class="grid min-w-44 gap-2"
+                                        #default="{
+                                            errors,
+                                            processing,
+                                            recentlySuccessful,
+                                        }"
+                                    >
+                                        <label
+                                            :for="`caption-cue-${cue.id}-end-ms`"
+                                            class="sr-only"
+                                        >
+                                            Caption cue {{ cue.order }} end time
+                                            in milliseconds
+                                        </label>
+                                        <div class="flex items-center gap-2">
+                                            <input
+                                                :id="`caption-cue-${cue.id}-end-ms`"
+                                                name="end_ms"
+                                                type="number"
+                                                :value="cue.end_ms"
+                                                :min="cue.start_ms + 1"
+                                                :max="
+                                                    videoProject.duration_ms ??
+                                                    undefined
+                                                "
+                                                step="1"
+                                                inputmode="numeric"
+                                                :disabled="processing"
+                                                class="w-24 rounded-lg border border-stone-300 bg-white px-2 py-1.5 font-mono text-stone-950 tabular-nums focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 disabled:cursor-wait disabled:opacity-60 dark:border-stone-700 dark:bg-stone-950 dark:text-stone-50 dark:focus-visible:ring-red-400"
+                                            />
+                                            <span
+                                                class="text-xs text-stone-500 dark:text-stone-400"
+                                            >
+                                                ms
+                                            </span>
+                                            <button
+                                                type="submit"
+                                                :disabled="processing"
+                                                class="rounded-md border border-stone-300 px-2 py-1.5 text-xs font-semibold text-stone-700 hover:bg-stone-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 disabled:cursor-wait disabled:opacity-60 dark:border-stone-700 dark:text-stone-200 dark:hover:bg-stone-800 dark:focus-visible:ring-red-400"
+                                            >
+                                                {{
+                                                    processing
+                                                        ? 'Saving…'
+                                                        : 'Save'
+                                                }}
+                                            </button>
+                                        </div>
+                                        <span
+                                            v-if="recentlySuccessful"
+                                            class="font-sans text-xs font-medium text-emerald-700 dark:text-emerald-400"
+                                        >
+                                            Saved
+                                        </span>
+                                        <p
+                                            v-if="errors.end_ms"
+                                            class="max-w-52 font-sans text-xs whitespace-normal text-red-700 dark:text-red-400"
+                                        >
+                                            {{ errors.end_ms }}
+                                        </p>
+                                    </Form>
+                                    <template v-else>
+                                        {{ formatCueTime(cue.end_ms) }}
+                                    </template>
                                 </td>
                             </tr>
                         </tbody>

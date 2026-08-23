@@ -2304,3 +2304,54 @@ Persisted cues can now have their start boundary corrected in integer millisecon
 ### Next
 
 Manually verify project 5 timing edits, then implement Phase 9.4 end-time editing before establishing complete timestamp and overlap invariants in Phase 9.5.
+
+## 2026-08-23 — Step 9.4
+
+### Goal
+
+Allow a saved cue's end time to be edited from the cue table while preserving the timing boundaries already supported by the application.
+
+### Changes
+
+- Added a project-scoped PATCH endpoint dedicated to cue end time.
+- Added a Form Request requiring positive integer milliseconds.
+- Added validation requiring end time after cue start and no later than known video duration.
+- Rejected timing edits when video duration is unknown.
+- Added a single-action controller that updates only validated `end_ms`.
+- Added a Wayfinder-backed per-cue number input and explicit Save control in the End column.
+- Added isolated errors, saving/success state, preserved scroll, and matching HTML timing limits.
+- Added focused tests for valid updates, ignored unrelated fields, malformed input, timing boundaries, unknown duration, and cross-project access.
+- Did not add overlap rules, automatic playback, split, or merge behavior.
+
+### Decisions
+
+- Keep end time in integer milliseconds, matching start-time editing and internal storage.
+- Give end time its own endpoint and form so each timing boundary has isolated validation and feedback.
+- Continue allowing overlaps until Phase 9.5 establishes and documents one deliberate overlap policy.
+
+### Verification
+
+- Wayfinder regenerated typed action, route, and form definitions successfully.
+- Laravel Pint completed successfully.
+- The focused end-time suite passes: 11 tests and 53 assertions.
+- The complete Pest suite passes: 135 tests and 413 assertions.
+- The frontend active-cue suite passes: 8 tests.
+- Vue TypeScript checking completed with no errors.
+- ESLint completed with no errors.
+- The Vite production build completed successfully.
+- The nested end-time route is registered with the expected name.
+- The existing optional `fontaine` optimization notice remains informational.
+- Actual browser end-time editing and the resulting overlay boundary shift have not yet been manually verified.
+
+### Result
+
+Persisted cues can now have either timing boundary corrected in integer milliseconds from the browser without exposing unrelated cue fields.
+
+### Problems / Notes
+
+- The millisecond inputs are precise but not yet friendly timestamp formatters.
+- Editing an end can currently overlap the next cue because overlap policy is deliberately deferred.
+
+### Next
+
+Manually verify project 5 end-time edits, then establish complete timestamp invariants and cue-overlap policy in Phase 9.5.

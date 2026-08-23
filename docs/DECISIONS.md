@@ -117,3 +117,23 @@ The name leaves room for the record to own captions and exports later, while the
 - Original filenames are display metadata and must never determine storage paths.
 - Video bytes stay in filesystem storage rather than the database.
 - Ownership, status, duration, ASR data, captions, styles, and export fields remain deferred until their corresponding workflows are designed.
+
+## Decision: Limit initial uploads to MP4 files up to 500 MB
+
+### Context
+
+Personal V1 needs a narrow, useful upload policy before file storage is connected. Browser file-picker hints cannot be trusted as validation.
+
+### Decision
+
+Accept one required MP4 whose content-derived media type matches MP4 and whose size is no greater than Laravel's `500mb` limit. Enforce this policy in `StoreVideoProjectRequest`.
+
+### Reason
+
+MP4 is the first supported product format, and 500 MB is a bounded but useful development limit for short Georgian source videos.
+
+### Consequences
+
+- Other video containers are rejected initially.
+- The browser `accept` attribute remains only a convenience hint.
+- PHP and any future web server or proxy must allow requests at least as large as the application policy before Laravel can validate them.

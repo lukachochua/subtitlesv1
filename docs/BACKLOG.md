@@ -1,11 +1,11 @@
 # Current
 
-- Phase 2.1: Add a deliberately simple upload interface without validation or storage behavior.
+- Phase 2.4: Persist the stored video's approved metadata and clean up the file if persistence fails.
 
 # Next
 
-- Define the initial MP4-only validation rules and development upload-size limit.
-- Store one validated MP4 using a safe generated path.
+- Display the uploaded video's project information.
+- Play the stored MP4 with the native browser video element.
 
 # Later
 
@@ -32,6 +32,9 @@
 - Phase 1.2: Added and reversibly verified the `video_projects` migration.
 - Phase 1.3: Added and tested the minimal `VideoProject` Eloquent model.
 - Phase 1: Established the minimum domain representation for one video project.
+- Phase 2.1: Added a native MP4 selection interface without submission behavior.
+- Phase 2.2: Added and tested server-side MP4 validation with a 500 MB development limit.
+- Phase 2.3: Stored validated MP4 uploads privately using generated paths.
 
 # Rejected / Out of Scope
 

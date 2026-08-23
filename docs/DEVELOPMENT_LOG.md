@@ -242,3 +242,116 @@ Application code can now persist and retrieve the approved video-project metadat
 ### Next
 
 Add a deliberately simple upload interface without validation or storage behavior.
+
+## 2026-08-23 — Step 2.1
+
+### Goal
+
+Add the smallest visible interface for selecting one MP4 without implying that upload behavior already exists.
+
+### Changes
+
+- Added a native file input to the existing Georgian Captioner page.
+- Limited the browser file picker hint to MP4 files through the input's `accept` attribute.
+- Added an explicitly disabled submit control stating that upload is not connected yet.
+- Preserved responsive and dark-mode styling without adding components or dependencies.
+
+### Decisions
+
+- Use the native browser file input rather than introducing drag-and-drop or upload UI libraries.
+- Do not create an Inertia form object or backend endpoint until validation and submission behavior are designed.
+- Treat the HTML `accept` attribute only as a file-picker hint, not as security validation.
+
+### Verification
+
+- Frontend type checking, ESLint, Prettier, and the production build pass.
+- The full Pest suite passes.
+- Selecting a file and visual appearance have not yet been manually verified in a browser.
+
+### Result
+
+The application now presents a simple MP4 selection interface. It does not submit, validate, store, or persist the selected file.
+
+### Problems / Notes
+
+- The submit control is intentionally disabled until a validated backend endpoint exists.
+
+### Next
+
+Define the initial server-side MP4 validation rules and development upload-size limit before connecting submission.
+
+## 2026-08-23 — Step 2.2
+
+### Goal
+
+Define and test the initial server-side file policy without creating an upload endpoint or storing files.
+
+### Changes
+
+- Added `StoreVideoProjectRequest` with a required, content-inspected MP4 rule and a 500 MB maximum.
+- Added focused Pest tests for a valid MP4 at the limit, a missing file, a non-MP4 file, and an MP4 one kilobyte over the limit.
+- Displayed the 500 MB policy next to the existing file input.
+
+### Decisions
+
+- Support only MP4 for the initial workflow.
+- Set the personal-V1 development limit to 500 MB using Laravel's human-readable `500mb` file rule.
+- Keep browser `accept` filtering as a convenience only; the Form Request is the security boundary.
+
+### Verification
+
+- All four focused validation tests pass with seven assertions.
+- The full Pest suite, PHPStan, Laravel Pint, frontend type checking, ESLint, Prettier, and the production build pass.
+- Tests use fake uploaded files and do not write video files to application storage.
+
+### Result
+
+The application has a reusable server-side validation policy for one MP4 up to 500 MB. No route currently invokes it.
+
+### Problems / Notes
+
+- PHP currently allows only 2 MB per uploaded file and 8 MB per POST request. Those environment limits must be raised before a real 500 MB upload can reach Laravel validation.
+
+### Next
+
+Manually align PHP's upload limits with the 500 MB application policy before implementing storage.
+
+## 2026-08-23 — Step 2.3
+
+### Goal
+
+Submit and store one validated MP4 using a safe generated path without persisting video-project metadata yet.
+
+### Changes
+
+- Added a named POST route for video-project storage.
+- Added an invokable controller that receives the existing Form Request and stores the validated file under `video-projects/` on the private `local` disk.
+- Connected the Vue upload interface to the named backend route through Wayfinder and Inertia's `Form` component.
+- Enabled the submit control and added processing, validation-error, reset-on-success, and success states.
+- Added a focused feature test using a fake local disk.
+
+### Decisions
+
+- Use Laravel's `store()` method so the source filename is generated rather than derived from untrusted client input.
+- Store source videos on the private local disk initially.
+- Keep metadata persistence out of this step even though the stored path will be needed immediately afterward.
+
+### Verification
+
+- Confirmed PHP CLI now reports `upload_max_filesize=500M` and `post_max_size=510M`.
+- The focused storage test passes and verifies the stored file exists under `video-projects/` without reusing the Georgian original filename.
+- The full Pest suite, PHPStan, Laravel Pint, frontend type checking, ESLint, Prettier, and the production build pass.
+- Automated storage tests use `Storage::fake('local')`; they write no video to real application storage.
+- A real browser upload has not yet been manually verified.
+
+### Result
+
+The application can validate and privately store one MP4 using a generated path. The stored file is not yet represented by a `VideoProject` database record.
+
+### Problems / Notes
+
+- A successful real upload creates a file that is not yet discoverable through the database. Phase 2.4 should be completed before relying on real uploads.
+
+### Next
+
+Persist the stored file's approved metadata as a `VideoProject` and handle storage cleanup if persistence fails.

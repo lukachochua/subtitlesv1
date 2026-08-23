@@ -1149,3 +1149,162 @@ The application now has an explicit provider-independent timestamp unit and mini
 ### Next
 
 Propose the smallest internal timestamped-word shape before implementing conversion.
+
+## 2026-08-23 — Step 6.2
+
+### Goal
+
+Define the smallest provider-independent representation for one timestamped transcription word without implementing storage or conversion prematurely.
+
+### Changes
+
+- Documented an immutable `TranscriptionWord` PHP value object containing only `text`, `startMs`, and `endMs`.
+- Assigned single-word invariants to the value object and sequence/media-duration validation to the future converter.
+- Updated the backlog to make class-location approval and implementation the next small step.
+- No PHP class, schema, application behavior, dependency, or raw ASR output changed.
+
+### Decisions
+
+- Use a plain immutable PHP object rather than an Eloquent model, associative array, or third-party DTO package.
+- Require non-empty text, a non-negative start, and an end strictly greater than the start.
+- Do not include speaker, confidence, provider metadata, token data, character timing, or segment timing yet.
+- Defer class namespace/location until implementation because the repository has no established value-object directory.
+
+### Verification
+
+- Checked the proposed fields against the 17 real NeMo word entries; each can be represented without provider-specific data.
+- Confirmed collection ordering and duration clamping require context outside a single word and therefore do not belong in its constructor.
+- Documentation whitespace validation passed.
+- No automated application tests were required because this step defines the representation without implementing it.
+
+### Result
+
+The minimum internal word shape and its responsibility boundary are explicit and ready for a small test-driven implementation after approval.
+
+### Problems / Notes
+
+- A new class location will be necessary, and repository instructions require approval before creating a new base folder.
+- Serialization is intentionally deferred until a real consumer requires it.
+
+### Next
+
+Approve a focused class location, then create and unit-test only the immutable `TranscriptionWord` value object.
+
+## 2026-08-23 — Step 6.2b
+
+### Goal
+
+Implement only the approved immutable internal word representation and prove its local invariants with focused tests.
+
+### Changes
+
+- Added `App\ValueObjects\TranscriptionWord` with readonly `text`, `startMs`, and `endMs` properties.
+- Added constructor validation for non-empty text, non-negative start time, and end time strictly after start time.
+- Added focused Pest unit coverage for valid Georgian text, punctuation retention, every invalid boundary, whitespace-only text, and immutability.
+- No provider conversion, persistence, serialization, or Laravel integration was added.
+
+### Decisions
+
+- Approved `app/ValueObjects` as the focused location for this invariant-driven domain value.
+- Use `InvalidArgumentException` for invalid construction because these failures represent invalid caller-supplied values rather than recoverable provider or processing failures.
+
+### Verification
+
+- Pint completed successfully for changed PHP files.
+- `tests/Unit/TranscriptionWordTest.php` passes: 8 tests and 16 assertions.
+- PHPStan completed with zero errors after rerunning outside the restricted sandbox so its worker could bind a local ephemeral port.
+- The first static-analysis attempt did not analyze code because the sandbox prevented that local socket; it was not an application failure.
+
+### Result
+
+The application now has a tested immutable representation for one normalized timestamped word, without coupling it to NeMo or database storage.
+
+### Problems / Notes
+
+- Collection ordering, media-duration clamping, and conversion failure behavior remain intentionally outside this value object.
+
+### Next
+
+Propose the smallest NeMo conversion boundary and explicitly define the acceptable timestamp-overrun tolerance before implementing it.
+
+## 2026-08-23 — Step 6.3a
+
+### Goal
+
+Define the smallest provider conversion boundary and resolve timestamp tolerance and ordering behavior before writing conversion code.
+
+### Changes
+
+- Specified a single provider-specific `ConvertNemoTranscriptionWords` action that accepts decoded NeMo data plus known media duration and returns `TranscriptionWord` objects.
+- Defined structural, numeric, timing, sequence, and duration validation behavior.
+- Set a fixed 100-millisecond maximum duration-overrun tolerance.
+- No converter code, fixture, persistence, command, or provider abstraction was added.
+
+### Decisions
+
+- Use an action consistent with the application's existing single-purpose operation boundaries.
+- Base the 100-millisecond clamp tolerance on the observed 80-millisecond NeMo timestamp grid; reject larger overruns.
+- Preserve provider ordering and reject decreasing start or end sequences instead of sorting silently.
+- Allow overlapping word alignments for now; caption-cue overlap remains a later product decision.
+- Fail the complete conversion on malformed input rather than returning partial data.
+
+### Verification
+
+- Checked the proposed tolerance against project 4: the 34-millisecond final overrun is accepted and clamps from `13,920` to `13,886` milliseconds.
+- Checked the ordering rules against all 17 observed NeMo word entries; their starts and ends are nondecreasing.
+- Confirmed that the converter can remain independent of model execution and database persistence.
+- Documentation whitespace validation passed.
+
+### Result
+
+The NeMo conversion contract is explicit enough to implement and test without making further architectural or product decisions.
+
+### Problems / Notes
+
+- The selected 100-millisecond tolerance is evidence-based but has only one real recording behind it; later QA may justify revisiting it.
+- Word overlap is accepted at the alignment layer but must not silently determine future cue overlap behavior.
+
+### Next
+
+Implement and unit-test only `ConvertNemoTranscriptionWords` against small in-memory NeMo-shaped arrays.
+
+## 2026-08-23 — Step 6.3b
+
+### Goal
+
+Implement the approved NeMo word-conversion contract without adding file access, persistence, or a generic provider framework.
+
+### Changes
+
+- Added `App\Actions\ConvertNemoTranscriptionWords`.
+- Converted finite numeric NeMo second boundaries into rounded integer milliseconds.
+- Added strict response-shape, text, interval, duration, and sequence validation.
+- Added the approved 100-millisecond duration-overrun clamp while preserving input order and permitting ordered word overlap.
+- Added focused Pest unit tests using small in-memory NeMo-shaped arrays.
+
+### Decisions
+
+- Treat invalid media duration as caller misuse with `InvalidArgumentException`.
+- Treat malformed or invalid NeMo output as `UnexpectedValueException` and fail the entire conversion.
+- Accept only actual JSON numeric types for boundaries; numeric strings are rejected rather than coerced.
+
+### Verification
+
+- The converter and value-object unit suites pass: 26 tests and 42 assertions.
+- Tests cover rounding, punctuation, the observed 34-millisecond clamp, permitted word overlap, non-positive duration, missing and malformed lists, invalid entries, non-finite and negative boundaries, reversed intervals, excessive overruns, and decreasing start/end sequences.
+- Pint completed successfully for changed PHP files.
+- PHPStan completed with zero errors.
+- Documentation whitespace validation passed.
+
+### Result
+
+Decoded NeMo output can now be converted deterministically into validated provider-independent words without executing the model or touching storage.
+
+### Problems / Notes
+
+- Tests intentionally use minimal in-memory arrays. A representative saved fixture is the next evidence step before running conversion against the private project 4 artifact.
+- Normalized words are not persisted or exposed to the frontend.
+
+### Next
+
+Add one minimal saved NeMo response fixture and prove it converts correctly without committing private media or the complete experimental response.

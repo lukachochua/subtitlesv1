@@ -199,6 +199,73 @@ Integer milliseconds match the existing video-duration representation and are pr
 - Small model-boundary overruns, such as the observed 34 milliseconds, can be normalized deterministically.
 - Cue boundary inclusivity, overlap policy, and cue-specific validation remain separate decisions for the cue-generation and editing phases.
 - NeMo token, character, and segment timestamps remain available in raw experimental output but are not part of the first internal word representation.
+
+## Decision: Represent one normalized transcription word as an immutable value object
+
+### Context
+
+Downstream cue generation needs provider-independent word text and timing. The application has no existing DTO or value-object convention, and the first NeMo result does not provide justified speaker or confidence values. Passing unstructured provider arrays onward would make timestamp invariants implicit, while persisting words now would couple an experimental provider result to an unproven database design.
+
+### Decision
+
+Represent one normalized word with a small immutable PHP value object named `TranscriptionWord` containing exactly:
+
+```text
+text: string
+startMs: int
+endMs: int
+```
+
+The object will enforce non-empty text, `startMs >= 0`, and `endMs > startMs`. A separate future NeMo conversion operation will enforce collection-level rules: source order, non-overlap if required by the observed provider output, and `endMs <= durationMs` after permitted boundary clamping.
+
+Do not make this an Eloquent model, persist it, add a DTO package, or include provider metadata, speaker, confidence, token, character, or segment fields yet.
+
+### Reason
+
+An immutable value object makes the core word invariants explicit and independently testable without introducing storage or a third-party abstraction. Keeping collection validation in the converter avoids giving one word responsibility for neighboring words or media duration it does not know.
+
+### Consequences
+
+- Provider-specific code must produce `TranscriptionWord` instances before cue-generation code consumes words.
+- The value object can later expose an array representation if persistence or frontend transfer requires it; that behavior is not needed yet.
+- Adding speaker or confidence data requires evidence from a selected provider and a deliberate extension or related representation.
+- The approved class location is `app/ValueObjects/TranscriptionWord.php`; future value objects should use this folder only when they represent similarly invariant-driven domain values.
+
+## Decision: Convert NeMo words through one strict application action
+
+### Context
+
+The preserved NeMo result exposes words at `timestamp.word`, with text plus floating-point `start` and `end` seconds. Its timestamp grid advances in 80-millisecond increments, and its final word ends 34 milliseconds beyond the ffprobe-derived audio duration. Conversion must tolerate model granularity without silently repairing materially invalid provider data. The application currently uses single-purpose actions for media operations and has no justified generic ASR-provider framework.
+
+### Decision
+
+Use one provider-specific action named `ConvertNemoTranscriptionWords` in `app/Actions`. It will accept decoded NeMo response data and the known integer `durationMs`, and return an ordered list of `TranscriptionWord` objects.
+
+The converter will:
+
+- Require a non-empty `timestamp.word` list.
+- Require every entry to contain non-empty string `word` plus finite numeric `start` and `end` seconds.
+- Convert seconds by multiplying by 1,000 and rounding to the nearest integer.
+- Preserve input order; never sort provider output silently.
+- Require nondecreasing start times and nondecreasing end times across the sequence.
+- Allow word intervals to overlap at this stage because alignment overlap is not the same as caption-cue overlap.
+- Clamp a boundary beyond `durationMs` only when the overrun is at most 100 milliseconds.
+- Reject negative boundaries, reversed intervals, larger duration overruns, malformed structures, and invalid sequence ordering.
+- Construct `TranscriptionWord` objects so their local invariants remain enforced in one place.
+
+The 100-millisecond tolerance is a deliberate upper bound slightly larger than one observed 80-millisecond NeMo timestamp frame. It is not a general correction allowance and must not grow automatically for longer media.
+
+### Reason
+
+A provider-specific action is the smallest boundary that isolates NeMo's response shape and can be tested without running the model. Strict validation prevents corrupt timing from reaching cue generation, while the one-frame tolerance handles the real rounding artifact already observed. Allowing word overlap avoids prematurely imposing the future cue-overlap policy on lower-level alignment data.
+
+### Consequences
+
+- Conversion failures must be explicit rather than returning a partial word list.
+- Raw NeMo output remains preserved for diagnosis and future re-conversion.
+- A different ASR provider may receive its own small converter after real output exists; no shared provider interface is justified yet.
+- Cue generation must later decide how overlapping word alignment contributes to non-overlapping caption cues.
+- The tolerance should change only if further real NeMo output demonstrates that one model frame is insufficient.
 ## Decision: Isolate ffprobe duration inspection in one application action
 
 ### Context

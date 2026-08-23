@@ -1,11 +1,11 @@
 # Current
 
-- Propose the minimum internal timestamped-word representation using the approved integer-millisecond timestamp rules.
+- Add one minimal saved NeMo response fixture and verify conversion against it.
 
 # Next
 
-- Convert preserved NeMo output into the approved internal word representation.
-- Test conversion with a representative saved response fixture.
+- Run the converter against project 4's preserved experimental result without persisting normalized words.
+- Inspect the normalized words before designing cue generation.
 
 # Later
 
@@ -61,6 +61,10 @@
 - Phase 5.4: Researched GeoCaption's disclosed pipeline and credible Georgian-specific local ASR models; recommended NVIDIA Georgian FastConformer.
 - Phase 5.5: Ran NVIDIA Georgian FastConformer through native NeMo and preserved word, segment, character, and token timestamps.
 - Phase 6.1: Chose validated integer milliseconds as the internal ASR timestamp representation.
+- Phase 6.2: Chose the minimum immutable internal `TranscriptionWord` representation without adding persistence.
+- Phase 6.2b: Implemented and unit-tested the immutable `TranscriptionWord` value object.
+- Phase 6.3a: Defined the strict NeMo word-conversion boundary and one-frame duration tolerance.
+- Phase 6.3b: Implemented and unit-tested strict NeMo word conversion.
 
 # Rejected / Out of Scope
 

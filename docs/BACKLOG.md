@@ -1,11 +1,11 @@
 # Current
 
-- Display the provided transient cues in a basic read-only Vue table with an explicit no-transcription state.
+- Manually verify the read-only cue table and its timing against project 4 playback.
 
 # Next
 
-- Display a basic read-only cue table below the native video.
 - Manually compare generated cue boundaries with project 4 playback before tuning thresholds.
+- Read native video `currentTime` in Vue and expose it during development.
 
 # Later
 
@@ -74,6 +74,8 @@
 - Phase 7.4: Generated and displayed four real project 4 caption cues through the read-only inspection command.
 - Phase 7.4b: Extracted and tested a reusable transient project caption-data loading boundary.
 - Phase 7.5a: Added tested project-page props for transient cues and explicit absent-result state.
+- Phase 7.5b: Displayed generated cues in a typed read-only Vue table with explicit empty states.
+- Phase 7: Converted real timestamped Georgian words into inspectable deterministic caption cues.
 
 # Rejected / Out of Scope
 

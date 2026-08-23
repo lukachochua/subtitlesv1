@@ -1636,3 +1636,46 @@ The project-page response now carries safe transient generated cue data when ava
 ### Next
 
 Add the typed nullable cue prop and a basic read-only cue table below the native video, with an explicit “No transcription yet” message.
+
+## 2026-08-23 — Step 7.5b
+
+### Goal
+
+Display transient generated caption cues on the existing project page without introducing editing, seeking, overlay, or persistence.
+
+### Changes
+
+- Added a typed nullable `CaptionCue[]` Inertia prop to the Vue project page.
+- Added a read-only responsive table showing one-based cue order, Georgian caption text, and start/end seconds with millisecond precision.
+- Added explicit UI states for no transcription result and a successfully loaded result that generates no cues.
+- Preserved the existing native video player, metadata, navigation, and dark-mode styling.
+- No frontend state library, component library, dependency, interaction, or caption overlay was added.
+
+### Decisions
+
+- Render `cues === null` as “No transcription yet.” and reserve an empty array for “No caption cues were generated.”
+- Format integer milliseconds as fixed three-decimal seconds for human inspection while retaining integer values in page data.
+- Keep the table in the existing page component until reuse or complexity justifies extraction.
+
+### Verification
+
+- Prettier formatted the changed Vue page successfully.
+- Vue TypeScript checking completed with no errors.
+- ESLint completed with no errors.
+- The Vite production build completed successfully.
+- The project-page feature suite passes: 5 tests and 34 assertions.
+- The build emitted an informational notice that optional `fontaine` optimized fallbacks are unavailable; no dependency was added because the feature builds successfully without it.
+- Browser appearance and real cue timing have not yet been manually verified.
+
+### Result
+
+Projects with a valid private transcription now display generated Georgian caption cues directly beneath the source video, while untranscribed projects show an explicit empty state.
+
+### Problems / Notes
+
+- The table is read-only and cannot seek the video or show which cue is active.
+- Cue text still contains known ASR errors from project 4.
+
+### Next
+
+Manually inspect project 4's table and timing, then begin Phase 8.1 by reading and displaying the native video's current playback time.

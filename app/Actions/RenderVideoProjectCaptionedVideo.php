@@ -2,6 +2,7 @@
 
 namespace App\Actions;
 
+use App\Enums\VideoRenderStatus;
 use App\Models\VideoProject;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Storage;
@@ -10,17 +11,22 @@ use Throwable;
 
 class RenderVideoProjectCaptionedVideo
 {
+    public const FAILURE_MESSAGE = 'The captioned video could not be exported. Check the media files and try again.';
+
     public function __construct(private GenerateVideoProjectAssFile $generateVideoProjectAssFile) {}
 
     public function handle(VideoProject $videoProject): string
     {
+        $videoProject->update([
+            'render_status' => VideoRenderStatus::Pending,
+            'render_error' => null,
+        ]);
+
+        $videoProject->update([
+            'render_status' => VideoRenderStatus::Processing,
+        ]);
+
         $disk = Storage::disk($videoProject->disk);
-        $assPath = $this->generateVideoProjectAssFile->handle($videoProject);
-
-        if (! $disk->exists($assPath)) {
-            throw new RuntimeException('The generated ASS subtitle file does not exist.');
-        }
-
         $outputDirectory = "video-projects/{$videoProject->id}";
         $pendingOutputPath = "{$outputDirectory}/captioned.rendering.mp4";
         $completedOutputPath = "{$outputDirectory}/captioned.mp4";
@@ -29,6 +35,12 @@ class RenderVideoProjectCaptionedVideo
         $disk->delete($pendingOutputPath);
 
         try {
+            $assPath = $this->generateVideoProjectAssFile->handle($videoProject);
+
+            if (! $disk->exists($assPath)) {
+                throw new RuntimeException('The generated ASS subtitle file does not exist.');
+            }
+
             $result = Process::timeout(3_600)->run([
                 '/usr/bin/ffmpeg',
                 '-nostdin',
@@ -68,8 +80,18 @@ class RenderVideoProjectCaptionedVideo
             if (! $disk->move($pendingOutputPath, $completedOutputPath)) {
                 throw new RuntimeException('The captioned video could not be finalized.');
             }
+
+            $videoProject->update([
+                'render_status' => VideoRenderStatus::Completed,
+                'render_error' => null,
+                'rendered_at' => now(),
+            ]);
         } catch (Throwable $exception) {
             $disk->delete($pendingOutputPath);
+            $videoProject->update([
+                'render_status' => VideoRenderStatus::Failed,
+                'render_error' => self::FAILURE_MESSAGE,
+            ]);
 
             throw $exception;
         }

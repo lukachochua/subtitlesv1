@@ -20,7 +20,7 @@ class RenderVideoProjectCaptionedVideoController extends Controller
 
             return to_route('video-projects.show', $videoProject)
                 ->withErrors([
-                    'render' => 'The captioned video could not be exported. Check the media files and try again.',
+                    'render' => RenderVideoProjectCaptionedVideo::FAILURE_MESSAGE,
                 ]);
         }
 

@@ -151,7 +151,8 @@ These fields are sufficient to restore meaningful UI state, record the last succ
 
 - The deterministic output path remains outside the database.
 - Progress percentages, job IDs, attempts, separate render history, and processing timestamps remain unimplemented.
-- Model casts and render-action lifecycle transitions are separate follow-up steps.
+- `VideoRenderStatus` provides the four allowed application values, and the render action now persists each lifecycle transition.
+- A new attempt clears the previous error; a failed re-export preserves both the prior completed MP4 and its last successful `rendered_at` timestamp.
 - Existing projects retain `null` values and require no data backfill.
 
 ## Decision: Retain dormant starter infrastructure during personal V1

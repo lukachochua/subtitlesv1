@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\VideoRenderStatus;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -16,10 +17,13 @@ use Illuminate\Support\Carbon;
  * @property int $size_bytes
  * @property int|null $duration_ms
  * @property array<string, mixed>|null $caption_style
+ * @property VideoRenderStatus|null $render_status
+ * @property string|null $render_error
+ * @property Carbon|null $rendered_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['original_filename', 'disk', 'path', 'mime_type', 'size_bytes', 'duration_ms', 'caption_style'])]
+#[Fillable(['original_filename', 'disk', 'path', 'mime_type', 'size_bytes', 'duration_ms', 'caption_style', 'render_status', 'render_error', 'rendered_at'])]
 class VideoProject extends Model
 {
     /**
@@ -109,6 +113,8 @@ class VideoProject extends Model
         return [
             'duration_ms' => 'integer',
             'caption_style' => 'array',
+            'render_status' => VideoRenderStatus::class,
+            'rendered_at' => 'datetime',
         ];
     }
 }

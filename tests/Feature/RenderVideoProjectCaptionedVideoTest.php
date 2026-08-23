@@ -2,6 +2,7 @@
 
 use App\Actions\GenerateVideoProjectAssFile;
 use App\Actions\RenderVideoProjectCaptionedVideo;
+use App\Enums\VideoRenderStatus;
 use App\Models\VideoProject;
 use Illuminate\Contracts\Process\ProcessResult;
 use Illuminate\Process\PendingProcess;
@@ -38,9 +39,13 @@ test('renders captioned video to a verified private project path', function () {
     });
 
     $outputPath = app(RenderVideoProjectCaptionedVideo::class)->handle($videoProject);
+    $videoProject->refresh();
 
     expect($outputPath)->toBe($completedOutputPath)
-        ->and(Storage::disk('local')->get($completedOutputPath))->toBe('new-captioned-video');
+        ->and(Storage::disk('local')->get($completedOutputPath))->toBe('new-captioned-video')
+        ->and($videoProject->render_status)->toBe(VideoRenderStatus::Completed)
+        ->and($videoProject->render_error)->toBeNull()
+        ->and($videoProject->rendered_at)->not->toBeNull();
     Storage::disk('local')->assertMissing($pendingOutputPath);
 
     Process::assertRan(function (PendingProcess $process, ProcessResult $result) use ($videoProject, $assPath, $pendingOutputPath): bool {
@@ -104,8 +109,11 @@ test('removes a partial render and preserves the previous export when FFmpeg fai
     expect(fn () => app(RenderVideoProjectCaptionedVideo::class)->handle($videoProject))
         ->toThrow(RuntimeException::class);
 
+    $videoProject->refresh();
     Storage::disk('local')->assertMissing($pendingOutputPath);
-    expect(Storage::disk('local')->get($completedOutputPath))->toBe('older-export');
+    expect(Storage::disk('local')->get($completedOutputPath))->toBe('older-export')
+        ->and($videoProject->render_status)->toBe(VideoRenderStatus::Failed)
+        ->and($videoProject->render_error)->toBe(RenderVideoProjectCaptionedVideo::FAILURE_MESSAGE);
 });
 
 test('rejects a successful process that creates no usable video', function () {
@@ -129,6 +137,32 @@ test('rejects a successful process that creates no usable video', function () {
 
     expect(fn () => app(RenderVideoProjectCaptionedVideo::class)->handle($videoProject))
         ->toThrow(RuntimeException::class, 'FFmpeg did not create a usable captioned video.');
+
+    $videoProject->refresh();
+    expect($videoProject->render_status)->toBe(VideoRenderStatus::Failed)
+        ->and($videoProject->render_error)->toBe(RenderVideoProjectCaptionedVideo::FAILURE_MESSAGE);
+});
+
+test('records a failure when ASS generation fails before FFmpeg starts', function () {
+    Storage::fake('local');
+    Storage::disk('local')->put('video-projects/source.mp4', 'source-video');
+    Process::preventStrayProcesses();
+
+    $videoProject = createVideoProjectForCaptionRendering();
+
+    mock(GenerateVideoProjectAssFile::class)
+        ->shouldReceive('handle')
+        ->once()
+        ->andThrow(new RuntimeException('ASS generation failed.'));
+
+    expect(fn () => app(RenderVideoProjectCaptionedVideo::class)->handle($videoProject))
+        ->toThrow(RuntimeException::class, 'ASS generation failed.');
+
+    $videoProject->refresh();
+    expect($videoProject->render_status)->toBe(VideoRenderStatus::Failed)
+        ->and($videoProject->render_error)->toBe(RenderVideoProjectCaptionedVideo::FAILURE_MESSAGE);
+
+    Process::assertNothingRan();
 });
 
 function createVideoProjectForCaptionRendering(): VideoProject

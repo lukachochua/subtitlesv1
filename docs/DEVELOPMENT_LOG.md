@@ -3457,3 +3457,45 @@ The database can now persist the minimum render lifecycle while existing project
 ### Next
 
 Add model casts and tested pending, processing, completed, and failed transitions, then inspect source-versus-export quality characteristics before proposing user choices.
+
+## 2026-08-23 — Phase 12.7b: Render lifecycle behavior
+
+### Goal
+
+Make the approved render-status fields meaningful throughout one synchronous export attempt.
+
+### Changes
+
+- Added the string-backed `VideoRenderStatus` enum for pending, processing, completed, and failed states.
+- Added enum and datetime casts plus render lifecycle fields to `VideoProject`.
+- Made each export record pending and processing before media work, completed with a timestamp after finalization, or failed with a safe application message.
+- Extended failure handling to include ASS-generation failures as well as FFmpeg and file-finalization failures.
+- Reused the action's safe failure message in the browser controller.
+- Added model-cast, successful-render, FFmpeg-failure, unusable-output, and pre-FFmpeg failure coverage.
+
+### Decisions
+
+- Keep pending as an explicit, short-lived synchronous transition so the same state model remains usable if rendering later moves to a queue.
+- Clear the previous safe error when a new attempt begins.
+- Preserve an older completed MP4 and its `rendered_at` value when a re-export fails.
+- Do not persist raw FFmpeg diagnostics, output paths, progress, attempts, or job identifiers.
+
+### Verification
+
+- The focused render-action, render-controller, and model suites pass: 13 tests with 48 assertions.
+- The complete Laravel suite passes: 212 tests with 766 assertions.
+- Laravel Pint completes successfully.
+- Browser display of the persisted status has not yet been implemented or manually verified.
+
+### Result
+
+Every application render attempt now leaves a durable, typed success or failure state while retaining a previously usable export on failure.
+
+### Problems / Notes
+
+- Because rendering remains synchronous, pending and processing are normally transient and are not yet visible after the redirect.
+- A queue and progress reporting remain postponed until representative long-video behavior demonstrates the need.
+
+### Next
+
+Expose the persisted lifecycle and last successful render time on the project page, then inspect source-versus-export quality before proposing quality presets.

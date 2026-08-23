@@ -1,6 +1,6 @@
 # Current
 
-- Add model casts and tested render lifecycle transitions for the new status fields.
+- Expose the persisted render lifecycle on the project page without introducing a queue or progress framework.
 
 # Next
 
@@ -128,6 +128,7 @@
 - Phase 12.5: Completed persisted-style-to-ASS mapping through the Phase 12.2 conversion boundary.
 - Phase 12.6: Added a project-page Export action, inline feedback, export availability, and private MP4 download.
 - Phase 12.7a: Added reversible nullable render status, safe error, and successful-render timestamp storage.
+- Phase 12.7b: Added enum-backed model state and tested render-action lifecycle transitions.
 - Caption position UI: Moved the vertical slider directly below the video preview.
 - Caption editor UI: Grouped start/end timing and moved split/merge into a compact per-cue actions menu.
 

@@ -658,3 +658,41 @@ One existing project can now be inspected through application code with `php art
 ### Next
 
 Run the command for one existing project and verify that its real ffprobe duration is persisted correctly.
+
+## 2026-08-23 — Step 3.4d
+
+### Goal
+
+Make the persisted inspection duration visible on the existing project page without triggering inspection from the browser.
+
+### Changes
+
+- Added nullable `duration_ms` to the project page's approved Inertia props and TypeScript interface.
+- Displayed inspected duration in seconds with millisecond precision.
+- Displayed `Not inspected` when duration remains null.
+- Expanded the existing metadata grid from two to three responsive columns.
+- Extended project-page feature coverage for both known and null duration values.
+
+### Decisions
+
+- Display the persisted value as seconds with three decimal places so the UI does not hide the stored millisecond precision.
+- Keep inspection manual and separate from page rendering in this step.
+
+### Verification
+
+- Three focused project-page tests pass with 22 assertions.
+- Prettier, ESLint, and Vue TypeScript checks pass.
+- The complete automated verification results are recorded in the checkpoint for this step.
+- The known-duration and `Not inspected` states have not yet been manually verified in a browser.
+
+### Result
+
+The project page now communicates whether media inspection has occurred and displays the persisted overall duration when available.
+
+### Problems / Notes
+
+- Real application-level inspection still requires running the Artisan command against an existing project.
+
+### Next
+
+Run the command against one real upload, refresh its project page, and verify the displayed duration matches the command output.

@@ -16,6 +16,7 @@ class ShowVideoProjectController extends Controller
                 'original_filename',
                 'mime_type',
                 'size_bytes',
+                'duration_ms',
             ]),
         ]);
     }

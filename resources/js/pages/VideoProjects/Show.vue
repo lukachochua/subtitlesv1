@@ -8,6 +8,7 @@ interface VideoProject {
     original_filename: string;
     mime_type: string;
     size_bytes: number;
+    duration_ms: number | null;
 }
 
 const props = defineProps<{
@@ -20,6 +21,11 @@ const formattedSize = new Intl.NumberFormat('en', {
     unitDisplay: 'short',
     maximumFractionDigits: 2,
 }).format(props.videoProject.size_bytes / 1_000_000);
+
+const formattedDuration =
+    props.videoProject.duration_ms === null
+        ? 'Not inspected'
+        : `${(props.videoProject.duration_ms / 1_000).toFixed(3)} seconds`;
 </script>
 
 <template>
@@ -58,7 +64,7 @@ const formattedSize = new Intl.NumberFormat('en', {
                     Your browser does not support HTML video playback.
                 </video>
 
-                <dl class="mt-6 grid gap-5 sm:grid-cols-2">
+                <dl class="mt-6 grid gap-5 sm:grid-cols-3">
                     <div class="flex flex-col gap-1">
                         <dt
                             class="text-sm font-medium text-stone-500 dark:text-stone-400"
@@ -75,6 +81,15 @@ const formattedSize = new Intl.NumberFormat('en', {
                             File size
                         </dt>
                         <dd>{{ formattedSize }}</dd>
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <dt
+                            class="text-sm font-medium text-stone-500 dark:text-stone-400"
+                        >
+                            Duration
+                        </dt>
+                        <dd>{{ formattedDuration }}</dd>
                     </div>
                 </dl>
             </section>

@@ -1,10 +1,10 @@
 # Current
 
-- Manually run `video-projects:inspect` against one real uploaded project and verify its persisted duration.
+- Manually run `video-projects:inspect` against one real upload and verify the project page displays the persisted duration.
 
 # Next
 
-- Display the persisted duration on the project page after real inspection succeeds.
+- Phase 4.1: Propose the minimal media-processing boundary for extracting one ASR-ready audio file.
 
 # Later
 
@@ -43,6 +43,7 @@
 - Phase 3.4a: Added nullable integer-millisecond duration storage and model support without altering existing rows.
 - Phase 3.4b: Added and tested a single-purpose action that validates ffprobe output and persists duration.
 - Phase 3.4c: Added a tested Artisan command for inspecting one `VideoProject` by ID.
+- Phase 3.4d: Displayed persisted duration, including an explicit uninspected state, on the project page.
 
 # Rejected / Out of Scope
 

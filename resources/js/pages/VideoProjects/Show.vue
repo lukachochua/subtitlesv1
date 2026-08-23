@@ -5,6 +5,7 @@ import type { CaptionCue } from '@/lib/caption-cues';
 import { findActiveCaptionCue } from '@/lib/caption-cues';
 import {
     captionFontKeyFromFamily,
+    findCaptionStylePresetKey,
     captionStyleConfigurationToBrowserStyle,
     captionStyleToCss,
     captionVerticalPositionToCss,
@@ -12,14 +13,13 @@ import {
     CAPTION_FONT_SIZE_MAX_PX,
     CAPTION_FONT_SIZE_MIN_PX,
     CAPTION_OUTLINE_WIDTH_MAX_PX,
+    CAPTION_STYLE_PRESETS,
     CAPTION_TEXT_ALIGNMENT_OPTIONS,
-    CLEAN_CAPTION_STYLE_PRESET,
     DEFAULT_CAPTION_STYLE,
     normalizeCaptionBackgroundOpacityPercent,
     normalizeCaptionFontSize,
     normalizeCaptionOutlineWidth,
     normalizeCaptionVerticalPositionPercent,
-    SOCIAL_CAPTION_STYLE_PRESET,
 } from '@/lib/caption-style';
 import type { CaptionStyleConfiguration } from '@/lib/caption-style';
 import { home } from '@/routes';
@@ -222,6 +222,10 @@ const applyCaptionStyleConfiguration = (
     captionStyleForm.clearErrors();
 };
 
+const selectedCaptionStylePresetKey = computed(() =>
+    findCaptionStylePresetKey(currentCaptionStyleConfiguration()),
+);
+
 const saveCaptionStyle = (): void => {
     captionStyleForm
         .transform(() => currentCaptionStyleConfiguration())
@@ -412,41 +416,59 @@ const saveCaptionStyle = (): void => {
                             and try again.
                         </p>
                         <div>
-                            <p
-                                class="text-sm font-medium text-stone-700 dark:text-stone-200"
+                            <div
+                                class="flex items-center justify-between gap-3"
                             >
-                                Presets
-                            </p>
-                            <div class="mt-2 flex flex-wrap items-center gap-3">
-                                <button
-                                    type="button"
-                                    class="rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm font-semibold text-stone-800 hover:bg-stone-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 dark:border-stone-700 dark:bg-stone-950 dark:text-stone-100 dark:hover:bg-stone-800 dark:focus-visible:ring-red-400"
-                                    @click="
-                                        applyCaptionStyleConfiguration(
-                                            CLEAN_CAPTION_STYLE_PRESET,
-                                        )
-                                    "
+                                <p
+                                    class="text-sm font-medium text-stone-700 dark:text-stone-200"
                                 >
-                                    Clean
-                                </button>
-                                <button
-                                    type="button"
-                                    class="rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm font-semibold text-stone-800 hover:bg-stone-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 dark:border-stone-700 dark:bg-stone-950 dark:text-stone-100 dark:hover:bg-stone-800 dark:focus-visible:ring-red-400"
-                                    @click="
-                                        applyCaptionStyleConfiguration(
-                                            SOCIAL_CAPTION_STYLE_PRESET,
-                                        )
-                                    "
-                                >
-                                    Social
-                                </button>
+                                    Presets
+                                </p>
                                 <span
-                                    class="text-xs text-stone-500 dark:text-stone-400"
+                                    class="text-xs font-medium text-stone-500 dark:text-stone-400"
                                 >
-                                    Applies to the preview; use Save style to
-                                    keep it.
+                                    {{
+                                        selectedCaptionStylePresetKey === null
+                                            ? 'Custom'
+                                            : CAPTION_STYLE_PRESETS.find(
+                                                  (preset) =>
+                                                      preset.key ===
+                                                      selectedCaptionStylePresetKey,
+                                              )?.label
+                                    }}
                                 </span>
                             </div>
+                            <div class="mt-2 flex flex-wrap gap-2">
+                                <button
+                                    v-for="preset in CAPTION_STYLE_PRESETS"
+                                    :key="preset.key"
+                                    type="button"
+                                    :aria-pressed="
+                                        selectedCaptionStylePresetKey ===
+                                        preset.key
+                                    "
+                                    class="rounded-lg border px-3 py-2 text-sm font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 dark:focus-visible:ring-red-400"
+                                    :class="
+                                        selectedCaptionStylePresetKey ===
+                                        preset.key
+                                            ? 'border-red-700 bg-red-700 text-white dark:border-red-500 dark:bg-red-600'
+                                            : 'border-stone-300 bg-white text-stone-800 hover:bg-stone-100 dark:border-stone-700 dark:bg-stone-950 dark:text-stone-100 dark:hover:bg-stone-800'
+                                    "
+                                    @click="
+                                        applyCaptionStyleConfiguration(
+                                            preset.configuration,
+                                        )
+                                    "
+                                >
+                                    {{ preset.label }}
+                                </button>
+                            </div>
+                            <p
+                                class="mt-2 text-xs text-stone-500 dark:text-stone-400"
+                            >
+                                Applies to the preview; use Save style to keep
+                                it.
+                            </p>
                         </div>
                         <div>
                             <label

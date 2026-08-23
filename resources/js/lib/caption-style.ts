@@ -2,6 +2,7 @@ import type { CSSProperties } from 'vue';
 
 export type CaptionTextAlignment = 'left' | 'center' | 'right';
 export type CaptionFont = 'georgian_sans' | 'system_sans' | 'georgian_serif';
+export type CaptionStylePresetKey = 'clean' | 'social' | 'news' | 'minimal';
 
 export interface CaptionStyleConfiguration {
     font: CaptionFont;
@@ -103,6 +104,75 @@ export const SOCIAL_CAPTION_STYLE_PRESET: Readonly<CaptionStyleConfiguration> =
         outline_width_px: 2,
         shadow: true,
     });
+
+export const NEWS_CAPTION_STYLE_PRESET: Readonly<CaptionStyleConfiguration> =
+    Object.freeze({
+        font: 'georgian_sans',
+        font_size_px: 32,
+        bold: true,
+        italic: false,
+        text_color: '#ffffff',
+        background_color: '#991b1b',
+        background_opacity_percent: 90,
+        text_alignment: 'left',
+        vertical_position_percent: 92,
+        outline_color: '#000000',
+        outline_width_px: 0,
+        shadow: false,
+    });
+
+export const MINIMAL_CAPTION_STYLE_PRESET: Readonly<CaptionStyleConfiguration> =
+    Object.freeze({
+        font: 'system_sans',
+        font_size_px: 24,
+        bold: false,
+        italic: false,
+        text_color: '#ffffff',
+        background_color: '#000000',
+        background_opacity_percent: 0,
+        text_alignment: 'center',
+        vertical_position_percent: 94,
+        outline_color: '#000000',
+        outline_width_px: 1,
+        shadow: true,
+    });
+
+export const CAPTION_STYLE_PRESETS: ReadonlyArray<{
+    key: CaptionStylePresetKey;
+    label: string;
+    configuration: Readonly<CaptionStyleConfiguration>;
+}> = Object.freeze([
+    {
+        key: 'clean',
+        label: 'Clean',
+        configuration: CLEAN_CAPTION_STYLE_PRESET,
+    },
+    {
+        key: 'social',
+        label: 'Social',
+        configuration: SOCIAL_CAPTION_STYLE_PRESET,
+    },
+    {
+        key: 'news',
+        label: 'News',
+        configuration: NEWS_CAPTION_STYLE_PRESET,
+    },
+    {
+        key: 'minimal',
+        label: 'Minimal',
+        configuration: MINIMAL_CAPTION_STYLE_PRESET,
+    },
+]);
+
+export const findCaptionStylePresetKey = (
+    configuration: CaptionStyleConfiguration,
+): CaptionStylePresetKey | null =>
+    CAPTION_STYLE_PRESETS.find((preset) =>
+        Object.entries(preset.configuration).every(
+            ([key, value]) =>
+                configuration[key as keyof CaptionStyleConfiguration] === value,
+        ),
+    )?.key ?? null;
 
 export const normalizeCaptionFontSize = (fontSizePx: number): number =>
     Number.isFinite(fontSizePx)

@@ -3167,3 +3167,47 @@ The editor now offers Clean and Social starting points, both previewable immedia
 ### Next
 
 Compare Clean and Social on project 5, then add one News preset if Social is visually acceptable.
+
+## 2026-08-23 — Phase 11.3–11.4: Complete caption preset set
+
+### Goal
+
+Complete the planned V1 preset set and make the currently matching preset visible in the editor.
+
+### Changes
+
+- Added a News preset with bold Georgian-aware sans text, an opaque red background, left alignment, and lower placement.
+- Added a Minimal preset with smaller regular text, no visible background, a modest outline, and shadow.
+- Consolidated Clean, Social, News, and Minimal into one typed preset catalog.
+- Rendered preset controls from the catalog and added a selected visual state with `aria-pressed` semantics.
+- Added automatic Custom status when any live style value no longer exactly matches a preset.
+- Added frontend tests for the complete catalog, distinct News and Minimal characteristics, preset matching, and Custom detection.
+
+### Decisions
+
+- Use exact complete-configuration matching for selection so the UI describes the actual live style rather than merely remembering the last clicked button.
+- Introduce the small shared catalog now that four presets need identical labels, keys, configurations, and controls.
+- Keep all preset values inside the already validated and persistable style capabilities so future renderer evaluation has a finite mapping target.
+
+### Verification
+
+- The active-cue frontend suite passes: 8 tests.
+- The caption-style frontend suite passes: 18 tests.
+- All 176 Laravel tests pass with 640 assertions.
+- Vue TypeScript checking completed with no errors.
+- ESLint completed with no errors.
+- The production frontend build completed successfully.
+- Real-video appearance and selected/Custom interaction have not yet been manually verified.
+
+### Result
+
+Phase 11 now provides all four planned reusable presets, immediate selection feedback, Custom detection, and explicit persistence through Save style.
+
+### Problems / Notes
+
+- Preset values are initial V1 choices and can be tuned after real-footage review without changing the configuration architecture.
+- Final export does not yet map or render these settings.
+
+### Next
+
+Manually review all presets on project 5, then evaluate ASS/libass against the actual cue and style requirements before implementing export.

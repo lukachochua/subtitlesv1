@@ -3,13 +3,17 @@ import test from 'node:test';
 
 import {
     captionFontKeyFromFamily,
+    findCaptionStylePresetKey,
     captionStyleToCss,
     captionStyleConfigurationToBrowserStyle,
     captionVerticalPositionToCss,
     CAPTION_FONT_OPTIONS,
     CAPTION_TEXT_ALIGNMENT_OPTIONS,
+    CAPTION_STYLE_PRESETS,
     CLEAN_CAPTION_STYLE_PRESET,
     DEFAULT_CAPTION_STYLE,
+    MINIMAL_CAPTION_STYLE_PRESET,
+    NEWS_CAPTION_STYLE_PRESET,
     normalizeCaptionBackgroundOpacityPercent,
     normalizeCaptionFontSize,
     normalizeCaptionOutlineWidth,
@@ -58,6 +62,40 @@ test('defines a complete, distinct Social caption style preset', () => {
     assert.notDeepEqual(
         SOCIAL_CAPTION_STYLE_PRESET,
         CLEAN_CAPTION_STYLE_PRESET,
+    );
+});
+
+test('defines all planned caption style presets', () => {
+    assert.deepEqual(
+        CAPTION_STYLE_PRESETS.map(({ key, label }) => ({ key, label })),
+        [
+            { key: 'clean', label: 'Clean' },
+            { key: 'social', label: 'Social' },
+            { key: 'news', label: 'News' },
+            { key: 'minimal', label: 'Minimal' },
+        ],
+    );
+
+    assert.equal(NEWS_CAPTION_STYLE_PRESET.background_color, '#991b1b');
+    assert.equal(NEWS_CAPTION_STYLE_PRESET.text_alignment, 'left');
+    assert.equal(MINIMAL_CAPTION_STYLE_PRESET.bold, false);
+    assert.equal(MINIMAL_CAPTION_STYLE_PRESET.background_opacity_percent, 0);
+});
+
+test('identifies a selected preset and treats adjusted settings as custom', () => {
+    for (const preset of CAPTION_STYLE_PRESETS) {
+        assert.equal(
+            findCaptionStylePresetKey(preset.configuration),
+            preset.key,
+        );
+    }
+
+    assert.equal(
+        findCaptionStylePresetKey({
+            ...SOCIAL_CAPTION_STYLE_PRESET,
+            font_size_px: 41,
+        }),
+        null,
     );
 });
 

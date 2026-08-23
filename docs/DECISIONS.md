@@ -180,11 +180,11 @@ Integer milliseconds avoid floating-point comparison behavior, retain sufficient
 
 ### Context
 
-The first native NVIDIA NeMo Georgian FastConformer result returned floating-point seconds for words, characters, and segments. Its 17 word intervals were ordered and had positive duration, but the final word ended at `13.92` seconds while ffprobe measured the extracted audio as `13.885563` seconds. Downstream cue generation and editing need deterministic comparisons against media duration without depending on provider-specific floating-point values.
+The first native NVIDIA NeMo Georgian FastConformer result returned floating-point seconds for words, characters, and segments. Its 17 word intervals were ordered and had positive duration. The extracted WAV ends at `13.885563` seconds, the final ASR word ends at `13.92` seconds, and the source video ends at `14.067` seconds. Downstream caption timing must use the source video as its playback boundary without depending on provider-specific floating-point values.
 
 ### Decision
 
-Represent normalized ASR word boundaries as integer `start_ms` and `end_ms` values. Convert provider seconds by multiplying by 1,000 and rounding to the nearest integer. Require ordered words with `start_ms >= 0` and `end_ms > start_ms`. When a provider boundary exceeds the known audio duration only because of timestamp granularity, clamp it to `duration_ms`; otherwise treat invalid ordering or duration as conversion failure. Preserve the original provider response unchanged alongside normalized data.
+Represent normalized ASR word boundaries as integer `start_ms` and `end_ms` values. Convert provider seconds by multiplying by 1,000 and rounding to the nearest integer. Require ordered words with `start_ms >= 0` and `end_ms > start_ms`. Bound caption-alignment timestamps by the known source-video `duration_ms`; a slightly shorter extracted audio stream must not truncate otherwise valid captions. Preserve the original provider response unchanged alongside normalized data.
 
 Initially retain punctuation as part of the recognized word text. Do not add speaker or confidence fields until a real provider result supplies meaningful values.
 
@@ -196,7 +196,7 @@ Integer milliseconds match the existing video-duration representation and are pr
 
 - Provider adapters must convert and validate timestamps before downstream code consumes them.
 - The known media duration is the upper bound for normalized word timestamps.
-- Small model-boundary overruns, such as the observed 34 milliseconds, can be normalized deterministically.
+- A small provider boundary overrun beyond the source video can be normalized deterministically within the separately approved tolerance.
 - Cue boundary inclusivity, overlap policy, and cue-specific validation remain separate decisions for the cue-generation and editing phases.
 - NeMo token, character, and segment timestamps remain available in raw experimental output but are not part of the first internal word representation.
 
@@ -235,7 +235,7 @@ An immutable value object makes the core word invariants explicit and independen
 
 ### Context
 
-The preserved NeMo result exposes words at `timestamp.word`, with text plus floating-point `start` and `end` seconds. Its timestamp grid advances in 80-millisecond increments, and its final word ends 34 milliseconds beyond the ffprobe-derived audio duration. Conversion must tolerate model granularity without silently repairing materially invalid provider data. The application currently uses single-purpose actions for media operations and has no justified generic ASR-provider framework.
+The preserved NeMo result exposes words at `timestamp.word`, with text plus floating-point `start` and `end` seconds. Its timestamp grid advances in 80-millisecond increments. The final word is slightly beyond the extracted WAV duration but remains within the source-video duration used for browser playback. Conversion still needs a narrow defensive tolerance for a provider boundary that genuinely exceeds the video duration, without silently repairing materially invalid data. The application currently uses single-purpose actions for media operations and has no justified generic ASR-provider framework.
 
 ### Decision
 
@@ -253,7 +253,7 @@ The converter will:
 - Reject negative boundaries, reversed intervals, larger duration overruns, malformed structures, and invalid sequence ordering.
 - Construct `TranscriptionWord` objects so their local invariants remain enforced in one place.
 
-The 100-millisecond tolerance is a deliberate upper bound slightly larger than one observed 80-millisecond NeMo timestamp frame. It is not a general correction allowance and must not grow automatically for longer media.
+The 100-millisecond tolerance is a deliberate upper bound slightly larger than one observed 80-millisecond NeMo timestamp frame. It is defensive rather than exercised by project 4's video boundary, is not a general correction allowance, and must not grow automatically for longer media.
 
 ### Reason
 
@@ -266,6 +266,40 @@ A provider-specific action is the smallest boundary that isolates NeMo's respons
 - A different ASR provider may receive its own small converter after real output exists; no shared provider interface is justified yet.
 - Cue generation must later decide how overlapping word alignment contributes to non-overlapping caption cues.
 - The tolerance should change only if further real NeMo output demonstrates that one model frame is insufficient.
+
+## Decision: Represent one generated caption cue as an immutable value object
+
+### Context
+
+Automatic cue generation needs a provider-independent output distinct from timestamped ASR words. A cue groups one or more words into the text and timing that will eventually appear over the video. Persistence, editing, styling, and grouping rules are not yet designed, but the minimum cue fields and local invariants are already required to implement the first deterministic grouping algorithm.
+
+### Decision
+
+Represent one generated cue with an immutable `App\ValueObjects\CaptionCue` containing exactly:
+
+```text
+order: int
+text: string
+startMs: int
+endMs: int
+```
+
+Use one-based order values. The object enforces `order >= 1`, non-empty text, `startMs >= 0`, and `endMs > startMs`.
+
+The future cue generator remains responsible for collection-level behavior: consecutive order values, source-video duration bounds, cue overlap policy, word grouping, punctuation spacing, and any maximum text or duration rules.
+
+Do not make the cue an Eloquent model or add style, editing, provider, confidence, or speaker fields yet.
+
+### Reason
+
+The value object mirrors the established immutable `TranscriptionWord` boundary and makes the smallest cue independently valid without prematurely designing storage or editing. One-based order matches the human-facing cue table and subtitle conventions.
+
+### Consequences
+
+- Cue-generation code must return valid `CaptionCue` objects in deterministic order.
+- The object can remain unchanged while grouping rules are iterated against real Georgian speech.
+- Persistence and editable cue identity will require a separate schema decision when the editor needs saved cues.
+- Styling remains project or cue presentation data and is not part of this first cue representation.
 ## Decision: Isolate ffprobe duration inspection in one application action
 
 ### Context

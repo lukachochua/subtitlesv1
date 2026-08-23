@@ -1,11 +1,11 @@
 # Current
 
-- Propose the smallest development-only way to inspect the ordered normalized words for one `VideoProject`.
+- Propose the first deterministic Georgian word-to-cue grouping rules using the inspected project 4 sequence.
 
 # Next
 
-- Inspect the normalized words before designing cue generation.
-- Define the minimum caption-cue representation after inspecting the real normalized sequence.
+- Propose the first deterministic word-to-cue grouping rules.
+- Implement the approved first cue-generation action with focused tests.
 
 # Later
 
@@ -67,6 +67,8 @@
 - Phase 6.3b: Implemented and unit-tested strict NeMo word conversion.
 - Phase 6.4: Added a representative NeMo JSON fixture and verified conversion independently of private media.
 - Phase 6: Established and tested a provider-independent timestamped-word format plus NeMo conversion.
+- Phase 7.1: Added and verified a read-only command that displays one project's normalized NeMo words.
+- Phase 7.3a: Implemented and unit-tested the minimum immutable `CaptionCue` representation.
 
 # Rejected / Out of Scope
 

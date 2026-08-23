@@ -109,7 +109,7 @@ class ConvertNemoTranscriptionWords
 
         if ($milliseconds - $durationMs > self::MAXIMUM_DURATION_OVERRUN_MS) {
             throw new UnexpectedValueException(
-                "NeMo word {$boundary} at index {$index} exceeds the audio duration.",
+                "NeMo word {$boundary} at index {$index} exceeds the media duration.",
             );
         }
 

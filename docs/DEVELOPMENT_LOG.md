@@ -1091,7 +1091,7 @@ Test NVIDIA's Georgian FastConformer through its native NeMo runtime and inspect
 - Initial model download/load took `68.662` seconds; transcribing the `13.885563`-second project 4 WAV took `1.038` seconds on CPU.
 - NeMo returned token timestep, character, word, and segment timestamp structures.
 - All 17 word entries have positive duration and are ordered without overlap.
-- The final timestamp ends at `13.92` seconds, approximately 34 milliseconds beyond ffprobe's audio duration; future normalization must account for this if the model is selected.
+- The final timestamp ends at `13.92` seconds, approximately 34 milliseconds beyond the extracted WAV duration but within the source video's `14.067`-second playback duration.
 - The transcript is `ერთი ორი, სამი, ოთხი, ხუთი ექვსი შვიდი რვა ცხრა ათი გამარჯობა გაგიმარჯოს, როგორ ხარმე. შელო მოხარმეც კარგა.`
 - Script syntax compilation passed.
 - Manual comparison found that the intended final phrase was `როგორ ხარ შენ? კარგად ვარ, შენ?`; the model returned `როგორ ხარმე. შელო მოხარმეც კარგა.`. The preceding counting and greeting were substantially more accurate.
@@ -1125,15 +1125,15 @@ Choose a deterministic internal timestamp representation using the first real Ne
 ### Decisions
 
 - Normalize provider word boundaries to rounded integer milliseconds named `start_ms` and `end_ms`.
-- Require ordered, positive-duration intervals bounded by the known audio duration.
-- Clamp only timestamp-granularity overruns to the known duration; reject other invalid timing during conversion.
+- Require ordered, positive-duration intervals bounded by the known source-video duration.
+- Clamp only small timestamp-granularity overruns beyond the video duration; reject other invalid timing during conversion.
 - Preserve provider output unchanged and initially retain punctuation within word text.
 - Defer confidence and speaker fields until real provider data justifies them.
 
 ### Verification
 
 - Checked the rules against project 4's 17 NeMo word timestamps: all are ordered and positive-duration.
-- The observed final boundary converts to `13,920` milliseconds and therefore demonstrates the need to clamp against the measured `13,886`-millisecond audio duration.
+- The observed final boundary converts to `13,920` milliseconds and remains valid against the source video's persisted `14,067`-millisecond duration; the shorter extracted WAV must not truncate it.
 - Documentation whitespace validation passed.
 - No automated application test was required because this step records a design decision only.
 
@@ -1250,7 +1250,7 @@ Define the smallest provider conversion boundary and resolve timestamp tolerance
 
 ### Verification
 
-- Checked the proposed tolerance against project 4: the 34-millisecond final overrun is accepted and clamps from `13,920` to `13,886` milliseconds.
+- Confirmed the 100-millisecond tolerance is slightly larger than one 80-millisecond NeMo timestamp frame. Project 4 does not exercise the clamp when correctly bounded by its source-video duration.
 - Checked the ordering rules against all 17 observed NeMo word entries; their starts and ends are nondecreasing.
 - Confirmed that the converter can remain independent of model execution and database persistence.
 - Documentation whitespace validation passed.
@@ -1291,7 +1291,7 @@ Implement the approved NeMo word-conversion contract without adding file access,
 ### Verification
 
 - The converter and value-object unit suites pass: 26 tests and 42 assertions.
-- Tests cover rounding, punctuation, the observed 34-millisecond clamp, permitted word overlap, non-positive duration, missing and malformed lists, invalid entries, non-finite and negative boundaries, reversed intervals, excessive overruns, and decreasing start/end sequences.
+- Tests cover rounding, punctuation, a synthetic 34-millisecond clamp, permitted word overlap, non-positive duration, missing and malformed lists, invalid entries, non-finite and negative boundaries, reversed intervals, excessive overruns, and decreasing start/end sequences.
 - Pint completed successfully for changed PHP files.
 - PHPStan completed with zero errors.
 - Documentation whitespace validation passed.
@@ -1347,3 +1347,84 @@ Phase 6 is complete: downstream code can consume validated Georgian timestamped 
 ### Next
 
 Begin Phase 7.1 by proposing the smallest development-only path for displaying or debugging the ordered normalized word sequence from one real project result.
+
+## 2026-08-23 — Step 7.1
+
+### Goal
+
+Display the ordered normalized words from one real `VideoProject` result without persisting data or generating caption cues.
+
+### Changes
+
+- Added the read-only `video-projects:inspect-transcription {videoProject}` Artisan command.
+- The command resolves a positive project ID, requires persisted video duration, reads only the fixed private NeMo result path, decodes JSON strictly, converts it through `ConvertNemoTranscriptionWords`, and prints order, text, start milliseconds, and end milliseconds.
+- Added command tests for successful table output, missing duration, missing result, invalid JSON, failed word conversion, missing project, and invalid project ID.
+- Documented the command in the README.
+- Corrected the timestamp boundary documentation to distinguish extracted WAV duration from the source-video playback duration.
+
+### Decisions
+
+- Use the persisted source-video `duration_ms` as the caption-alignment upper bound; do not truncate captions merely because the extracted audio stream is slightly shorter.
+- Keep this command read-only and development-facing. It does not accept arbitrary paths, run NeMo, save normalized words, or generate cues.
+- Retain the 100-millisecond clamp only as a defensive allowance for a genuine provider overrun beyond the video boundary.
+
+### Verification
+
+- The command feature suite passes: 7 tests and 21 assertions.
+- The command, converter, and value-object suites pass together: 34 tests and 63 assertions.
+- Pint completed successfully for changed PHP files.
+- PHPStan completed with zero errors.
+- Running `php artisan video-projects:inspect-transcription 4` succeeded against the real private result and displayed all 17 ordered normalized words.
+- The real final word ends at `13,920` milliseconds, inside project 4's persisted `14,067`-millisecond video duration, so no clamp was applied.
+
+### Result
+
+The real project 4 NeMo output is now inspectable as validated internal words through a safe, read-only application command.
+
+### Problems / Notes
+
+- The displayed final phrase still reflects the known ASR error and is not treated as ground-truth text.
+- Normalized words remain transient and are not stored or shown in the browser.
+
+### Next
+
+Propose the minimum caption-cue representation using the inspected real word sequence before implementing word grouping.
+
+## 2026-08-23 — Step 7.3a
+
+### Goal
+
+Implement the minimum provider-independent representation for one generated caption cue without introducing grouping, persistence, editing, or styling.
+
+### Changes
+
+- Added immutable `App\ValueObjects\CaptionCue` with `order`, `text`, `startMs`, and `endMs`.
+- Added constructor validation for positive one-based order, non-empty text, non-negative start, and end strictly after start.
+- Added focused Pest unit coverage for valid Georgian cue text, all invalid local values, and readonly behavior.
+
+### Decisions
+
+- Use one-based cue order because it matches human-facing cue tables and subtitle conventions.
+- Keep collection-level ordering, source-video bounds, cue overlap, grouping, and punctuation assembly outside the individual cue.
+- Do not add persistence, editable identity, styling, speaker, confidence, or provider data yet.
+
+### Verification
+
+- The `CaptionCue` suite passes: 10 tests and 21 assertions.
+- The caption-cue and transcription-word value-object suites pass together: 18 tests and 37 assertions.
+- Pint completed successfully for changed PHP files.
+- PHPStan completed with zero errors.
+- Documentation whitespace validation passed.
+
+### Result
+
+The first deterministic cue generator now has a small, tested output type while storage and editor concerns remain deliberately deferred.
+
+### Problems / Notes
+
+- Consecutive cue ordering and overlap cannot be validated by one isolated cue and must be enforced by the generator or a future collection boundary.
+- Cue text assembly for Georgian punctuation is not yet decided.
+
+### Next
+
+Propose the first deterministic word-to-cue grouping rules using the real project 4 word sequence, then implement only the approved algorithm.

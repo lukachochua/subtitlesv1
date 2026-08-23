@@ -74,3 +74,13 @@ The first run downloads the model into the local cache. The output preserves
 the transcript and any native timestamp structures returned by NeMo. The script
 uses CUDA automatically when the active PyTorch installation supports it;
 otherwise, it runs on CPU.
+
+Inspect one project's preserved NeMo result as normalized integer-millisecond
+words without modifying it:
+
+```bash
+php artisan video-projects:inspect-transcription <project-id>
+```
+
+The project must already have a persisted duration and a private result at
+`video-projects/{id}/transcription.nemo-fastconformer.raw.json`.

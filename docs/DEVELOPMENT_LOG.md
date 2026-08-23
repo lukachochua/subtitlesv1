@@ -1679,3 +1679,45 @@ Projects with a valid private transcription now display generated Georgian capti
 ### Next
 
 Manually inspect project 4's table and timing, then begin Phase 8.1 by reading and displaying the native video's current playback time.
+
+## 2026-08-23 — Step 8.1
+
+### Goal
+
+Read the native video element's current playback time into immediate Vue state and expose it during development without selecting or rendering an active cue.
+
+### Changes
+
+- Added a local Vue `ref` initialized to zero seconds.
+- Added a typed native `timeupdate` handler that copies `HTMLVideoElement.currentTime` into that state.
+- Added a compact playback-time readout beneath the native video with three-decimal precision and tabular numerals.
+- No server round-trip, active-cue computation, overlay, seeking, editing, or dependency was added.
+
+### Decisions
+
+- Keep immediate playback state local to the project page using Vue's built-in `ref`.
+- Retain browser-native `currentTime` in seconds at the video boundary; conversion to integer milliseconds belongs in the future active-cue selector call.
+- Use the standard `timeupdate` event for the first milestone rather than animation frames or a custom player loop.
+
+### Verification
+
+- Prettier formatted the changed Vue page successfully.
+- Vue TypeScript checking completed with no errors.
+- ESLint completed with no errors.
+- The Vite production build completed successfully.
+- The project-page feature suite passes: 5 tests and 34 assertions.
+- The existing optional `fontaine` optimization notice remains informational and was not acted on.
+- Actual playback-time updates and seeking have not yet been manually verified in a browser.
+
+### Result
+
+The Vue project page now owns immediate native playback time and exposes it visibly, establishing the input needed for active-caption selection.
+
+### Problems / Notes
+
+- Browser `timeupdate` frequency is implementation-dependent and is intentionally accepted for this first preview milestone.
+- The readout is temporary development UI and does not yet highlight or display a cue.
+
+### Next
+
+Manually verify playback and seeking updates, then define and test active-cue selection using integer playback milliseconds.

@@ -1,11 +1,11 @@
 # Current
 
-- Manually verify the read-only cue table and its timing against project 4 playback.
+- Manually verify that the development playback-time readout follows project 4 playback and seeking.
 
 # Next
 
-- Manually compare generated cue boundaries with project 4 playback before tuning thresholds.
-- Read native video `currentTime` in Vue and expose it during development.
+- Define and unit-test active-cue selection from current playback milliseconds.
+- Connect the tested active-cue selector to Vue playback state.
 
 # Later
 
@@ -76,6 +76,7 @@
 - Phase 7.5a: Added tested project-page props for transient cues and explicit absent-result state.
 - Phase 7.5b: Displayed generated cues in a typed read-only Vue table with explicit empty states.
 - Phase 7: Converted real timestamped Georgian words into inspectable deterministic caption cues.
+- Phase 8.1: Read and displayed native video playback time in local Vue state.
 
 # Rejected / Out of Scope
 

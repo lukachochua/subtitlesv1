@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
+import { ref } from 'vue';
 import { home } from '@/routes';
 import { media as videoProjectMedia } from '@/routes/video-projects';
 
@@ -37,6 +38,14 @@ const formattedDuration =
 
 const formatCueTime = (milliseconds: number): string =>
     `${(milliseconds / 1_000).toFixed(3)} s`;
+
+const currentTimeSeconds = ref(0);
+
+const updateCurrentTime = (event: Event): void => {
+    currentTimeSeconds.value = (
+        event.currentTarget as HTMLVideoElement
+    ).currentTime;
+};
 </script>
 
 <template>
@@ -71,9 +80,23 @@ const formatCueTime = (milliseconds: number): string =>
                     preload="metadata"
                     :src="videoProjectMedia.url(videoProject.id)"
                     class="mt-6 aspect-video w-full rounded-xl bg-black"
+                    @timeupdate="updateCurrentTime"
                 >
                     Your browser does not support HTML video playback.
                 </video>
+
+                <div
+                    class="mt-3 flex items-center justify-between gap-4 rounded-lg bg-stone-100 px-3 py-2 text-sm dark:bg-stone-950"
+                >
+                    <span
+                        class="font-medium text-stone-600 dark:text-stone-300"
+                    >
+                        Playback time
+                    </span>
+                    <output class="font-mono tabular-nums">
+                        {{ currentTimeSeconds.toFixed(3) }} s
+                    </output>
+                </div>
 
                 <dl class="mt-6 grid gap-5 sm:grid-cols-3">
                     <div class="flex flex-col gap-1">

@@ -478,6 +478,40 @@ A directional operation is unambiguous in a table and preserves the selected cue
 - Merging across silence makes the combined caption visible during the former gap.
 - The last cue cannot be merged because it has no next cue.
 
+## Decision: Start caption styling from one typed browser default
+
+### Context
+
+The browser overlay had a useful but anonymous collection of Tailwind classes. Incremental style controls and eventual ASS rendering need explicit values that can be inspected, tested, and mapped instead of treating visual defaults as incidental markup.
+
+### Decision
+
+Use one typed `DEFAULT_CAPTION_STYLE` for the initial browser preview:
+
+```text
+font family: Arial, Noto Sans Georgian, sans-serif
+font size: 28 px
+font weight: 700
+line height: 1.25
+text: white
+background: black at 75% opacity
+alignment: center
+text shadow: 0 1px 2px black at 90% opacity
+```
+
+Map that representation to Vue inline CSS through one pure function. Keep structural layout such as padding, rounded corners, maximum width, and bottom placement in the overlay markup until their individual style phases establish requirements.
+
+### Reason
+
+Named values create the smallest usable style boundary for live controls without adding persistence, a style model, or a generic theming system prematurely. Explicit Georgian-aware font fallback makes script support visible as a product constraint.
+
+### Consequences
+
+- Browser preview has one inspectable and testable default.
+- Phase 10 controls can change local style state incrementally from this baseline.
+- Persistence remains undecided until useful controls exist and their data shape is proven.
+- Final ASS/libass mapping must be validated separately; CSS values are not assumed to render identically.
+
 ## Decision: Persist editable caption cues separately from raw ASR output
 
 ### Context

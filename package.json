@@ -10,7 +10,7 @@
         "format:check": "prettier --check resources/",
         "lint": "eslint . --fix",
         "lint:check": "eslint .",
-        "test:frontend": "node resources/js/lib/caption-cues.test.ts",
+        "test:frontend": "node resources/js/lib/caption-cues.test.ts && node resources/js/lib/caption-style.test.ts",
         "types:check": "vue-tsc --noEmit"
     },
     "devDependencies": {

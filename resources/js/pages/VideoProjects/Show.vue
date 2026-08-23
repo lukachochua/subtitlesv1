@@ -3,6 +3,7 @@ import { Form, Head, Link } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import type { CaptionCue } from '@/lib/caption-cues';
 import { findActiveCaptionCue } from '@/lib/caption-cues';
+import { captionStyleToCss, DEFAULT_CAPTION_STYLE } from '@/lib/caption-style';
 import { home } from '@/routes';
 import { media as videoProjectMedia } from '@/routes/video-projects';
 import { update as updateCaptionCue } from '@/routes/video-projects/caption-cues';
@@ -47,10 +48,23 @@ const getCueEndMaximum = (cueIndex: number): number | undefined =>
     props.videoProject.duration_ms ??
     undefined;
 
+const getSplitUnavailableReason = (cue: CaptionCue): string | null => {
+    if (cue.text.trim().split(/\s+/u).length < 2) {
+        return 'Add at least two words before splitting this cue.';
+    }
+
+    if (
+        currentTimeMilliseconds.value <= cue.start_ms ||
+        currentTimeMilliseconds.value >= cue.end_ms
+    ) {
+        return 'Pause the playhead inside this cue to split it.';
+    }
+
+    return null;
+};
+
 const canSplitCueAtPlayhead = (cue: CaptionCue): boolean =>
-    currentTimeMilliseconds.value > cue.start_ms &&
-    currentTimeMilliseconds.value < cue.end_ms &&
-    cue.text.trim().split(/\s+/u).length >= 2;
+    getSplitUnavailableReason(cue) === null;
 
 const videoElement = ref<HTMLVideoElement | null>(null);
 const currentTimeSeconds = ref(0);
@@ -127,7 +141,8 @@ const seekToCue = (cue: CaptionCue): void => {
                         class="pointer-events-none absolute inset-x-4 bottom-14 flex justify-center"
                     >
                         <p
-                            class="max-w-[90%] rounded-md bg-black/75 px-3 py-1.5 text-center text-base leading-snug font-semibold wrap-break-word whitespace-pre-wrap text-white [text-shadow:0_1px_2px_rgb(0_0_0_/_0.9)] sm:text-xl"
+                            class="max-w-[90%] rounded-md px-3 py-1.5 wrap-break-word whitespace-pre-wrap"
+                            :style="captionStyleToCss(DEFAULT_CAPTION_STYLE)"
                         >
                             {{ activeCue.text }}
                         </p>
@@ -503,6 +518,7 @@ const seekToCue = (cue: CaptionCue): void => {
                                             :value="currentTimeMilliseconds"
                                         />
                                         <button
+                                            :aria-describedby="`caption-cue-${cue.id}-split-help`"
                                             type="submit"
                                             :disabled="
                                                 processing ||
@@ -517,9 +533,26 @@ const seekToCue = (cue: CaptionCue): void => {
                                             }}
                                         </button>
                                         <p
+                                            :id="`caption-cue-${cue.id}-split-help`"
                                             class="text-xs text-stone-500 dark:text-stone-400"
                                         >
-                                            {{ currentTimeMilliseconds }} ms
+                                            <template
+                                                v-if="
+                                                    getSplitUnavailableReason(
+                                                        cue,
+                                                    )
+                                                "
+                                            >
+                                                {{
+                                                    getSplitUnavailableReason(
+                                                        cue,
+                                                    )
+                                                }}
+                                            </template>
+                                            <template v-else>
+                                                Ready at
+                                                {{ currentTimeMilliseconds }} ms
+                                            </template>
                                         </p>
                                         <p
                                             v-if="errors.split_ms"

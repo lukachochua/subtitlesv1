@@ -1,11 +1,11 @@
 # Current
 
-- Manually verify adjacent cue merging against project 5 playback.
+- Manually verify the split guidance and default caption style against project 5.
 
 # Next
 
-- Begin incremental caption styling with one coherent default style.
 - Add a live font-size control after the default style boundary is established.
+- Add live text-color control after font size.
 
 # Later
 
@@ -96,6 +96,8 @@
 - Phase 9.6: Added transactional playhead-based cue splitting with deterministic text distribution.
 - Phase 9.7: Added transactional merging of a cue with its immediate next cue.
 - Phase 9: Established saved cue correction, seeking, timing edits, invariants, splitting, and merging.
+- Phase 9.6b: Explained disabled split controls directly beside each cue.
+- Phase 10.1: Established and tested one typed default browser caption style.
 
 # Rejected / Out of Scope
 

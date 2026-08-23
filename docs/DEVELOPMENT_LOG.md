@@ -2506,3 +2506,86 @@ Saved cues now support text correction, seeking, timing correction, splitting, a
 ### Next
 
 Manually verify merging on project 5, then begin Phase 10.1 by defining one coherent default caption style before adding user controls.
+
+## 2026-08-23 — Step 9.6b
+
+### Goal
+
+Explain why cue splitting is unavailable instead of presenting an unexplained disabled control.
+
+### Changes
+
+- Added cue-specific split guidance beside the disabled button.
+- Explained when the playhead must move strictly inside the cue.
+- Explained when the cue needs at least two words.
+- Displayed the exact ready split millisecond when all requirements are satisfied.
+- Associated the guidance with the split button for assistive technology.
+
+### Decisions
+
+- Keep the existing safe split rules and improve their visibility rather than weakening boundary validation.
+
+### Verification
+
+- Vue TypeScript checking completed with no errors.
+- ESLint completed with no errors.
+- The Vite production build completed successfully.
+- Actual guidance clarity has not yet been manually verified.
+
+### Result
+
+The cue table now tells the user how to enable splitting and when the current playhead is ready.
+
+### Problems / Notes
+
+- Splitting remains a new operation rather than an exact undo of merge because merge does not preserve the consumed boundary.
+
+### Next
+
+Verify the message while attempting to split the recently merged project 5 cue.
+
+## 2026-08-23 — Step 10.1
+
+### Goal
+
+Establish one coherent caption style as the baseline for incremental controls and eventual render mapping.
+
+### Changes
+
+- Added a typed default caption-style representation.
+- Added a pure conversion from caption-style values to Vue CSS properties.
+- Applied the default to the live browser overlay.
+- Chose a Georgian-aware font fallback, 28 px bold white centered text, translucent black background, and a strong readability shadow.
+- Kept layout structure separate and added no style persistence or controls.
+- Expanded the frontend test command to cover caption cue logic and style behavior.
+
+### Decisions
+
+- Treat the default as explicit product data rather than an anonymous class list.
+- Validate CSS preview and eventual subtitle rendering separately.
+- Defer persistence until incremental controls prove the useful style shape.
+
+### Verification
+
+- The active-cue frontend suite passes: 8 tests.
+- The caption-style frontend suite passes: 2 tests.
+- The complete Pest suite passes: 153 tests and 531 assertions.
+- Vue TypeScript checking completed with no errors.
+- ESLint completed with no errors.
+- The Vite production build completed successfully.
+- The existing optional `fontaine` optimization notice remains informational.
+- Default-style appearance with real Georgian captions has not yet been manually verified.
+
+### Result
+
+Browser captions now render from one typed, tested default style ready for the first live style control.
+
+### Problems / Notes
+
+- The default is browser-local and not persisted.
+- Arial availability and Georgian glyph appearance vary by operating system, with Noto Sans Georgian and system sans-serif as fallbacks.
+- Browser CSS is not yet mapped to ASS/libass.
+
+### Next
+
+Manually inspect the default on landscape and vertical project video, then implement Phase 10.2 live font-size control.

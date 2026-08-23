@@ -69,3 +69,72 @@ The project now has a small documentation foundation describing its baseline, im
 ### Next
 
 Evaluate the existing starter/scaffold code and propose what to retain or remove. Do not remove anything without approval.
+
+## 2026-08-23 — Step 0.3
+
+### Goal
+
+Evaluate the generated Laravel/Vue starter code before removing or replacing any of it.
+
+### Changes
+
+No application files were changed during the evaluation.
+
+### Decisions
+
+- Keep the dormant authentication model, configuration, migration, factory, shared prop, and TypeScript types for now because removing them would create churn without advancing personal V1.
+- Keep the cache, session, queue, Inertia, Wayfinder, and application-provider foundations.
+- Replace only the visible Laravel promotional welcome screen in the minimal shell step.
+
+### Verification
+
+- Traced references between the user model, factory, seeder, auth configuration, shared Inertia props, TypeScript declarations, and combined user/session migration.
+- Confirmed there are no generated dashboard, settings, profile, login, or registration screens to remove.
+- Confirmed the Git baseline is committed and the branch tracks `origin/main`.
+
+### Result
+
+No separate destructive cleanup was justified. The starter is already minimal apart from its visible promotional welcome screen.
+
+### Problems / Notes
+
+- Starter font coverage for Georgian Mkhedruli remains unverified.
+
+### Next
+
+Replace the Laravel promotional page with the minimal Georgian Captioner application shell.
+
+## 2026-08-23 — Step 0.4
+
+### Goal
+
+Establish the minimum visible shell for the Georgian captioning product without adding upload or media behavior.
+
+### Changes
+
+- Replaced the Laravel promotional content in `resources/js/pages/Welcome.vue` with a focused Georgian Captioner introduction.
+- Removed promotional links, Laravel artwork, and the page-level external Inter stylesheet.
+- Preserved the existing root route, Inertia page, TypeScript setup, Tailwind styling, and dark-mode treatment.
+
+### Decisions
+
+- Keep the existing `Welcome` page name and root route until a product need justifies renaming or additional navigation.
+- Describe the next milestone as text rather than displaying a nonfunctional upload control.
+
+### Verification
+
+- The existing home feature test passes.
+- Frontend type checking, lint checking, formatting checking, and the production build pass.
+- Browser display has not yet been manually verified.
+
+### Result
+
+The root page now presents the Georgian Captioner product direction and accurately states that the application foundation is ready.
+
+### Problems / Notes
+
+- Georgian text is present, but its glyph rendering has not yet been manually checked in a browser.
+
+### Next
+
+Propose the minimum domain model for representing one uploaded video. Do not change the database before approval.

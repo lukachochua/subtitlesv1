@@ -77,3 +77,23 @@ An HTML overlay is the smallest approach for responsive editing and avoids trans
 - Vue playback state will eventually select the active cue from the video's current time.
 - Preview styles should be introduced with awareness that final rendering must plausibly reproduce them.
 - ASS/libass remains a likely direction, not yet a validated implementation choice.
+
+## Decision: Retain dormant starter infrastructure during personal V1
+
+### Context
+
+The blank starter includes a user model, authentication configuration and types, database sessions, cache and queue tables, and generated Wayfinder files. Authentication screens and routes are not installed, and none of this infrastructure currently complicates the visible application.
+
+### Decision
+
+Retain the dormant starter infrastructure for now and replace only the visible Laravel promotional page.
+
+### Reason
+
+Removing the user infrastructure would require coordinated changes across a combined user/session migration, model, factory, seeder, configuration, shared props, and frontend types without materially advancing the captioning workflow.
+
+### Consequences
+
+- Personal V1 remains unauthenticated even though dormant authentication foundations exist.
+- Existing database session, cache, and queue configuration stays intact.
+- These files may be reconsidered if they create a concrete maintenance problem or when productization begins.

@@ -1,11 +1,11 @@
 # Current
 
-- Phase 0.3: Evaluate the generated starter code, its references, and whether retaining it helps personal V1. Do not remove anything without approval.
+- Phase 1.1: Propose the minimum domain representation for one uploaded video. Do not change the database before approval.
 
 # Next
 
-- After approved cleanup, establish the minimal Georgian Captioner application shell.
-- Propose the minimum domain representation for one uploaded video before changing the database.
+- After schema approval, create only the video-project migration.
+- Create the corresponding minimal model in a separate step.
 
 # Later
 
@@ -25,6 +25,9 @@
 
 - Phase 0.1: Inspected and recorded the existing repository baseline without changing it.
 - Phase 0.2: Created the documentation foundation.
+- Phase 0.3: Evaluated the starter scaffold and retained dormant infrastructure deliberately.
+- Phase 0.4: Replaced the promotional Laravel screen with the minimal Georgian Captioner shell.
+- Phase 0: Established a documented, deliberately minimal Laravel/Inertia/Vue foundation.
 
 # Rejected / Out of Scope
 

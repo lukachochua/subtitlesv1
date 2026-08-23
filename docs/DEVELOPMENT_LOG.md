@@ -774,3 +774,38 @@ One existing video project can now have its audio extracted through application 
 ### Next
 
 Run the command against one real upload, then inspect the resulting WAV with ffprobe.
+
+## 2026-08-23 — Step 4.3
+
+### Goal
+
+Verify that application-level extraction produces one real, valid audio artifact ready for an ASR experiment.
+
+### Changes
+
+- No application code changed.
+- Recorded the real extraction and media-verification results for video project 3.
+
+### Decisions
+
+- Accept the current mono, 16 kHz, 16-bit PCM WAV output as the initial ASR-ready format.
+- Keep provider-specific format optimization deferred until one real ASR provider is selected and tested.
+
+### Verification
+
+- `video-projects:extract-audio 3` completed successfully and created `video-projects/3/audio.wav`.
+- ffprobe reported `pcm_s16le`, signed 16-bit samples, 16,000 Hz, one channel, WAV format, and a positive duration of `7.825125` seconds.
+- FFmpeg decoded the complete WAV to a null output without reporting an error and returned exit code 0.
+- Listening quality has not been manually reported.
+
+### Result
+
+One real uploaded video now produces a valid, fully decodable audio file suitable for the first Georgian ASR proof of concept. Phase 4 is complete.
+
+### Problems / Notes
+
+- The extracted audio duration should be compared with provider behavior during the first ASR experiment; no issue is currently indicated.
+
+### Next
+
+Research a small number of current Georgian-capable ASR providers and recommend one for the first experiment.

@@ -1,10 +1,11 @@
 # Current
 
-- Run audio extraction against one real uploaded video.
+- Phase 5.1: Research and compare a small number of current Georgian-capable ASR providers.
 
 # Next
 
-- Verify the extracted audio's path, duration, format, and successful decoding.
+- Select one ASR provider for the first real Georgian proof of concept.
+- Complete the selected provider's manual account and credential setup.
 
 # Later
 
@@ -47,6 +48,8 @@
 - Phase 4.1: Chose one single-purpose action as the minimal FFmpeg audio-extraction boundary.
 - Phase 4.2a: Added tested private extraction of mono 16 kHz PCM WAV audio with failed-output cleanup.
 - Phase 4.2b: Added a tested Artisan command for extracting audio from one `VideoProject` by ID.
+- Phase 4.3: Verified a real extracted WAV's codec, sample rate, channel count, duration, and complete decoding.
+- Phase 4: Produced and verified one valid ASR-ready audio file from a real uploaded video.
 
 # Rejected / Out of Scope
 

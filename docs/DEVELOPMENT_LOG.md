@@ -2026,3 +2026,47 @@ Application code can now save a generated cue set exactly once without risking s
 ### Next
 
 Add a small development command that loads and persists generated cues for one explicitly selected video project.
+
+## 2026-08-23 — Step 9.1d
+
+### Goal
+
+Expose the protected generated-cue persistence workflow for one explicitly selected development project.
+
+### Changes
+
+- Added `video-projects:persist-caption-cues {videoProject}`.
+- Validated the project ID and reported missing projects or transcription prerequisites clearly.
+- Composed the existing caption-data loader and protected persistence action without duplicating their logic.
+- Reported the number of successfully saved cues.
+- Added command tests for success, overwrite refusal, missing NeMo output, missing project, and invalid project ID.
+- Documented the command and its non-overwrite behavior in the README.
+- Ran the command once for project 5 and saved eight generated cues.
+
+### Decisions
+
+- Keep cue initialization explicit during the experimental local-ASR phase rather than writing during a normal GET page request.
+- Treat a repeated command as an error so saved corrections remain protected.
+
+### Verification
+
+- Laravel Pint completed successfully.
+- The focused command suite passes: 5 tests and 12 assertions.
+- The complete Pest suite passes: 107 tests and 275 assertions.
+- Artisan lists the command with its expected description.
+- The first real project 5 invocation reported eight saved cues.
+- A second real project 5 invocation failed because saved cues already exist.
+- `git diff --check` completed with no errors.
+
+### Result
+
+Project 5 now has eight durable caption cues initialized from its preserved NeMo transcription, and rerunning generation cannot overwrite them.
+
+### Problems / Notes
+
+- The project page still reads transient NeMo-generated cues instead of the new saved rows.
+- Caption text remains read-only in the browser.
+
+### Next
+
+Make the project page prefer ordered saved cues as its editable source of truth.

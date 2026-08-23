@@ -92,3 +92,12 @@ php artisan video-projects:inspect-transcription <project-id>
 
 The project must already have a persisted duration and a private result at
 `video-projects/{id}/transcription.nemo-fastconformer.raw.json`.
+
+Persist one project's generated cues as its editable caption source:
+
+```bash
+php artisan video-projects:persist-caption-cues <project-id>
+```
+
+This command succeeds only when the project has no saved cues. Repeating it
+fails instead of replacing saved or manually corrected captions.

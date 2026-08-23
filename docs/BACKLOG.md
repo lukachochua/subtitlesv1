@@ -1,11 +1,11 @@
 # Current
 
-- Add a development command that loads and persists generated cues for one project.
+- Read saved cues as the editable source of truth on the project page.
 
 # Next
 
-- Read saved cues as the editable source of truth on the project page.
 - Add validated cue-text update persistence.
+- Add the first cue-text editing control to the table.
 
 # Later
 
@@ -85,6 +85,7 @@
 - Phase 9.1a: Approved persisted cues as the editable source of truth and added the reversible `caption_cues` migration.
 - Phase 9.1b: Added the tested `CaptionCue` Eloquent model and ordered project relationships.
 - Phase 9.1c: Added a transactional generated-cue persistence action that refuses to overwrite saved cues.
+- Phase 9.1d: Added and used a protected command to persist project 5's eight generated cues.
 
 # Rejected / Out of Scope
 

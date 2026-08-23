@@ -368,6 +368,33 @@ One action keeps storage and transformation behavior reusable by console and HTT
 - Missing duration or result files fail explicitly; invalid JSON, word conversion, and cue generation also fail rather than returning incomplete captions.
 - The project-page backend sends `cues: null` only when the fixed private result file is absent. When a result exists, strict loading runs and malformed data remains an error rather than appearing absent.
 - Persistence will require a separate decision and will not silently replace this experimental raw-result boundary.
+
+## Decision: Use half-open intervals for active caption cues
+
+### Context
+
+Browser playback provides a continuously changing `currentTime`, while caption cues have integer millisecond start and end boundaries. Active-cue selection must behave deterministically at exact boundaries, in empty gaps, and when one cue starts exactly as another ends.
+
+### Decision
+
+A cue is active when:
+
+```text
+start_ms <= current_ms < end_ms
+```
+
+Convert browser seconds to integer milliseconds before selection. Return no active cue when the list is empty, before the first cue, after a cue's exclusive end, or within an uncovered gap. When adjacent cues share a boundary, the next cue becomes active at that exact millisecond.
+
+### Reason
+
+Half-open intervals avoid displaying two adjacent cues at the same instant and give each exact boundary one unambiguous result. This matches common time-range handling and the product requirement that captions disappear at their end.
+
+### Consequences
+
+- Cue start is inclusive and cue end is exclusive throughout browser preview logic.
+- Empty timeline regions render no caption.
+- Editing and persistence validation must preserve this interpretation when they are introduced.
+- Final rendering behavior should be compared with this browser rule when export work begins.
 ## Decision: Isolate ffprobe duration inspection in one application action
 
 ### Context

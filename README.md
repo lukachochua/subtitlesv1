@@ -26,6 +26,14 @@ php artisan video-projects:extract-audio <project-id>
 
 The project ID is visible in the uploaded project's page URL. Extracted audio is stored privately and is not browser-accessible.
 
+## Frontend Tests
+
+Run the dependency-free TypeScript tests with Node's built-in test API:
+
+```bash
+npm run test:frontend
+```
+
 ## Local Georgian ASR Experiment
 
 The first ASR proof of concept uses faster-whisper 1.2.1 in an external Python virtual environment. Activate it before running the experiment:

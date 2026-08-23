@@ -1721,3 +1721,46 @@ The Vue project page now owns immediate native playback time and exposes it visi
 ### Next
 
 Manually verify playback and seeking updates, then define and test active-cue selection using integer playback milliseconds.
+
+## 2026-08-23 — Step 8.2a
+
+### Goal
+
+Implement and test active-cue selection as pure frontend logic before connecting it to Vue playback state or rendering an overlay.
+
+### Changes
+
+- Added a shared TypeScript `CaptionCue` interface and pure `findActiveCaptionCue` function.
+- Implemented inclusive start and exclusive end matching with `null` for uncovered playback time.
+- Added eight dependency-free TypeScript tests using Node's built-in test API.
+- Added `npm run test:frontend` and documented it in the README.
+- Enabled the already installed Node type definitions and TypeScript-extension imports needed by the native TypeScript test file.
+- No Vue component, overlay, active-row styling, or npm dependency changed.
+
+### Decisions
+
+- Use the half-open interval `start_ms <= current_ms < end_ms` for browser active-cue selection.
+- Return the first matching cue and rely on the backend cue generator's non-overlap guarantee.
+- Use Node 22's built-in TypeScript type stripping and `node:test` rather than installing a frontend test framework for one pure function.
+
+### Verification
+
+- `npm run test:frontend` passes: 8 tests.
+- Tests cover empty input, time before the first cue, inclusive start, time inside a cue, exclusive end, empty gaps, next-cue start, and exact adjacent-cue transition.
+- Vue TypeScript checking completed with no errors after exposing existing Node types.
+- ESLint completed with no errors after separating the type-only import.
+- The Vite production build completed successfully.
+- The optional `fontaine` optimization notice remains informational.
+
+### Result
+
+Active caption selection now has a tested, framework-independent boundary contract ready to consume Vue playback time.
+
+### Problems / Notes
+
+- The selector performs a linear search, which is the simplest correct approach for the current four cues; optimization requires evidence from much larger real projects.
+- The selector is not yet imported by the project page.
+
+### Next
+
+Connect the selector to the page's local playback state, converting browser seconds to rounded integer milliseconds, without rendering the caption overlay yet.

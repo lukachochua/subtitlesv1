@@ -1,6 +1,6 @@
 # Current
 
-- Manually verify the caption overlay and cue transitions against real project playback.
+- Manually verify portrait-video sizing and overlay placement on project 5.
 
 # Next
 
@@ -14,6 +14,7 @@
 - Select and test one Georgian-capable ASR provider using real audio and timestamp output.
 - Define an internal timestamped-word representation after inspecting real provider output.
 - Generate deterministic caption cues and display them over native browser video playback.
+- Add wrapper-based browser fullscreen preview so the HTML caption overlay remains visible in fullscreen.
 - Add cue correction, timing adjustment, splitting, merging, and incremental caption styling.
 - Evaluate ASS/libass and FFmpeg for final rendered MP4 export.
 - Build a representative Georgian QA set covering names, sports terminology, code-switching, varied speakers, and difficult audio.
@@ -80,6 +81,7 @@
 - Phase 8.2a: Implemented and unit-tested half-open active-cue selection in pure TypeScript.
 - Phase 8.2b: Connected active-cue selection to local Vue playback state and exposed the result in development UI.
 - Phase 8.3: Rendered the active cue directly over native video playback with one fixed browser-preview style.
+- Phase 8.3b: Removed the forced 16:9 preview and preserved each source video's intrinsic aspect ratio.
 
 # Rejected / Out of Scope
 

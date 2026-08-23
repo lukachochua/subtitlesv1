@@ -78,12 +78,14 @@ const updateCurrentTime = (event: Event): void => {
                     Uploaded video
                 </h2>
 
-                <div class="relative mt-6 overflow-hidden rounded-xl bg-black">
+                <div
+                    class="relative mx-auto mt-6 w-fit max-w-full overflow-hidden rounded-xl bg-black"
+                >
                     <video
                         controls
                         preload="metadata"
                         :src="videoProjectMedia.url(videoProject.id)"
-                        class="block aspect-video w-full bg-black"
+                        class="block max-h-[75vh] w-auto max-w-full bg-black"
                         @timeupdate="updateCurrentTime"
                     >
                         Your browser does not support HTML video playback.

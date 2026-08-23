@@ -1852,3 +1852,47 @@ The currently active Georgian caption cue is now rendered directly over the play
 ### Next
 
 Complete Phase 8.4 by manually verifying cue starts, cue ends, adjacent transitions, gaps, seeking, Georgian rendering, and control usability.
+
+## 2026-08-23 — Step 8.3b
+
+### Goal
+
+Make the browser preview and its caption overlay follow the uploaded video's intrinsic aspect ratio, including portrait Reels/TikTok footage.
+
+### Changes
+
+- Removed the forced 16:9 aspect-ratio utility from the native video.
+- Made the positioned preview container shrink-wrap the video's rendered width so the overlay matches the visible frame.
+- Limited preview height to 75 percent of the viewport while retaining intrinsic aspect ratio and responsive width.
+- Recorded wrapper-based fullscreen preview as a separate postponed improvement.
+- No fullscreen implementation, cue editing, persistence, style control, or export rendering was added.
+
+### Decisions
+
+- Treat source aspect ratio as authoritative for browser preview.
+- Keep this step limited to normal-page geometry; native video fullscreen and burned-in export are separate concerns.
+- Preserve HTML/CSS overlay architecture for live preview.
+
+### Verification
+
+- Prettier completed successfully.
+- The frontend active-cue selector suite passes: 8 tests.
+- Vue TypeScript checking completed with no errors.
+- ESLint completed with no errors.
+- The Vite production build completed successfully.
+- The project-page feature suite passes: 5 tests and 34 assertions.
+- The existing optional `fontaine` optimization notice remains informational.
+- Portrait geometry and caption placement have not yet been manually verified in a browser.
+
+### Result
+
+The normal-page preview no longer imposes a 16:9 frame and should follow portrait, landscape, or square source dimensions.
+
+### Problems / Notes
+
+- Native fullscreen targets only the `<video>` element, so the sibling HTML overlay is not present there.
+- Final exported captions will be rendered into the output video; browser fullscreen preview can instead fullscreen the shared wrapper in a later step.
+
+### Next
+
+Manually verify project 5's portrait layout, then complete Phase 8.4 and propose minimum persisted cue storage for text correction.

@@ -2909,3 +2909,43 @@ The browser preview now supports left, center, and right alignment for wrapped o
 ### Next
 
 Manually verify alignment on a multi-line cue, then propose the minimum project-level caption-style persistence representation before changing the database.
+
+## 2026-08-23 — Caption style persistence migration
+
+### Goal
+
+Create only the approved storage location for one project-level caption style without yet changing model or frontend behavior.
+
+### Changes
+
+- Added a focused migration with nullable `caption_style` JSON on `video_projects`.
+- Added a reversible rollback that drops only `caption_style`.
+- Did not add a model cast, defaults, validation, endpoint, or frontend persistence.
+
+### Decisions
+
+- Store one normalized style object directly on its video project.
+- Keep the column nullable so existing projects use application defaults without a data backfill.
+- Do not index the style because V1 does not query or sort projects by individual style values.
+
+### Verification
+
+- The migration applied successfully to the existing SQLite database.
+- The migration rolled back successfully.
+- The migration reapplied successfully after rollback.
+- Database schema inspection confirms nullable `caption_style`; SQLite represents Laravel's JSON column as text.
+- Laravel Pint completed successfully.
+- The complete Pest suite passes: 153 tests and 531 assertions.
+
+### Result
+
+The database can now hold one optional caption-style configuration per video project, but application code does not read or write it yet.
+
+### Problems / Notes
+
+- The database does not validate individual JSON keys; application validation is required before writes are introduced.
+- Existing projects currently contain null and therefore continue using browser defaults.
+
+### Next
+
+Add the `VideoProject` JSON cast and tested default-style resolution as the next isolated step.

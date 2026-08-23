@@ -519,6 +519,27 @@ Named values create the smallest usable style boundary for live controls without
 - Persistence remains undecided until useful controls exist and their data shape is proven.
 - Final ASS/libass mapping must be validated separately; CSS values are not assumed to render identically.
 
+## Decision: Persist one caption style configuration per video project
+
+### Context
+
+The validated browser controls now cover font, size, emphasis, colors, background opacity, alignment, vertical position, outline, and shadow. Keeping these values only in Vue state makes every choice disappear on reload and prevents final rendering from consuming the same project settings.
+
+### Decision
+
+Store one nullable `caption_style` JSON object directly on `video_projects`. Persist normalized product values such as a font key, integer percentages, booleans, color values, and constrained numeric sizes rather than browser CSS strings or ASS-specific values. A null value means the project uses the application's complete default style.
+
+### Reason
+
+Personal V1 has one shared caption style per project. A separate one-to-one table or many individual columns would add complexity without a current query, relationship, or reuse requirement. JSON keeps the configuration cohesive while its browser-to-render mapping is still being validated.
+
+### Consequences
+
+- Existing projects remain valid with a null style and resolve to application defaults.
+- Style updates must validate the complete supported shape because SQLite does not enforce individual JSON fields.
+- Vue preview CSS and future ASS/libass values must be derived from normalized product settings.
+- Per-cue styling, reusable presets, and style versioning remain postponed until evidence requires them.
+
 ## Decision: Persist editable caption cues separately from raw ASR output
 
 ### Context

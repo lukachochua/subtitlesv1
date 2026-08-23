@@ -1,11 +1,11 @@
 # Current
 
-- Manually verify left, center, and right alignment on a multi-line Georgian caption.
+- Add the `VideoProject` model cast and default resolution for persisted caption style.
 
 # Next
 
-- Propose the minimum project-level persistence representation for the validated caption style settings.
-- Persist caption styles only after the representation is reviewed and approved.
+- Pass the resolved project caption style to the Vue project page.
+- Add a validated project-scoped style update endpoint after the model boundary is established.
 
 # Later
 
@@ -109,6 +109,8 @@
 - Phase 10.9: Replaced coarse placement buttons with continuous browser-local vertical positioning.
 - Phase 10.10: Added browser-local outline color/width and shadow controls.
 - Caption alignment: Added browser-local left, center, and right alignment for multi-line captions.
+- Caption style persistence: Approved one nullable project-level JSON configuration.
+- Caption style persistence migration: Added the nullable `video_projects.caption_style` JSON column.
 - Caption position UI: Moved the vertical slider directly below the video preview.
 - Caption editor UI: Grouped start/end timing and moved split/merge into a compact per-cue actions menu.
 

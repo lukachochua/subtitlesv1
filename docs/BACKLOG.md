@@ -1,10 +1,9 @@
 # Current
 
-- Add the smallest manual entry point for extracting one project's ASR-ready audio.
+- Run audio extraction against one real uploaded video.
 
 # Next
 
-- Run audio extraction against one real uploaded video.
 - Verify the extracted audio's path, duration, format, and successful decoding.
 
 # Later
@@ -47,6 +46,7 @@
 - Phase 3.4d: Displayed persisted duration, including an explicit uninspected state, on the project page.
 - Phase 4.1: Chose one single-purpose action as the minimal FFmpeg audio-extraction boundary.
 - Phase 4.2a: Added tested private extraction of mono 16 kHz PCM WAV audio with failed-output cleanup.
+- Phase 4.2b: Added a tested Artisan command for extracting audio from one `VideoProject` by ID.
 
 # Rejected / Out of Scope
 

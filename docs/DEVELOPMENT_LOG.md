@@ -736,3 +736,41 @@ The application has a tested internal operation for producing one private ASR-re
 ### Next
 
 Add the smallest manual Artisan entry point for invoking this action against one existing `VideoProject`.
+
+## 2026-08-23 — Step 4.2b
+
+### Goal
+
+Expose the tested audio-extraction action through one minimal manual application entry point.
+
+### Changes
+
+- Added `video-projects:extract-audio {videoProject}` as an auto-registered Artisan command.
+- Validated a positive project ID, delegated extraction to `ExtractVideoProjectAudio`, and printed the private relative output path.
+- Added focused command tests for success, missing projects, and invalid IDs.
+- Expanded the README with a concise command reference for both current video-project operations.
+
+### Decisions
+
+- Keep extraction manual and console-only until it has been verified against real media.
+- Use the README as the durable operator-facing command reference; keep the development log chronological rather than relying on it as command documentation.
+- Let extraction exceptions remain visible during this proof-of-concept stage, matching the existing inspection command.
+
+### Verification
+
+- Three focused command tests cover the successful and rejected invocation paths without starting a real subprocess.
+- Command discovery and help output are checked after implementation.
+- The full automated verification results are recorded in the checkpoint for this step.
+
+### Result
+
+One existing video project can now have its audio extracted through application code with `php artisan video-projects:extract-audio <id>`.
+
+### Problems / Notes
+
+- The command has not yet run against a real stored MP4.
+- The resulting WAV still requires real format, duration, and decoding verification.
+
+### Next
+
+Run the command against one real upload, then inspect the resulting WAV with ffprobe.

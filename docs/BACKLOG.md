@@ -1,10 +1,10 @@
 # Current
 
-- Manually verify that the Clean preset updates every style control and that it persists only after clicking Save style.
+- Manually compare the Clean and Social presets on vertical project 5 footage and verify Social persists only after clicking Save style.
 
 # Next
 
-- Add one Social preset after the Clean preset interaction is manually verified.
+- Add one News preset after the Social preset appearance is manually verified.
 - Evaluate ASS/libass against the actual persisted style representation before render implementation.
 
 # Later
@@ -116,6 +116,7 @@
 - Caption style write path: Added strict complete-shape validation and project-scoped replacement.
 - Caption style save UI: Added explicit save progress, success, and error feedback.
 - Phase 11.1: Added the complete Clean caption style preset with live preview and explicit persistence.
+- Phase 11.2: Added a larger, outlined Social caption style preset for vertical video.
 - Caption position UI: Moved the vertical slider directly below the video preview.
 - Caption editor UI: Grouped start/end timing and moved split/merge into a compact per-cue actions menu.
 

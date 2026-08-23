@@ -88,6 +88,22 @@ export const CLEAN_CAPTION_STYLE_PRESET: Readonly<CaptionStyleConfiguration> =
         shadow: true,
     });
 
+export const SOCIAL_CAPTION_STYLE_PRESET: Readonly<CaptionStyleConfiguration> =
+    Object.freeze({
+        font: 'system_sans',
+        font_size_px: 40,
+        bold: true,
+        italic: false,
+        text_color: '#ffffff',
+        background_color: '#000000',
+        background_opacity_percent: 20,
+        text_alignment: 'center',
+        vertical_position_percent: 88,
+        outline_color: '#000000',
+        outline_width_px: 2,
+        shadow: true,
+    });
+
 export const normalizeCaptionFontSize = (fontSizePx: number): number =>
     Number.isFinite(fontSizePx)
         ? Math.min(

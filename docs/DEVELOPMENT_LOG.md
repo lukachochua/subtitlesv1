@@ -3125,3 +3125,45 @@ The style editor now provides one coherent Clean starting point that can be prev
 ### Next
 
 Manually verify the Clean preset on project 5, then add one Social preset as the next incremental Phase 11 step.
+
+## 2026-08-23 — Phase 11.2: Social caption style preset
+
+### Goal
+
+Add one visibly distinct preset intended for high-impact captions on vertical social video.
+
+### Changes
+
+- Added a complete, typed Social preset beside the existing Clean preset.
+- Configured larger bold system-sans text, a subtle background, a two-pixel outline, shadow, and slightly raised lower placement.
+- Added the Social preset button to the existing live-preview and explicit-save flow.
+- Added frontend coverage proving the full Social configuration and its difference from Clean.
+
+### Decisions
+
+- Optimize Social for legibility over varied vertical footage while keeping every setting reproducible by the current product configuration.
+- Keep preset selection local until Save style is clicked, consistently with Clean and manual style editing.
+- Retain simple explicit preset constants and buttons; two presets do not yet justify a separate catalog or component abstraction.
+
+### Verification
+
+- The active-cue frontend suite passes: 8 tests.
+- The caption-style frontend suite passes: 16 tests.
+- All 176 Laravel tests pass with 640 assertions.
+- Vue TypeScript checking completed with no errors.
+- ESLint completed with no errors.
+- The production frontend build completed successfully.
+- Social preset appearance, save, and reload behavior have not yet been manually verified on real footage.
+
+### Result
+
+The editor now offers Clean and Social starting points, both previewable immediately and persistable with the same explicit Save style action.
+
+### Problems / Notes
+
+- The chosen Social values are an initial product default and may need adjustment after viewing representative Georgian captions on project 5.
+- News and Minimal presets remain unimplemented.
+
+### Next
+
+Compare Clean and Social on project 5, then add one News preset if Social is visually acceptable.

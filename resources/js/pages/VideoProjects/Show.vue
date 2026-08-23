@@ -19,6 +19,7 @@ import {
     normalizeCaptionFontSize,
     normalizeCaptionOutlineWidth,
     normalizeCaptionVerticalPositionPercent,
+    SOCIAL_CAPTION_STYLE_PRESET,
 } from '@/lib/caption-style';
 import type { CaptionStyleConfiguration } from '@/lib/caption-style';
 import { home } from '@/routes';
@@ -427,6 +428,17 @@ const saveCaptionStyle = (): void => {
                                     "
                                 >
                                     Clean
+                                </button>
+                                <button
+                                    type="button"
+                                    class="rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm font-semibold text-stone-800 hover:bg-stone-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 dark:border-stone-700 dark:bg-stone-950 dark:text-stone-100 dark:hover:bg-stone-800 dark:focus-visible:ring-red-400"
+                                    @click="
+                                        applyCaptionStyleConfiguration(
+                                            SOCIAL_CAPTION_STYLE_PRESET,
+                                        )
+                                    "
+                                >
+                                    Social
                                 </button>
                                 <span
                                     class="text-xs text-stone-500 dark:text-stone-400"

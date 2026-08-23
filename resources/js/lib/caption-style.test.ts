@@ -14,6 +14,7 @@ import {
     normalizeCaptionFontSize,
     normalizeCaptionOutlineWidth,
     normalizeCaptionVerticalPositionPercent,
+    SOCIAL_CAPTION_STYLE_PRESET,
 } from './caption-style.ts';
 
 test('defines the complete Clean caption style preset', () => {
@@ -35,6 +36,28 @@ test('defines the complete Clean caption style preset', () => {
     assert.deepEqual(
         captionStyleConfigurationToBrowserStyle(CLEAN_CAPTION_STYLE_PRESET),
         DEFAULT_CAPTION_STYLE,
+    );
+});
+
+test('defines a complete, distinct Social caption style preset', () => {
+    assert.deepEqual(SOCIAL_CAPTION_STYLE_PRESET, {
+        font: 'system_sans',
+        font_size_px: 40,
+        bold: true,
+        italic: false,
+        text_color: '#ffffff',
+        background_color: '#000000',
+        background_opacity_percent: 20,
+        text_alignment: 'center',
+        vertical_position_percent: 88,
+        outline_color: '#000000',
+        outline_width_px: 2,
+        shadow: true,
+    });
+
+    assert.notDeepEqual(
+        SOCIAL_CAPTION_STYLE_PRESET,
+        CLEAN_CAPTION_STYLE_PRESET,
     );
 });
 

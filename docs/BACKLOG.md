@@ -1,10 +1,10 @@
 # Current
 
-- Manually verify that a non-default style saves and survives a full reload on project 5.
+- Manually verify that the Clean preset updates every style control and that it persists only after clicking Save style.
 
 # Next
 
-- Add the first small style preset only after persisted custom styles are manually verified.
+- Add one Social preset after the Clean preset interaction is manually verified.
 - Evaluate ASS/libass against the actual persisted style representation before render implementation.
 
 # Later
@@ -115,6 +115,7 @@
 - Caption style read path: Passed resolved settings to Vue and initialized every preview control from them.
 - Caption style write path: Added strict complete-shape validation and project-scoped replacement.
 - Caption style save UI: Added explicit save progress, success, and error feedback.
+- Phase 11.1: Added the complete Clean caption style preset with live preview and explicit persistence.
 - Caption position UI: Moved the vertical slider directly below the video preview.
 - Caption editor UI: Grouped start/end timing and moved split/merge into a compact per-cue actions menu.
 

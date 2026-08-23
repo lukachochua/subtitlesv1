@@ -72,6 +72,22 @@ export const CAPTION_FONT_SIZE_DEFAULT_PX = 28;
 export const CAPTION_BACKGROUND_OPACITY_DEFAULT_PERCENT = 75;
 export const CAPTION_OUTLINE_WIDTH_MAX_PX = 4;
 
+export const CLEAN_CAPTION_STYLE_PRESET: Readonly<CaptionStyleConfiguration> =
+    Object.freeze({
+        font: 'georgian_sans',
+        font_size_px: CAPTION_FONT_SIZE_DEFAULT_PX,
+        bold: true,
+        italic: false,
+        text_color: '#ffffff',
+        background_color: '#000000',
+        background_opacity_percent: CAPTION_BACKGROUND_OPACITY_DEFAULT_PERCENT,
+        text_alignment: 'center',
+        vertical_position_percent: CAPTION_VERTICAL_POSITION_DEFAULT_PERCENT,
+        outline_color: '#000000',
+        outline_width_px: 0,
+        shadow: true,
+    });
+
 export const normalizeCaptionFontSize = (fontSizePx: number): number =>
     Number.isFinite(fontSizePx)
         ? Math.min(

@@ -3082,3 +3082,46 @@ The application now has a complete caption-style persistence loop: load, live pr
 ### Next
 
 Manually save a distinctive style on project 5, fully reload the page, and confirm every setting is restored before adding the first small style preset.
+
+## 2026-08-23 — Phase 11.1: Clean caption style preset
+
+### Goal
+
+Add the first reusable caption style without changing the established explicit-save behavior.
+
+### Changes
+
+- Added one complete, typed Clean preset covering every persisted caption-style field.
+- Added a Clean button that updates all style controls and the video preview together.
+- Kept preset application browser-local until Save style is clicked.
+- Corrected the style-panel explanation now that styles can be persisted.
+- Added frontend coverage for the preset's complete configuration and browser-style mapping.
+
+### Decisions
+
+- Represent a preset as product configuration rather than browser CSS so it can use the existing validation, persistence, preview, and future render boundaries.
+- Add only one preset and avoid a generalized preset catalog until a second preset establishes a concrete repeated pattern.
+- Do not auto-save preset selection, allowing a user to preview it without overwriting the stored custom style.
+
+### Verification
+
+- The active-cue frontend suite passes: 8 tests.
+- The caption-style frontend suite passes: 15 tests.
+- All 176 Laravel tests pass with 640 assertions.
+- Vue TypeScript checking completed with no errors.
+- ESLint completed with no errors.
+- The production frontend build completed successfully.
+- Browser application, explicit save, and reload behavior for the Clean preset have not yet been manually verified.
+
+### Result
+
+The style editor now provides one coherent Clean starting point that can be previewed immediately and persisted through the existing Save style action.
+
+### Problems / Notes
+
+- Applying Clean intentionally replaces all unsaved values currently shown in the style controls.
+- Only the Clean preset exists; Social, News, and Minimal remain unimplemented.
+
+### Next
+
+Manually verify the Clean preset on project 5, then add one Social preset as the next incremental Phase 11 step.

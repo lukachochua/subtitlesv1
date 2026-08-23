@@ -13,6 +13,7 @@ import {
     CAPTION_FONT_SIZE_MIN_PX,
     CAPTION_OUTLINE_WIDTH_MAX_PX,
     CAPTION_TEXT_ALIGNMENT_OPTIONS,
+    CLEAN_CAPTION_STYLE_PRESET,
     DEFAULT_CAPTION_STYLE,
     normalizeCaptionBackgroundOpacityPercent,
     normalizeCaptionFontSize,
@@ -198,6 +199,28 @@ const currentCaptionStyleConfiguration = (): CaptionStyleConfiguration => ({
     shadow: captionHasShadow.value,
 });
 
+const applyCaptionStyleConfiguration = (
+    configuration: CaptionStyleConfiguration,
+): void => {
+    const browserStyle = captionStyleConfigurationToBrowserStyle(configuration);
+
+    captionFontFamily.value = browserStyle.fontFamily;
+    captionFontSizePx.value = browserStyle.fontSizePx;
+    captionIsBold.value = configuration.bold;
+    captionIsItalic.value = configuration.italic;
+    captionTextColor.value = browserStyle.textColor;
+    captionBackgroundColor.value = browserStyle.backgroundColor;
+    captionBackgroundOpacityPercent.value =
+        configuration.background_opacity_percent;
+    captionTextAlignment.value = browserStyle.textAlign;
+    captionVerticalPositionPercent.value =
+        configuration.vertical_position_percent;
+    captionOutlineColor.value = browserStyle.outlineColor;
+    captionOutlineWidthPx.value = browserStyle.outlineWidthPx;
+    captionHasShadow.value = configuration.shadow;
+    captionStyleForm.clearErrors();
+};
+
 const saveCaptionStyle = (): void => {
     captionStyleForm
         .transform(() => currentCaptionStyleConfiguration())
@@ -353,8 +376,8 @@ const saveCaptionStyle = (): void => {
                             <p
                                 class="mt-1 text-xs text-stone-500 dark:text-stone-400"
                             >
-                                Browser preview only; resets when this page is
-                                reloaded.
+                                Changes appear immediately. Save to keep them
+                                after reloading.
                             </p>
                         </div>
                         <div class="flex items-center gap-3">
@@ -387,6 +410,32 @@ const saveCaptionStyle = (): void => {
                             Style could not be saved. Review the selected values
                             and try again.
                         </p>
+                        <div>
+                            <p
+                                class="text-sm font-medium text-stone-700 dark:text-stone-200"
+                            >
+                                Presets
+                            </p>
+                            <div class="mt-2 flex flex-wrap items-center gap-3">
+                                <button
+                                    type="button"
+                                    class="rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm font-semibold text-stone-800 hover:bg-stone-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 dark:border-stone-700 dark:bg-stone-950 dark:text-stone-100 dark:hover:bg-stone-800 dark:focus-visible:ring-red-400"
+                                    @click="
+                                        applyCaptionStyleConfiguration(
+                                            CLEAN_CAPTION_STYLE_PRESET,
+                                        )
+                                    "
+                                >
+                                    Clean
+                                </button>
+                                <span
+                                    class="text-xs text-stone-500 dark:text-stone-400"
+                                >
+                                    Applies to the preview; use Save style to
+                                    keep it.
+                                </span>
+                            </div>
+                        </div>
                         <div>
                             <label
                                 for="caption-font-family"

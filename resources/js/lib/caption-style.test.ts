@@ -8,12 +8,35 @@ import {
     captionVerticalPositionToCss,
     CAPTION_FONT_OPTIONS,
     CAPTION_TEXT_ALIGNMENT_OPTIONS,
+    CLEAN_CAPTION_STYLE_PRESET,
     DEFAULT_CAPTION_STYLE,
     normalizeCaptionBackgroundOpacityPercent,
     normalizeCaptionFontSize,
     normalizeCaptionOutlineWidth,
     normalizeCaptionVerticalPositionPercent,
 } from './caption-style.ts';
+
+test('defines the complete Clean caption style preset', () => {
+    assert.deepEqual(CLEAN_CAPTION_STYLE_PRESET, {
+        font: 'georgian_sans',
+        font_size_px: 28,
+        bold: true,
+        italic: false,
+        text_color: '#ffffff',
+        background_color: '#000000',
+        background_opacity_percent: 75,
+        text_alignment: 'center',
+        vertical_position_percent: 100,
+        outline_color: '#000000',
+        outline_width_px: 0,
+        shadow: true,
+    });
+
+    assert.deepEqual(
+        captionStyleConfigurationToBrowserStyle(CLEAN_CAPTION_STYLE_PRESET),
+        DEFAULT_CAPTION_STYLE,
+    );
+});
 
 test('maps browser font families back to persisted font keys', () => {
     for (const font of CAPTION_FONT_OPTIONS) {

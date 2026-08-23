@@ -1,10 +1,10 @@
 # Current
 
-- Review the ASS/libass evaluation and its documented browser-preview fidelity limits.
+- Manually inspect project 5's generated ASS file and its disposable libass-rendered sample frame.
 
 # Next
 
-- Generate one ASS file from actual saved cues using one default style.
+- Render one captioned sample MP4 from actual project cues and the generated ASS file.
 - Manually compare Clean, Social, News, and Minimal on project 5 and verify selected-state, Custom-state, save, and reload behavior.
 
 # Later
@@ -120,6 +120,7 @@
 - Phase 11.3–11.4: Added News and Minimal presets plus active preset and Custom selection state.
 - Phase 11: Completed the planned Clean, Social, News, and Minimal caption preset set.
 - Phase 12.1: Confirmed the installed FFmpeg/libass stack renders shaped Georgian text and documented style mappings and fidelity limits.
+- Phase 12.2: Added tested, dimension-aware ASS generation for real saved cues and complete persisted styles.
 - Caption position UI: Moved the vertical slider directly below the video preview.
 - Caption editor UI: Grouped start/end timing and moved split/merge into a compact per-cue actions menu.
 

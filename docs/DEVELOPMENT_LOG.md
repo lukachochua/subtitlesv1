@@ -3257,3 +3257,55 @@ ASS/libass is suitable for the first V1 export path, with explicit, bounded mapp
 ### Next
 
 Generate one ASS file from actual saved caption cues using one default style, without rendering a final MP4 yet.
+
+## 2026-08-23 — Phase 12.2: Generate ASS from saved cues and styles
+
+### Goal
+
+Implement every concrete mapping identified by the ASS/libass evaluation and generate one real subtitle file without rendering a final MP4.
+
+### Changes
+
+- Added a pure ASS content generator for ordered saved caption cues and complete resolved project styles.
+- Added deterministic nearest-centisecond timestamp conversion.
+- Added a normalized 640-unit-high ASS canvas whose width follows the source video aspect ratio.
+- Mapped Georgian-aware sans, system-sans, and serif product keys to explicit Noto Georgian render fonts.
+- Mapped RGB hex colors to ASS BGR colors and percentage opacity to inverse ASS alpha.
+- Mapped bold, italic, font size, text alignment, arbitrary vertical position, outline width/color, and shadow.
+- Added safe ASS escaping for backslashes, braces, and line breaks.
+- Added a separate lower box layer when background opacity is nonzero, preserving an independent text outline and shadow while approximating the browser's rounded box.
+- Added a project action that safely probes source dimensions and writes `video-projects/{id}/captions.ass` on the project's private disk.
+- Added the protected `video-projects:generate-ass` Artisan command and documented it in the README.
+- Made resolved persisted style output explicitly typed and resilient to malformed stored scalar fields.
+
+### Decisions
+
+- Normalize ASS coordinates to 640 units high and derive width from source aspect ratio so style proportions remain stable across resolutions.
+- Round cue boundaries to the nearest centisecond, preserving shared boundaries deterministically.
+- Use horizontal anchor and vertical-band-aware ASS alignment with explicit positions to approximate browser placement across the full percentage range.
+- Use layered box and text events for independent background and glyph styling; rounded corners remain an accepted approximation.
+- Refuse generation when the private source file or saved cues are absent and reject malformed ffprobe dimensions.
+
+### Verification
+
+- ASS content, project-file generation, and command tests pass: 18 tests with 52 assertions.
+- The full application suite passes: 195 tests with 693 assertions.
+- Focused PHPStan analysis passes with zero errors for all new production files and the touched video-project model.
+- Laravel Pint completed successfully.
+- The command generated project 5's real private `captions.ass` from nine ordered saved cues and its persisted custom style.
+- Libass parsed the generated file as 18 layered events, selected Noto Sans Georgian Bold through Fontconfig, and rendered a real project 5 frame with readable Georgian text and the persisted translucent blue background.
+- A final captioned MP4 has not yet been rendered.
+
+### Result
+
+The application can now convert real saved Georgian cues and the complete persisted caption style into a private, libass-readable ASS subtitle file.
+
+### Problems / Notes
+
+- ASS background corners remain square rather than matching the browser's rounded CSS box.
+- Font availability still needs verification on every machine used for rendering.
+- The repository-wide PHPStan command reports 28 older relationship and Pest typing findings outside this step; focused analysis of the new production boundary passes.
+
+### Next
+
+Render one sample project MP4 with the generated ASS file and compare its timing and appearance with the browser preview.

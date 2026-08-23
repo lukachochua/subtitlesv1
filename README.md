@@ -101,3 +101,14 @@ php artisan video-projects:persist-caption-cues <project-id>
 
 This command succeeds only when the project has no saved cues. Repeating it
 fails instead of replacing saved or manually corrected captions.
+
+Generate a private ASS subtitle file from one project's saved cues and current
+caption style:
+
+```bash
+php artisan video-projects:generate-ass <project-id>
+```
+
+The command inspects the source video's dimensions and writes
+`storage/app/private/video-projects/{id}/captions.ass`. It does not render or
+modify the source MP4.

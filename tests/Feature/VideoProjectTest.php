@@ -85,3 +85,22 @@ test('casts and resolves a stored caption style as an array', function () {
     expect($videoProject->caption_style)->toBe($captionStyle)
         ->and($videoProject->resolvedCaptionStyle())->toBe($captionStyle);
 });
+
+test('resolves missing or incorrectly typed stored style fields to defaults', function () {
+    $videoProject = VideoProject::create([
+        'original_filename' => 'styled.mp4',
+        'disk' => 'local',
+        'path' => 'video-projects/test/styled.mp4',
+        'mime_type' => 'video/mp4',
+        'size_bytes' => 2_048,
+        'caption_style' => [
+            ...VideoProject::DEFAULT_CAPTION_STYLE,
+            'font_size_px' => 'large',
+            'text_color' => null,
+            'bold' => 'yes',
+        ],
+    ])->fresh();
+
+    expect($videoProject->resolvedCaptionStyle())
+        ->toBe(VideoProject::DEFAULT_CAPTION_STYLE);
+});

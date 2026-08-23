@@ -2113,3 +2113,48 @@ Project 5's eight saved database cues now drive its table, active-cue selection,
 ### Next
 
 Add a validated backend endpoint that updates only the text of one cue belonging to the selected video project.
+
+## 2026-08-23 — Step 9.1f
+
+### Goal
+
+Add a secure, validated backend boundary for correcting one saved caption cue's text.
+
+### Changes
+
+- Added a nested PATCH route for one project's saved caption cue.
+- Enabled scoped route-model binding so cues from another project return not found.
+- Added a Form Request that accepts required string text up to 500 characters.
+- Added a single-action controller that updates only validated text and redirects to the project page.
+- Added focused tests for valid Georgian correction, ignored timing/order input, invalid text, and cross-project access.
+- No cue ID prop, Vue form, timing update, or project 5 text changed.
+
+### Decisions
+
+- Limit this endpoint to cue text; timing and structural edits remain separate operations with their own invariants.
+- Use a 500-character safety limit while allowing corrections longer than the current automatic 42-character grouping target.
+- Keep authorization open for personal V1 while enforcing project ownership through scoped binding; accounts and user policies remain Stage B.
+
+### Verification
+
+- Laravel Pint completed successfully.
+- The focused endpoint suite passes: 6 tests and 28 assertions.
+- The complete Pest suite passes: 114 tests and 312 assertions.
+- Artisan lists the nested PATCH route with the expected name.
+- Tests prove unrelated cue order and timing cannot be changed through this endpoint.
+- Tests prove a cue from another project returns 404 and remains unchanged.
+- `git diff --check` completed with no errors.
+- No browser control exists yet, so manual editing has not been verified.
+
+### Result
+
+The backend can now safely persist one caption text correction without exposing timing fields or another project's cues.
+
+### Problems / Notes
+
+- The project-page cue props still omit database IDs.
+- Users cannot invoke the endpoint from the current read-only table.
+
+### Next
+
+Expose saved cue IDs and add the first small cue-text editing control using the generated Wayfinder route.

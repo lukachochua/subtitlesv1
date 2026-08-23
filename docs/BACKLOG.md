@@ -1,11 +1,11 @@
 # Current
 
-- Propose the first deterministic Georgian word-to-cue grouping rules using the inspected project 4 sequence.
+- Implement the approved deterministic word-to-cue grouping action with focused unit tests.
 
 # Next
 
-- Propose the first deterministic word-to-cue grouping rules.
 - Implement the approved first cue-generation action with focused tests.
+- Display generated project 4 cues as a read-only table for manual inspection.
 
 # Later
 
@@ -69,6 +69,7 @@
 - Phase 6: Established and tested a provider-independent timestamped-word format plus NeMo conversion.
 - Phase 7.1: Added and verified a read-only command that displays one project's normalized NeMo words.
 - Phase 7.3a: Implemented and unit-tested the minimum immutable `CaptionCue` representation.
+- Phase 7.2a: Defined the first deterministic word-to-cue grouping rules and expected project 4 output.
 
 # Rejected / Out of Scope
 

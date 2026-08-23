@@ -1428,3 +1428,47 @@ The first deterministic cue generator now has a small, tested output type while 
 ### Next
 
 Propose the first deterministic word-to-cue grouping rules using the real project 4 word sequence, then implement only the approved algorithm.
+
+## 2026-08-23 — Step 7.2a
+
+### Goal
+
+Define a transparent first word-to-cue grouping algorithm using the real project 4 sequence before implementing it.
+
+### Changes
+
+- Defined deterministic cue boundaries for strong punctuation, speech gaps, word count, Unicode character count, and cue duration.
+- Defined exact text assembly, timing, ordering, single-oversized-word, and overlapping-input behavior.
+- Recorded the four cues expected from project 4's current 17-word transcription.
+- No grouping code, persistence, UI, or dependency was added.
+
+### Decisions
+
+- Split after `.`, `?`, `!`, or `…`.
+- Split before a next-word gap of at least 800 milliseconds.
+- Limit normal cues to 8 words, 42 Unicode characters, and 3,500 milliseconds.
+- Join provider words with one space without rewriting punctuation.
+- Reject overlapping word intervals in the first generator so it cannot emit ambiguous overlapping cues.
+- Always emit a single oversized word rather than dropping it or producing an empty cue.
+
+### Verification
+
+- Applied the rules manually to all 17 normalized project 4 words.
+- The expected result is four ordered, non-overlapping cues covering every word exactly once.
+- The 800-millisecond gap separates `ცხრა` from `ათი`, while the observed shorter gaps remain eligible for grouping.
+- The third cue ends at the recognized period and remains within the 3,500-millisecond duration limit.
+- Documentation whitespace validation passed.
+
+### Result
+
+The first cue algorithm has explicit, testable inputs, thresholds, boundary priority, and expected real-project output.
+
+### Problems / Notes
+
+- The project 4 transcript contains known recognition errors, but its word timing remains useful for validating grouping behavior.
+- ASR punctuation errors may create poor boundaries; the hard limits and later manual editing are the initial safeguards.
+- Threshold tuning is deferred until captions can be viewed over playing video.
+
+### Next
+
+Implement and unit-test only the deterministic word-to-cue grouping action.

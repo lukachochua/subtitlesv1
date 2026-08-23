@@ -300,6 +300,46 @@ The value object mirrors the established immutable `TranscriptionWord` boundary 
 - The object can remain unchanged while grouping rules are iterated against real Georgian speech.
 - Persistence and editable cue identity will require a separate schema decision when the editor needs saved cues.
 - Styling remains project or cue presentation data and is not part of this first cue representation.
+
+## Decision: Generate initial caption cues with deterministic bounded rules
+
+### Context
+
+Project 4 provides 17 ordered Georgian words with real NeMo timestamps. Personal V1 needs a transparent first grouping algorithm that produces readable cues without an LLM or Georgian-specific linguistic parser. The algorithm must be simple enough to test and revise after manual playback while preventing excessively long text or timing.
+
+### Decision
+
+Process normalized `TranscriptionWord` objects in their existing order and include every word exactly once. Begin a cue with the first available word and append following words until the earliest applicable boundary:
+
+- End after a word whose text ends with strong punctuation: `.`, `?`, `!`, or `…`.
+- End before the next word when the silent gap is at least 800 milliseconds.
+- End before adding a word that would exceed 8 words.
+- End before adding a word that would exceed 42 Unicode characters, counting one inserted space between words.
+- End before adding a word that would make cue duration exceed 3,500 milliseconds.
+
+Join word text with exactly one space. Because punctuation is retained on the recognized word, do not add or rewrite punctuation. Set cue start to its first word's `startMs`, end to its last word's `endMs`, and assign consecutive one-based order.
+
+For this first algorithm, reject overlapping input word intervals rather than guessing how to create non-overlapping cues. A single word is still emitted even if it individually exceeds a text or duration limit; the generator must not drop it or create an empty cue.
+
+### Reason
+
+The limits are conservative starting values suitable for short social and interview captions, and every boundary is deterministic and explainable. An 800-millisecond gap separates the clear pause observed between project 4's counting groups without splitting its shorter pauses. Strong punctuation provides an obvious boundary, while word, character, and duration caps protect readability when punctuation is missing or inaccurate.
+
+### Consequences
+
+- Project 4 is expected to produce these four initial cues:
+
+```text
+1 | ერთი ორი, სამი, ოთხი, ხუთი                | 1680–4480
+2 | ექვსი შვიდი რვა ცხრა                     | 4720–6880
+3 | ათი გამარჯობა გაგიმარჯოს, როგორ ხარმე.   | 7680–11040
+4 | შელო მოხარმეც კარგა.                     | 11600–13920
+```
+
+- Cue quality depends on ASR punctuation, but hard limits still bound unpunctuated speech.
+- Unicode character counting must use a multibyte-safe operation so Georgian letters count as characters rather than UTF-8 bytes.
+- These thresholds are initial product rules, not permanent truths; change them only after playback QA demonstrates a concrete problem.
+- Line breaking, cue editing, persistence, and style layout remain separate later concerns.
 ## Decision: Isolate ffprobe duration inspection in one application action
 
 ### Context

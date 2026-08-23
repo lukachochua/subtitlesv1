@@ -340,6 +340,34 @@ The limits are conservative starting values suitable for short social and interv
 - Unicode character counting must use a multibyte-safe operation so Georgian letters count as characters rather than UTF-8 bytes.
 - These thresholds are initial product rules, not permanent truths; change them only after playback QA demonstrates a concrete problem.
 - Line breaking, cue editing, persistence, and style layout remain separate later concerns.
+
+## Decision: Load transient project caption data through one application action
+
+### Context
+
+The development command originally owned the fixed private NeMo result path, JSON decoding, word normalization, and cue generation. The project page will need the same transient cues for browser inspection, and duplicating that pipeline in a controller would create inconsistent error handling and grouping behavior before persistence exists.
+
+### Decision
+
+Use `App\Actions\LoadVideoProjectCaptionData` as the reusable read boundary. Given a `VideoProject`, it requires persisted video duration, reads only `video-projects/{id}/transcription.nemo-fastconformer.raw.json` from the project's recorded disk, decodes JSON strictly, converts words, generates cues, and returns:
+
+```text
+words: list<TranscriptionWord>
+cues: list<CaptionCue>
+```
+
+Keep the result transient. Do not persist normalized words or cues, accept arbitrary paths, run NeMo, or hide malformed transcription data by returning partial results.
+
+### Reason
+
+One action keeps storage and transformation behavior reusable by console and HTTP callers while remaining smaller than a repository, provider interface, or transcription service layer. Returning both stages preserves development traceability and avoids rerunning conversion when a caller needs words and cues together.
+
+### Consequences
+
+- The inspection command delegates loading and transformation to the same boundary intended for the project page.
+- Missing duration or result files fail explicitly; invalid JSON, word conversion, and cue generation also fail rather than returning incomplete captions.
+- The future project page must deliberately choose how to represent “no transcription yet” without weakening the action's strict contract.
+- Persistence will require a separate decision and will not silently replace this experimental raw-result boundary.
 ## Decision: Isolate ffprobe duration inspection in one application action
 
 ### Context

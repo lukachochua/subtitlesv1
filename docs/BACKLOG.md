@@ -1,11 +1,11 @@
 # Current
 
-- Manually review the four generated project 4 cues before exposing them in the browser.
+- Propose the read-only project-page cue table, including the explicit “no transcription yet” state.
 
 # Next
 
-- Manually compare generated cue boundaries with project 4 playback before tuning thresholds.
-- Propose the smallest reusable application boundary for loading transient generated cues on the project page.
+- Pass transient generated cues to the existing project page without exposing raw provider JSON.
+- Display a basic read-only cue table below the native video.
 
 # Later
 
@@ -72,6 +72,7 @@
 - Phase 7.2a: Defined the first deterministic word-to-cue grouping rules and expected project 4 output.
 - Phase 7.2b: Implemented and unit-tested deterministic word-to-cue generation.
 - Phase 7.4: Generated and displayed four real project 4 caption cues through the read-only inspection command.
+- Phase 7.4b: Extracted and tested a reusable transient project caption-data loading boundary.
 
 # Rejected / Out of Scope
 

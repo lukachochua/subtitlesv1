@@ -2,15 +2,13 @@
 
 namespace App\Console\Commands;
 
-use App\Actions\ConvertNemoTranscriptionWords;
-use App\Actions\GenerateCaptionCues;
+use App\Actions\LoadVideoProjectCaptionData;
 use App\Models\VideoProject;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Storage;
 use InvalidArgumentException;
-use JsonException;
+use RuntimeException;
 use UnexpectedValueException;
 
 #[Signature('video-projects:inspect-transcription {videoProject : The video project ID}')]
@@ -18,8 +16,7 @@ use UnexpectedValueException;
 class InspectVideoProjectTranscriptionCommand extends Command
 {
     public function handle(
-        ConvertNemoTranscriptionWords $convertNemoTranscriptionWords,
-        GenerateCaptionCues $generateCaptionCues,
+        LoadVideoProjectCaptionData $loadVideoProjectCaptionData,
     ): int {
         $videoProjectId = filter_var(
             $this->argument('videoProject'),
@@ -41,42 +38,20 @@ class InspectVideoProjectTranscriptionCommand extends Command
             return self::FAILURE;
         }
 
-        if ($videoProject->duration_ms === null) {
-            $this->error("Video project {$videoProjectId} must be inspected before its transcription.");
-
-            return self::FAILURE;
-        }
-
-        $transcriptionPath = "video-projects/{$videoProject->id}/transcription.nemo-fastconformer.raw.json";
-        $disk = Storage::disk($videoProject->disk);
-
-        if (! $disk->exists($transcriptionPath)) {
-            $this->error("Video project {$videoProjectId} does not have a NeMo transcription result.");
-
-            return self::FAILURE;
-        }
-
         try {
-            $transcription = json_decode(
-                $disk->get($transcriptionPath),
-                true,
-                flags: JSON_THROW_ON_ERROR,
-            );
-
-            if (! is_array($transcription)) {
-                throw new UnexpectedValueException('The NeMo transcription result is invalid.');
-            }
-
-            $words = $convertNemoTranscriptionWords->handle(
-                $transcription,
-                $videoProject->duration_ms,
-            );
-            $cues = $generateCaptionCues->handle($words);
-        } catch (InvalidArgumentException|JsonException|UnexpectedValueException $exception) {
+            $captionData = $loadVideoProjectCaptionData->handle($videoProject);
+        } catch (InvalidArgumentException|UnexpectedValueException $exception) {
             $this->error("Could not inspect video project {$videoProjectId} transcription: {$exception->getMessage()}");
 
             return self::FAILURE;
+        } catch (RuntimeException $exception) {
+            $this->error($exception->getMessage());
+
+            return self::FAILURE;
         }
+
+        $words = $captionData['words'];
+        $cues = $captionData['cues'];
 
         $rows = [];
 

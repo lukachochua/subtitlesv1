@@ -1552,3 +1552,44 @@ Real Georgian ASR words now become inspectable caption cues through Laravel, val
 ### Next
 
 Review the four cue boundaries against project 4 playback, then propose the smallest reusable boundary for a read-only cue table on the project page.
+
+## 2026-08-23 — Step 7.4b
+
+### Goal
+
+Extract the private-result loading and transformation pipeline from the console command so a future project page can reuse it without duplicating provider or storage logic.
+
+### Changes
+
+- Added `App\Actions\LoadVideoProjectCaptionData` with constructor-injected word conversion and cue generation actions.
+- Moved fixed private path resolution, duration requirement, file existence checks, strict JSON decoding, word normalization, and cue generation into the new action.
+- Returned both transient normalized words and generated cues through a documented array shape.
+- Refactored the inspection command to delegate to the action while preserving its output and clear failure messages.
+- Added focused action tests for successful fixture loading, missing duration, missing private result, and invalid JSON.
+
+### Decisions
+
+- Keep loading strict: missing or malformed data throws rather than returning partial caption data.
+- Keep the result transient and avoid a repository, provider interface, persistence schema, or arbitrary path parameter.
+- Preserve both words and cues in the return value because the inspection command needs traceability and the pipeline should only convert once per load.
+
+### Verification
+
+- The new action and refactored command suites pass: 11 tests and 34 assertions.
+- The full focused caption-data pipeline passes: 60 tests and 121 assertions.
+- Pint completed successfully for changed PHP files.
+- PHPStan completed with zero errors.
+- Running `php artisan video-projects:inspect-transcription 4` after the refactor produced the same 17 normalized words and four caption cues as before.
+
+### Result
+
+Console and future HTTP callers now have one tested boundary for loading transient generated caption data from a project.
+
+### Problems / Notes
+
+- The strict action throws when a project has no transcription; the project page must translate that expected pre-transcription state into an explicit empty UI without treating malformed existing data as absent.
+- Caption data is still generated on each load and is not editable or persistent.
+
+### Next
+
+Propose the smallest read-only project-page cue table and its explicit no-transcription state before wiring backend props to Vue.

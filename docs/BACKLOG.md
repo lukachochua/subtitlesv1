@@ -1,11 +1,11 @@
 # Current
 
-- Manually verify portrait-video sizing and overlay placement on project 5.
+- Add the minimal `CaptionCue` persistence model for the approved table.
 
 # Next
 
-- Complete Phase 8.4 by recording real browser verification of overlay timing and empty sections.
-- Propose the minimum persistence needed for Phase 9.1 cue text editing.
+- Persist generated cues only when a project has no saved cues.
+- Read saved cues as the editable source of truth on the project page.
 
 # Later
 
@@ -82,6 +82,7 @@
 - Phase 8.2b: Connected active-cue selection to local Vue playback state and exposed the result in development UI.
 - Phase 8.3: Rendered the active cue directly over native video playback with one fixed browser-preview style.
 - Phase 8.3b: Removed the forced 16:9 preview and preserved each source video's intrinsic aspect ratio.
+- Phase 9.1a: Approved persisted cues as the editable source of truth and added the reversible `caption_cues` migration.
 
 # Rejected / Out of Scope
 

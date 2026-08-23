@@ -1896,3 +1896,48 @@ The normal-page preview no longer imposes a 16:9 frame and should follow portrai
 ### Next
 
 Manually verify project 5's portrait layout, then complete Phase 8.4 and propose minimum persisted cue storage for text correction.
+
+## 2026-08-23 — Step 9.1a
+
+### Goal
+
+Establish the approved minimum database structure needed to preserve human caption corrections.
+
+### Changes
+
+- Added the reversible `caption_cues` migration.
+- Added the owning `video_project_id`, project-local `order`, cue `text`, integer `start_ms`, integer `end_ms`, and Laravel timestamps.
+- Added cascading deletion with the owning video project.
+- Added a unique constraint preventing duplicate cue order within one project.
+- Kept text size and all presentation settings out of individual cue rows.
+- No model, generated-cue persistence, editing endpoint, frontend form, or regeneration action was added.
+
+### Decisions
+
+- Preserve raw NeMo JSON as ASR evidence and make saved database cues the editable source of truth after initial generation.
+- Persist generated cues only when a project has no saved cues.
+- Require an explicit warned action for any future regeneration that could replace corrections.
+- Store future text size and other caption presentation as project-level style rather than per-cue data.
+
+### Verification
+
+- Laravel Pint completed successfully.
+- The complete Pest suite passes: 97 tests and 243 assertions.
+- The migration applied, rolled back, and reapplied successfully without removing existing video projects.
+- Laravel's database inspection reports all eight expected columns.
+- SQLite reports the compound unique index and the cascading foreign key.
+- The migration is currently applied in batch 4.
+- No cue rows exist yet because persistence behavior is a separate next step.
+
+### Result
+
+The database can now hold ordered, timed, editable captions without modifying preserved ASR output.
+
+### Problems / Notes
+
+- Application code does not yet read or write `caption_cues`.
+- Caption text remains read-only in the browser.
+
+### Next
+
+Add the minimal `CaptionCue` Eloquent model and relationship needed before persisting generated cues.

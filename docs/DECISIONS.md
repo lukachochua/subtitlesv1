@@ -395,6 +395,32 @@ Half-open intervals avoid displaying two adjacent cues at the same instant and g
 - Empty timeline regions render no caption.
 - Editing and persistence validation must preserve this interpretation when they are introduced.
 - Final rendering behavior should be compared with this browser rule when export work begins.
+## Decision: Persist editable caption cues separately from raw ASR output
+
+### Context
+
+The project page currently regenerates transient cues from preserved NeMo JSON. A browser text correction would therefore disappear on reload, while later timing edits, splitting, merging, and export all require one durable edited representation. Regenerating from ASR must not silently destroy human corrections.
+
+### Decision
+
+Store editable cues in `caption_cues` with `video_project_id`, project-local `order`, `text`, `start_ms`, `end_ms`, and Laravel timestamps. Enforce unique order within each project and cascade cue deletion when its video project is deleted.
+
+Generate and persist cues only when the project has no saved cues. After that first save, database cues are the editing, preview, and eventual export source of truth. Any future regeneration must be an explicit warned action rather than an automatic overwrite.
+
+Keep caption presentation settings, including text size, outside individual cue rows. Introduce them later as project-level caption style settings so every cue previews and renders consistently.
+
+### Reason
+
+Separating immutable experimental ASR evidence from mutable caption output preserves recovery and comparison while allowing corrections to survive reloads. A single project-level style avoids duplicated values and separates transcript content from presentation.
+
+### Consequences
+
+- Raw NeMo JSON remains unchanged when users edit captions.
+- Saved cues take precedence over transient regeneration on normal page loads.
+- Cue text, timing, order, splitting, and merging can build on one small table.
+- Text size and other style controls require a separate later persistence decision.
+- Regeneration behavior needs an explicit user-facing workflow before it is exposed.
+
 ## Decision: Isolate ffprobe duration inspection in one application action
 
 ### Context

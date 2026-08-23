@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\MergeCaptionCueWithNextController;
 use App\Http\Controllers\ShowVideoProjectController;
 use App\Http\Controllers\ShowVideoProjectMediaController;
 use App\Http\Controllers\SplitCaptionCueController;
@@ -33,6 +34,13 @@ Route::post(
 )
     ->scopeBindings()
     ->name('video-projects.caption-cues.split.store');
+
+Route::post(
+    '/video-projects/{videoProject}/caption-cues/{captionCue}/merge-next',
+    MergeCaptionCueWithNextController::class,
+)
+    ->scopeBindings()
+    ->name('video-projects.caption-cues.merge-next.store');
 
 Route::patch(
     '/video-projects/{videoProject}/caption-cues/{captionCue}/end-time',

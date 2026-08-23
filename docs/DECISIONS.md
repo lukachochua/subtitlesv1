@@ -454,6 +454,30 @@ The playhead provides a timing choice grounded in actual speech, while a determi
 - One-word cues cannot be split until their text contains at least two words.
 - Later cue orders change, while their text and timestamps remain unchanged.
 
+## Decision: Merge a cue only with its immediate next cue
+
+### Context
+
+Merging must specify which row survives, how text and timing combine, and how project-local ordering changes. Cues may legally contain gaps, so merging can also change what appears during an uncovered interval.
+
+### Decision
+
+Expose “Merge with next” on every saved cue except the final cue. Keep the selected cue, append the immediate next cue's trimmed text with one separating space, extend the selected cue's end to the next cue's end, delete the next row, and decrement all later cue orders in one transaction.
+
+Allow merging across a gap. The merged cue spans continuously from the selected cue's start through the next cue's end, including that former gap.
+
+### Reason
+
+A directional operation is unambiguous in a table and preserves the selected cue's identity and start boundary. Spanning a gap matches the user's explicit intent to group the two captions and can be refined using existing timing controls.
+
+### Consequences
+
+- Text and timing from two adjacent ordered rows become one editable row.
+- The selected cue ID and start remain stable; the next cue is deleted.
+- Later cues retain text and timing while their order decreases by one.
+- Merging across silence makes the combined caption visible during the former gap.
+- The last cue cannot be merged because it has no next cue.
+
 ## Decision: Persist editable caption cues separately from raw ASR output
 
 ### Context

@@ -7,6 +7,7 @@ import { home } from '@/routes';
 import { media as videoProjectMedia } from '@/routes/video-projects';
 import { update as updateCaptionCue } from '@/routes/video-projects/caption-cues';
 import { update as updateCaptionCueEndTime } from '@/routes/video-projects/caption-cues/end-time';
+import { store as mergeCaptionCueWithNext } from '@/routes/video-projects/caption-cues/merge-next';
 import { store as splitCaptionCue } from '@/routes/video-projects/caption-cues/split';
 import { update as updateCaptionCueStartTime } from '@/routes/video-projects/caption-cues/start-time';
 
@@ -525,6 +526,40 @@ const seekToCue = (cue: CaptionCue): void => {
                                             class="max-w-52 text-xs whitespace-normal text-red-700 dark:text-red-400"
                                         >
                                             {{ errors.split_ms }}
+                                        </p>
+                                    </Form>
+                                    <Form
+                                        v-if="cue.id !== null"
+                                        v-bind="
+                                            mergeCaptionCueWithNext.form({
+                                                videoProject: videoProject.id,
+                                                captionCue: cue.id,
+                                            })
+                                        "
+                                        :error-bag="`caption-cue-merge-${cue.id}`"
+                                        :options="{ preserveScroll: true }"
+                                        class="mt-3 grid min-w-44 gap-2"
+                                        #default="{ errors, processing }"
+                                    >
+                                        <button
+                                            type="submit"
+                                            :disabled="
+                                                processing ||
+                                                cueIndex === cues.length - 1
+                                            "
+                                            class="rounded-md border border-stone-300 px-3 py-1.5 text-xs font-semibold whitespace-nowrap text-stone-700 hover:bg-stone-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 disabled:cursor-not-allowed disabled:opacity-40 dark:border-stone-700 dark:text-stone-200 dark:hover:bg-stone-800 dark:focus-visible:ring-red-400"
+                                        >
+                                            {{
+                                                processing
+                                                    ? 'Merging…'
+                                                    : 'Merge with next'
+                                            }}
+                                        </button>
+                                        <p
+                                            v-if="errors.caption_cue"
+                                            class="max-w-52 text-xs whitespace-normal text-red-700 dark:text-red-400"
+                                        >
+                                            {{ errors.caption_cue }}
                                         </p>
                                     </Form>
                                 </td>

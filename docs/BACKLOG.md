@@ -1,11 +1,11 @@
 # Current
 
-- Manually verify playhead-based cue splitting against project 5 playback.
+- Manually verify adjacent cue merging against project 5 playback.
 
 # Next
 
-- Define and implement adjacent cue merging behavior.
 - Begin incremental caption styling with one coherent default style.
+- Add a live font-size control after the default style boundary is established.
 
 # Later
 
@@ -94,6 +94,8 @@
 - Phase 9.4: Added validated end-time persistence and a per-cue millisecond editing control.
 - Phase 9.5: Established, documented, and enforced timestamp invariants and a no-overlap cue policy.
 - Phase 9.6: Added transactional playhead-based cue splitting with deterministic text distribution.
+- Phase 9.7: Added transactional merging of a cue with its immediate next cue.
+- Phase 9: Established saved cue correction, seeking, timing edits, invariants, splitting, and merging.
 
 # Rejected / Out of Scope
 

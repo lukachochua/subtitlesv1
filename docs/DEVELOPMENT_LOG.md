@@ -2454,3 +2454,55 @@ A multi-word saved cue can now become two ordered, editable cues at the current 
 ### Next
 
 Manually verify splitting on project 5, then define and implement merging adjacent cues in Phase 9.7.
+
+## 2026-08-23 — Step 9.7
+
+### Goal
+
+Merge one saved cue with its immediate next cue without leaving broken ordering or partial data.
+
+### Changes
+
+- Added a project-scoped POST endpoint for merging a cue with its next ordered cue.
+- Added validation rejecting the operation for the final cue.
+- Added a transactional action that joins trimmed texts with one space and extends the selected cue through the next cue's end.
+- Deleted the consumed next cue and shifted all later orders down safely.
+- Allowed an intentional merge to span any gap between the two original cues.
+- Added a Wayfinder-backed “Merge with next” control, disabled for the final cue.
+- Added focused tests for merged text and timing, deletion, reordered later cues, final-cue rejection, and project scoping.
+- Did not add undo, confirmation, styling, or export.
+
+### Decisions
+
+- Keep the selected cue's ID, order, and start boundary.
+- Consume only the immediate next cue in project order.
+- Treat merging across a gap as an explicit choice to cover that gap.
+- Keep the multi-row mutation atomic.
+
+### Verification
+
+- Wayfinder regenerated typed action, route, and form definitions successfully.
+- Laravel Pint completed successfully.
+- The focused merge suite passes: 3 tests and 21 assertions.
+- The complete Pest suite passes: 153 tests and 531 assertions.
+- The frontend active-cue suite passes: 8 tests.
+- Vue TypeScript checking completed with no errors.
+- ESLint completed with no errors.
+- The Vite production build completed successfully.
+- The merge route is registered with the expected project-scoped name.
+- The existing optional `fontaine` optimization notice remains informational.
+- Actual browser merging against project 5 has not yet been manually verified.
+
+### Result
+
+Saved cues now support text correction, seeking, timing correction, splitting, and adjacent merging while preserving the documented timeline invariants.
+
+### Problems / Notes
+
+- Merge is immediately destructive for the consumed row and has no undo control yet.
+- A merged cue may become long and should be corrected or split again when needed.
+- A former silent gap becomes captioned after merging.
+
+### Next
+
+Manually verify merging on project 5, then begin Phase 10.1 by defining one coherent default caption style before adding user controls.

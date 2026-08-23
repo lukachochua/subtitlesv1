@@ -4,11 +4,14 @@ import { computed, ref } from 'vue';
 import type { CaptionCue } from '@/lib/caption-cues';
 import { findActiveCaptionCue } from '@/lib/caption-cues';
 import {
+    captionPlacementToCss,
     captionStyleToCss,
+    CAPTION_PLACEMENT_OPTIONS,
     CAPTION_FONT_OPTIONS,
     CAPTION_FONT_SIZE_MAX_PX,
     CAPTION_FONT_SIZE_MIN_PX,
     DEFAULT_CAPTION_STYLE,
+    DEFAULT_CAPTION_PLACEMENT,
     normalizeCaptionBackgroundOpacityPercent,
     normalizeCaptionFontSize,
 } from '@/lib/caption-style';
@@ -86,6 +89,7 @@ const captionBackgroundColor = ref(DEFAULT_CAPTION_STYLE.backgroundColor);
 const captionBackgroundOpacityPercent = ref(
     Math.round(DEFAULT_CAPTION_STYLE.backgroundOpacity * 100),
 );
+const captionPlacement = ref(DEFAULT_CAPTION_PLACEMENT);
 const captionIsBold = ref(DEFAULT_CAPTION_STYLE.fontWeight >= 700);
 const captionIsItalic = ref(DEFAULT_CAPTION_STYLE.fontStyle === 'italic');
 const captionStyle = computed(() => ({
@@ -145,7 +149,7 @@ const updateCaptionBackgroundOpacity = (event: Event): void => {
     >
         <Head :title="videoProject.original_filename" />
 
-        <main class="w-full max-w-2xl">
+        <main class="w-full max-w-5xl">
             <p
                 class="text-sm font-semibold tracking-widest text-red-700 uppercase dark:text-red-400"
             >
@@ -182,7 +186,8 @@ const updateCaptionBackgroundOpacity = (event: Event): void => {
 
                     <div
                         v-if="activeCue"
-                        class="pointer-events-none absolute inset-x-4 bottom-14 flex justify-center"
+                        class="pointer-events-none absolute inset-0 flex justify-center px-4"
+                        :style="captionPlacementToCss(captionPlacement)"
                     >
                         <p
                             class="max-w-[90%] rounded-md px-3 py-1.5 wrap-break-word whitespace-pre-wrap"
@@ -430,6 +435,36 @@ const updateCaptionBackgroundOpacity = (event: Event): void => {
                                 </div>
                             </div>
                         </div>
+
+                        <fieldset>
+                            <legend
+                                class="text-sm font-medium text-stone-700 dark:text-stone-200"
+                            >
+                                Placement
+                            </legend>
+                            <div
+                                class="mt-2 grid grid-cols-3 rounded-lg border border-stone-300 p-1 dark:border-stone-700"
+                            >
+                                <label
+                                    v-for="placementOption in CAPTION_PLACEMENT_OPTIONS"
+                                    :key="placementOption.value"
+                                    class="cursor-pointer"
+                                >
+                                    <input
+                                        v-model="captionPlacement"
+                                        type="radio"
+                                        name="caption-placement"
+                                        :value="placementOption.value"
+                                        class="peer sr-only"
+                                    />
+                                    <span
+                                        class="block rounded-md px-3 py-2 text-center text-sm font-semibold text-stone-600 peer-checked:bg-red-700 peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-red-600 peer-focus-visible:ring-offset-2 dark:text-stone-300 dark:peer-checked:bg-red-600 dark:peer-focus-visible:ring-red-400 dark:peer-focus-visible:ring-offset-stone-900"
+                                    >
+                                        {{ placementOption.label }}
+                                    </span>
+                                </label>
+                            </div>
+                        </fieldset>
                     </div>
                 </div>
 
@@ -497,18 +532,18 @@ const updateCaptionBackgroundOpacity = (event: Event): void => {
                         >
                             <tr>
                                 <th scope="col" class="px-6 py-3 font-semibold">
-                                    Cue
+                                    #
                                 </th>
                                 <th scope="col" class="px-6 py-3 font-semibold">
                                     Caption
                                 </th>
                                 <th scope="col" class="px-6 py-3 font-semibold">
-                                    Start
+                                    Timing
                                 </th>
-                                <th scope="col" class="px-6 py-3 font-semibold">
-                                    End
-                                </th>
-                                <th scope="col" class="px-6 py-3 font-semibold">
+                                <th
+                                    scope="col"
+                                    class="px-6 py-3 text-right font-semibold"
+                                >
                                     Actions
                                 </th>
                             </tr>
@@ -532,7 +567,9 @@ const updateCaptionBackgroundOpacity = (event: Event): void => {
                                         #{{ cue.order }}
                                     </button>
                                 </td>
-                                <td class="min-w-80 px-6 py-4 leading-6">
+                                <td
+                                    class="min-w-72 px-6 py-4 align-top leading-6"
+                                >
                                     <Form
                                         v-if="cue.id !== null"
                                         v-bind="
@@ -596,250 +633,296 @@ const updateCaptionBackgroundOpacity = (event: Event): void => {
                                         {{ cue.text }}
                                     </template>
                                 </td>
-                                <td
-                                    class="px-6 py-4 font-mono whitespace-nowrap"
-                                >
-                                    <Form
-                                        v-if="cue.id !== null"
-                                        v-bind="
-                                            updateCaptionCueStartTime.form({
-                                                videoProject: videoProject.id,
-                                                captionCue: cue.id,
-                                            })
-                                        "
-                                        :error-bag="`caption-cue-start-time-${cue.id}`"
-                                        :options="{ preserveScroll: true }"
-                                        set-defaults-on-success
-                                        class="grid min-w-44 gap-2"
-                                        #default="{
-                                            errors,
-                                            processing,
-                                            recentlySuccessful,
-                                        }"
-                                    >
-                                        <label
-                                            :for="`caption-cue-${cue.id}-start-ms`"
-                                            class="sr-only"
-                                        >
-                                            Caption cue {{ cue.order }} start
-                                            time in milliseconds
-                                        </label>
-                                        <div class="flex items-center gap-2">
-                                            <input
-                                                :id="`caption-cue-${cue.id}-start-ms`"
-                                                name="start_ms"
-                                                type="number"
-                                                :value="cue.start_ms"
-                                                :min="
-                                                    getCueStartMinimum(cueIndex)
-                                                "
-                                                :max="cue.end_ms - 1"
-                                                step="1"
-                                                inputmode="numeric"
-                                                :disabled="processing"
-                                                class="w-24 rounded-lg border border-stone-300 bg-white px-2 py-1.5 font-mono text-stone-950 tabular-nums focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 disabled:cursor-wait disabled:opacity-60 dark:border-stone-700 dark:bg-stone-950 dark:text-stone-50 dark:focus-visible:ring-red-400"
-                                            />
-                                            <span
-                                                class="text-xs text-stone-500 dark:text-stone-400"
-                                            >
-                                                ms
-                                            </span>
-                                            <button
-                                                type="submit"
-                                                :disabled="processing"
-                                                class="rounded-md border border-stone-300 px-2 py-1.5 text-xs font-semibold text-stone-700 hover:bg-stone-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 disabled:cursor-wait disabled:opacity-60 dark:border-stone-700 dark:text-stone-200 dark:hover:bg-stone-800 dark:focus-visible:ring-red-400"
-                                            >
-                                                {{
-                                                    processing
-                                                        ? 'Saving…'
-                                                        : 'Save'
-                                                }}
-                                            </button>
-                                        </div>
-                                        <span
-                                            v-if="recentlySuccessful"
-                                            class="font-sans text-xs font-medium text-emerald-700 dark:text-emerald-400"
-                                        >
-                                            Saved
-                                        </span>
-                                        <p
-                                            v-if="errors.start_ms"
-                                            class="max-w-52 font-sans text-xs whitespace-normal text-red-700 dark:text-red-400"
-                                        >
-                                            {{ errors.start_ms }}
-                                        </p>
-                                    </Form>
-                                    <template v-else>
-                                        {{ formatCueTime(cue.start_ms) }}
-                                    </template>
-                                </td>
-                                <td
-                                    class="px-6 py-4 font-mono whitespace-nowrap"
-                                >
-                                    <Form
-                                        v-if="cue.id !== null"
-                                        v-bind="
-                                            updateCaptionCueEndTime.form({
-                                                videoProject: videoProject.id,
-                                                captionCue: cue.id,
-                                            })
-                                        "
-                                        :error-bag="`caption-cue-end-time-${cue.id}`"
-                                        :options="{ preserveScroll: true }"
-                                        set-defaults-on-success
-                                        class="grid min-w-44 gap-2"
-                                        #default="{
-                                            errors,
-                                            processing,
-                                            recentlySuccessful,
-                                        }"
-                                    >
-                                        <label
-                                            :for="`caption-cue-${cue.id}-end-ms`"
-                                            class="sr-only"
-                                        >
-                                            Caption cue {{ cue.order }} end time
-                                            in milliseconds
-                                        </label>
-                                        <div class="flex items-center gap-2">
-                                            <input
-                                                :id="`caption-cue-${cue.id}-end-ms`"
-                                                name="end_ms"
-                                                type="number"
-                                                :value="cue.end_ms"
-                                                :min="cue.start_ms + 1"
-                                                :max="
-                                                    getCueEndMaximum(cueIndex)
-                                                "
-                                                step="1"
-                                                inputmode="numeric"
-                                                :disabled="processing"
-                                                class="w-24 rounded-lg border border-stone-300 bg-white px-2 py-1.5 font-mono text-stone-950 tabular-nums focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 disabled:cursor-wait disabled:opacity-60 dark:border-stone-700 dark:bg-stone-950 dark:text-stone-50 dark:focus-visible:ring-red-400"
-                                            />
-                                            <span
-                                                class="text-xs text-stone-500 dark:text-stone-400"
-                                            >
-                                                ms
-                                            </span>
-                                            <button
-                                                type="submit"
-                                                :disabled="processing"
-                                                class="rounded-md border border-stone-300 px-2 py-1.5 text-xs font-semibold text-stone-700 hover:bg-stone-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 disabled:cursor-wait disabled:opacity-60 dark:border-stone-700 dark:text-stone-200 dark:hover:bg-stone-800 dark:focus-visible:ring-red-400"
-                                            >
-                                                {{
-                                                    processing
-                                                        ? 'Saving…'
-                                                        : 'Save'
-                                                }}
-                                            </button>
-                                        </div>
-                                        <span
-                                            v-if="recentlySuccessful"
-                                            class="font-sans text-xs font-medium text-emerald-700 dark:text-emerald-400"
-                                        >
-                                            Saved
-                                        </span>
-                                        <p
-                                            v-if="errors.end_ms"
-                                            class="max-w-52 font-sans text-xs whitespace-normal text-red-700 dark:text-red-400"
-                                        >
-                                            {{ errors.end_ms }}
-                                        </p>
-                                    </Form>
-                                    <template v-else>
-                                        {{ formatCueTime(cue.end_ms) }}
-                                    </template>
-                                </td>
                                 <td class="px-6 py-4 align-top">
-                                    <Form
-                                        v-if="cue.id !== null"
-                                        v-bind="
-                                            splitCaptionCue.form({
-                                                videoProject: videoProject.id,
-                                                captionCue: cue.id,
-                                            })
-                                        "
-                                        :error-bag="`caption-cue-split-${cue.id}`"
-                                        :options="{ preserveScroll: true }"
-                                        class="grid min-w-44 gap-2"
-                                        #default="{ errors, processing }"
-                                    >
-                                        <input
-                                            type="hidden"
-                                            name="split_ms"
-                                            :value="currentTimeMilliseconds"
-                                        />
-                                        <span
-                                            class="block"
-                                            :title="
-                                                getSplitUnavailableReason(
-                                                    cue,
-                                                ) ??
-                                                `Split at ${currentTimeMilliseconds} ms`
+                                    <div class="grid min-w-52 gap-3">
+                                        <Form
+                                            v-if="cue.id !== null"
+                                            v-bind="
+                                                updateCaptionCueStartTime.form({
+                                                    videoProject:
+                                                        videoProject.id,
+                                                    captionCue: cue.id,
+                                                })
                                             "
+                                            :error-bag="`caption-cue-start-time-${cue.id}`"
+                                            :options="{ preserveScroll: true }"
+                                            set-defaults-on-success
+                                            class="grid gap-1.5"
+                                            #default="{
+                                                errors,
+                                                processing,
+                                                recentlySuccessful,
+                                            }"
                                         >
-                                            <button
-                                                type="submit"
-                                                :aria-label="
-                                                    getSplitUnavailableReason(
-                                                        cue,
-                                                    ) ??
-                                                    `Split cue at ${currentTimeMilliseconds} milliseconds`
-                                                "
-                                                :disabled="
-                                                    processing ||
-                                                    !canSplitCueAtPlayhead(cue)
-                                                "
-                                                class="w-full rounded-md border border-stone-300 px-3 py-1.5 text-xs font-semibold whitespace-nowrap text-stone-700 hover:bg-stone-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 disabled:cursor-not-allowed disabled:opacity-40 dark:border-stone-700 dark:text-stone-200 dark:hover:bg-stone-800 dark:focus-visible:ring-red-400"
+                                            <label
+                                                :for="`caption-cue-${cue.id}-start-ms`"
+                                                class="font-sans text-xs font-semibold text-stone-500 dark:text-stone-400"
                                             >
+                                                Start
+                                            </label>
+                                            <div
+                                                class="flex items-center gap-2"
+                                            >
+                                                <input
+                                                    :id="`caption-cue-${cue.id}-start-ms`"
+                                                    name="start_ms"
+                                                    type="number"
+                                                    :value="cue.start_ms"
+                                                    :min="
+                                                        getCueStartMinimum(
+                                                            cueIndex,
+                                                        )
+                                                    "
+                                                    :max="cue.end_ms - 1"
+                                                    step="1"
+                                                    inputmode="numeric"
+                                                    :disabled="processing"
+                                                    class="w-24 rounded-lg border border-stone-300 bg-white px-2 py-1.5 font-mono text-stone-950 tabular-nums focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 disabled:cursor-wait disabled:opacity-60 dark:border-stone-700 dark:bg-stone-950 dark:text-stone-50 dark:focus-visible:ring-red-400"
+                                                />
+                                                <span
+                                                    class="text-xs text-stone-500 dark:text-stone-400"
+                                                >
+                                                    ms
+                                                </span>
+                                                <button
+                                                    type="submit"
+                                                    :disabled="processing"
+                                                    class="rounded-md border border-stone-300 px-2 py-1.5 text-xs font-semibold text-stone-700 hover:bg-stone-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 disabled:cursor-wait disabled:opacity-60 dark:border-stone-700 dark:text-stone-200 dark:hover:bg-stone-800 dark:focus-visible:ring-red-400"
+                                                >
+                                                    {{
+                                                        processing
+                                                            ? 'Saving…'
+                                                            : 'Save'
+                                                    }}
+                                                </button>
+                                            </div>
+                                            <span
+                                                v-if="recentlySuccessful"
+                                                class="font-sans text-xs font-medium text-emerald-700 dark:text-emerald-400"
+                                            >
+                                                Saved
+                                            </span>
+                                            <p
+                                                v-if="errors.start_ms"
+                                                class="max-w-52 font-sans text-xs whitespace-normal text-red-700 dark:text-red-400"
+                                            >
+                                                {{ errors.start_ms }}
+                                            </p>
+                                        </Form>
+                                        <template v-else>
+                                            <span class="font-mono">
+                                                Start:
                                                 {{
-                                                    processing
-                                                        ? 'Splitting…'
-                                                        : 'Split at playhead'
+                                                    formatCueTime(cue.start_ms)
                                                 }}
-                                            </button>
-                                        </span>
-                                        <p
-                                            v-if="errors.split_ms"
-                                            class="max-w-52 text-xs whitespace-normal text-red-700 dark:text-red-400"
-                                        >
-                                            {{ errors.split_ms }}
-                                        </p>
-                                    </Form>
-                                    <Form
-                                        v-if="cue.id !== null"
-                                        v-bind="
-                                            mergeCaptionCueWithNext.form({
-                                                videoProject: videoProject.id,
-                                                captionCue: cue.id,
-                                            })
-                                        "
-                                        :error-bag="`caption-cue-merge-${cue.id}`"
-                                        :options="{ preserveScroll: true }"
-                                        class="mt-3 grid min-w-44 gap-2"
-                                        #default="{ errors, processing }"
-                                    >
-                                        <button
-                                            type="submit"
-                                            :disabled="
-                                                processing ||
-                                                cueIndex === cues.length - 1
+                                            </span>
+                                        </template>
+                                        <Form
+                                            v-if="cue.id !== null"
+                                            v-bind="
+                                                updateCaptionCueEndTime.form({
+                                                    videoProject:
+                                                        videoProject.id,
+                                                    captionCue: cue.id,
+                                                })
                                             "
-                                            class="rounded-md border border-stone-300 px-3 py-1.5 text-xs font-semibold whitespace-nowrap text-stone-700 hover:bg-stone-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 disabled:cursor-not-allowed disabled:opacity-40 dark:border-stone-700 dark:text-stone-200 dark:hover:bg-stone-800 dark:focus-visible:ring-red-400"
+                                            :error-bag="`caption-cue-end-time-${cue.id}`"
+                                            :options="{ preserveScroll: true }"
+                                            set-defaults-on-success
+                                            class="grid gap-1.5"
+                                            #default="{
+                                                errors,
+                                                processing,
+                                                recentlySuccessful,
+                                            }"
                                         >
-                                            {{
-                                                processing
-                                                    ? 'Merging…'
-                                                    : 'Merge with next'
-                                            }}
-                                        </button>
-                                        <p
-                                            v-if="errors.caption_cue"
-                                            class="max-w-52 text-xs whitespace-normal text-red-700 dark:text-red-400"
+                                            <label
+                                                :for="`caption-cue-${cue.id}-end-ms`"
+                                                class="font-sans text-xs font-semibold text-stone-500 dark:text-stone-400"
+                                            >
+                                                End
+                                            </label>
+                                            <div
+                                                class="flex items-center gap-2"
+                                            >
+                                                <input
+                                                    :id="`caption-cue-${cue.id}-end-ms`"
+                                                    name="end_ms"
+                                                    type="number"
+                                                    :value="cue.end_ms"
+                                                    :min="cue.start_ms + 1"
+                                                    :max="
+                                                        getCueEndMaximum(
+                                                            cueIndex,
+                                                        )
+                                                    "
+                                                    step="1"
+                                                    inputmode="numeric"
+                                                    :disabled="processing"
+                                                    class="w-24 rounded-lg border border-stone-300 bg-white px-2 py-1.5 font-mono text-stone-950 tabular-nums focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 disabled:cursor-wait disabled:opacity-60 dark:border-stone-700 dark:bg-stone-950 dark:text-stone-50 dark:focus-visible:ring-red-400"
+                                                />
+                                                <span
+                                                    class="text-xs text-stone-500 dark:text-stone-400"
+                                                >
+                                                    ms
+                                                </span>
+                                                <button
+                                                    type="submit"
+                                                    :disabled="processing"
+                                                    class="rounded-md border border-stone-300 px-2 py-1.5 text-xs font-semibold text-stone-700 hover:bg-stone-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 disabled:cursor-wait disabled:opacity-60 dark:border-stone-700 dark:text-stone-200 dark:hover:bg-stone-800 dark:focus-visible:ring-red-400"
+                                                >
+                                                    {{
+                                                        processing
+                                                            ? 'Saving…'
+                                                            : 'Save'
+                                                    }}
+                                                </button>
+                                            </div>
+                                            <span
+                                                v-if="recentlySuccessful"
+                                                class="font-sans text-xs font-medium text-emerald-700 dark:text-emerald-400"
+                                            >
+                                                Saved
+                                            </span>
+                                            <p
+                                                v-if="errors.end_ms"
+                                                class="max-w-52 font-sans text-xs whitespace-normal text-red-700 dark:text-red-400"
+                                            >
+                                                {{ errors.end_ms }}
+                                            </p>
+                                        </Form>
+                                        <template v-else>
+                                            <span class="font-mono">
+                                                End:
+                                                {{ formatCueTime(cue.end_ms) }}
+                                            </span>
+                                        </template>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-right align-top">
+                                    <details
+                                        class="group inline-block text-left"
+                                    >
+                                        <summary
+                                            class="inline-flex size-9 cursor-pointer list-none items-center justify-center rounded-lg border border-stone-300 text-xl leading-none text-stone-600 hover:bg-stone-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 dark:border-stone-700 dark:text-stone-300 dark:hover:bg-stone-800 dark:focus-visible:ring-red-400 [&::-webkit-details-marker]:hidden"
+                                            :aria-label="`Open actions for caption cue ${cue.order}`"
+                                            title="Caption actions"
                                         >
-                                            {{ errors.caption_cue }}
-                                        </p>
-                                    </Form>
+                                            ⋮
+                                        </summary>
+                                        <div
+                                            class="mt-2 grid w-48 gap-2 rounded-lg border border-stone-200 bg-white p-2 shadow-lg dark:border-stone-700 dark:bg-stone-950"
+                                        >
+                                            <Form
+                                                v-if="cue.id !== null"
+                                                v-bind="
+                                                    splitCaptionCue.form({
+                                                        videoProject:
+                                                            videoProject.id,
+                                                        captionCue: cue.id,
+                                                    })
+                                                "
+                                                :error-bag="`caption-cue-split-${cue.id}`"
+                                                :options="{
+                                                    preserveScroll: true,
+                                                }"
+                                                class="grid gap-2"
+                                                #default="{
+                                                    errors,
+                                                    processing,
+                                                }"
+                                            >
+                                                <input
+                                                    type="hidden"
+                                                    name="split_ms"
+                                                    :value="
+                                                        currentTimeMilliseconds
+                                                    "
+                                                />
+                                                <span
+                                                    class="block"
+                                                    :title="
+                                                        getSplitUnavailableReason(
+                                                            cue,
+                                                        ) ??
+                                                        `Split at ${currentTimeMilliseconds} ms`
+                                                    "
+                                                >
+                                                    <button
+                                                        type="submit"
+                                                        :aria-label="
+                                                            getSplitUnavailableReason(
+                                                                cue,
+                                                            ) ??
+                                                            `Split cue at ${currentTimeMilliseconds} milliseconds`
+                                                        "
+                                                        :disabled="
+                                                            processing ||
+                                                            !canSplitCueAtPlayhead(
+                                                                cue,
+                                                            )
+                                                        "
+                                                        class="w-full rounded-md px-3 py-2 text-left text-xs font-semibold whitespace-nowrap text-stone-700 hover:bg-stone-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 disabled:cursor-not-allowed disabled:opacity-40 dark:text-stone-200 dark:hover:bg-stone-800 dark:focus-visible:ring-red-400"
+                                                    >
+                                                        {{
+                                                            processing
+                                                                ? 'Splitting…'
+                                                                : 'Split at playhead'
+                                                        }}
+                                                    </button>
+                                                </span>
+                                                <p
+                                                    v-if="errors.split_ms"
+                                                    class="max-w-52 text-xs whitespace-normal text-red-700 dark:text-red-400"
+                                                >
+                                                    {{ errors.split_ms }}
+                                                </p>
+                                            </Form>
+                                            <Form
+                                                v-if="cue.id !== null"
+                                                v-bind="
+                                                    mergeCaptionCueWithNext.form(
+                                                        {
+                                                            videoProject:
+                                                                videoProject.id,
+                                                            captionCue: cue.id,
+                                                        },
+                                                    )
+                                                "
+                                                :error-bag="`caption-cue-merge-${cue.id}`"
+                                                :options="{
+                                                    preserveScroll: true,
+                                                }"
+                                                class="grid gap-2"
+                                                #default="{
+                                                    errors,
+                                                    processing,
+                                                }"
+                                            >
+                                                <button
+                                                    type="submit"
+                                                    :disabled="
+                                                        processing ||
+                                                        cueIndex ===
+                                                            cues.length - 1
+                                                    "
+                                                    class="rounded-md px-3 py-2 text-left text-xs font-semibold whitespace-nowrap text-stone-700 hover:bg-stone-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 disabled:cursor-not-allowed disabled:opacity-40 dark:text-stone-200 dark:hover:bg-stone-800 dark:focus-visible:ring-red-400"
+                                                >
+                                                    {{
+                                                        processing
+                                                            ? 'Merging…'
+                                                            : 'Merge with next'
+                                                    }}
+                                                </button>
+                                                <p
+                                                    v-if="errors.caption_cue"
+                                                    class="max-w-52 text-xs whitespace-normal text-red-700 dark:text-red-400"
+                                                >
+                                                    {{ errors.caption_cue }}
+                                                </p>
+                                            </Form>
+                                        </div>
+                                    </details>
                                 </td>
                             </tr>
                         </tbody>

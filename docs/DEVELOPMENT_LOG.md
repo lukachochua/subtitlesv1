@@ -2730,3 +2730,53 @@ The live browser overlay now supports independently adjustable background color 
 ### Next
 
 Manually verify background color and opacity on project 5, then add Phase 10.8 basic top, middle, and bottom placement.
+
+## 2026-08-23 — Step 10.8 and caption-editor layout refinement
+
+### Goal
+
+Add the first useful caption-placement choices and make the generated-caption editor easier to scan and operate.
+
+### Changes
+
+- Added live top, middle, and bottom placement controls, with bottom retained as the default.
+- Added a tested pure mapping from each placement to browser overlay layout.
+- Kept bottom captions above native video controls.
+- Widened the project workspace for the editing interface while preserving the video's intrinsic dimensions.
+- Reduced the generated-caption table to four clear columns: number, caption, timing, and actions.
+- Combined start and end controls in one labeled timing column.
+- Preserved cue numbering as the control that seeks to the cue start.
+- Moved split and merge into a compact, accessible per-cue actions menu.
+- Preserved all existing text, timing, split, and merge forms and validation behavior.
+- Did not add vertical offset, persistence, or final-render placement mapping.
+
+### Decisions
+
+- Keep caption text and timing visible because they are the primary correction workflow.
+- Put less frequent structural operations behind a native disclosure menu rather than displaying large action buttons in every row.
+- Use three coarse placement choices before adding fine vertical offset.
+
+### Verification
+
+- The active-cue frontend suite passes: 8 tests.
+- The caption-style frontend suite passes: 8 tests.
+- The complete Pest suite passes: 153 tests and 531 assertions.
+- Vue TypeScript checking completed with no errors.
+- ESLint completed with no errors.
+- The Vite production build completed successfully.
+- The existing optional `fontaine` optimization notice remains informational.
+- Placement and editor interactions have not yet been manually verified in a browser.
+
+### Result
+
+Captions can be previewed at the top, middle, or bottom of the video, and generated cues now use a cleaner editing layout with compact structural actions.
+
+### Problems / Notes
+
+- Placement resets to bottom on reload.
+- The actions menu uses the browser's native disclosure behavior and should be checked at narrow viewport widths.
+- Final rendered placement must later be compared against the browser preview.
+
+### Next
+
+Manually verify all three placements and the reorganized cue controls on project 5, then add Phase 10.9 vertical offset.

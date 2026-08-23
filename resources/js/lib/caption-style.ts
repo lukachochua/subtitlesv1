@@ -13,6 +13,19 @@ export interface CaptionStyle {
     textShadow: string;
 }
 
+export type CaptionPlacement = 'top' | 'middle' | 'bottom';
+
+export const CAPTION_PLACEMENT_OPTIONS: ReadonlyArray<{
+    label: string;
+    value: CaptionPlacement;
+}> = Object.freeze([
+    { label: 'Top', value: 'top' },
+    { label: 'Middle', value: 'middle' },
+    { label: 'Bottom', value: 'bottom' },
+]);
+
+export const DEFAULT_CAPTION_PLACEMENT: CaptionPlacement = 'bottom';
+
 export const CAPTION_FONT_OPTIONS = Object.freeze([
     {
         label: 'Georgian sans',
@@ -88,3 +101,17 @@ export const captionStyleToCss = (style: CaptionStyle): CSSProperties => ({
     textAlign: style.textAlign,
     textShadow: style.textShadow,
 });
+
+export const captionPlacementToCss = (
+    placement: CaptionPlacement,
+): CSSProperties => {
+    if (placement === 'top') {
+        return { alignItems: 'flex-start', paddingTop: '1rem' };
+    }
+
+    if (placement === 'middle') {
+        return { alignItems: 'center' };
+    }
+
+    return { alignItems: 'flex-end', paddingBottom: '3.5rem' };
+};

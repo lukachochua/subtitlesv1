@@ -1,11 +1,11 @@
 # Current
 
-- Manually verify caption background color and opacity with real Georgian captions on project 5.
+- Manually verify caption placement and the reorganized caption editor on project 5.
 
 # Next
 
-- Add basic top, middle, and bottom caption placement.
 - Add a live vertical-offset control after basic placement is verified.
+- Add outline and shadow controls only after confirming which settings can map cleanly to final rendering.
 
 # Later
 
@@ -105,6 +105,8 @@
 - Phase 10.11a: Added Georgian-aware browser font-stack choices pending real-machine font QA.
 - Phase 10.6: Added browser-local live caption background-color control.
 - Phase 10.7: Added browser-local live caption background-opacity control.
+- Phase 10.8: Added browser-local top, middle, and bottom caption placement.
+- Caption editor UI: Grouped start/end timing and moved split/merge into a compact per-cue actions menu.
 
 # Rejected / Out of Scope
 

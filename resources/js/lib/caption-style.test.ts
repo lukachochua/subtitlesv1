@@ -2,12 +2,29 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    captionPlacementToCss,
     captionStyleToCss,
     CAPTION_FONT_OPTIONS,
+    DEFAULT_CAPTION_PLACEMENT,
     DEFAULT_CAPTION_STYLE,
     normalizeCaptionBackgroundOpacityPercent,
     normalizeCaptionFontSize,
 } from './caption-style.ts';
+
+test('maps top, middle, and bottom caption placement to overlay CSS', () => {
+    assert.equal(DEFAULT_CAPTION_PLACEMENT, 'bottom');
+    assert.deepEqual(captionPlacementToCss('top'), {
+        alignItems: 'flex-start',
+        paddingTop: '1rem',
+    });
+    assert.deepEqual(captionPlacementToCss('middle'), {
+        alignItems: 'center',
+    });
+    assert.deepEqual(captionPlacementToCss('bottom'), {
+        alignItems: 'flex-end',
+        paddingBottom: '3.5rem',
+    });
+});
 
 test('defines one coherent default caption style', () => {
     assert.deepEqual(DEFAULT_CAPTION_STYLE, {

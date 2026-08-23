@@ -497,6 +497,7 @@ line height: 1.25
 text: white
 background: black at 75% opacity
 alignment: center
+placement: bottom
 text shadow: 0 1px 2px black at 90% opacity
 ```
 
@@ -511,6 +512,7 @@ Named values create the smallest usable style boundary for live controls without
 - Browser preview has one inspectable and testable default.
 - Phase 10 controls can change font family, size, weight, style, text color, background color, and background opacity in local state from this baseline.
 - Background color and opacity remain separate style values so users can adjust transparency without changing the chosen color and later rendering can map both explicitly.
+- Top, middle, and bottom are the initial placement choices; bottom remains the default, with browser controls left clear of the caption.
 - Persistence remains undecided until useful controls exist and their data shape is proven.
 - Final ASS/libass mapping must be validated separately; CSS values are not assumed to render identically.
 

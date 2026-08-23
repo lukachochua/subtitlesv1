@@ -1,11 +1,11 @@
 # Current
 
-- Verify corrected text updates the table and overlay and survives a page reload.
+- Manually verify saved text, cue seeking, and start-time editing against project 5 playback.
 
 # Next
 
-- Add click-to-seek behavior from a cue row.
-- Add validated start-time editing.
+- Add validated end-time editing and its frontend control.
+- Establish and document complete timestamp invariants and overlap policy.
 
 # Later
 
@@ -89,6 +89,8 @@
 - Phase 9.1e: Made ordered saved cues the project page's source of truth with transient NeMo fallback.
 - Phase 9.1f: Added a validated, project-scoped endpoint that updates only saved cue text.
 - Phase 9.1g: Added per-cue text forms wired through Wayfinder to saved caption rows.
+- Phase 9.2: Added accessible cue-number controls that seek native video to each cue's start.
+- Phase 9.3: Added validated start-time persistence and a per-cue millisecond editing control.
 
 # Rejected / Out of Scope
 

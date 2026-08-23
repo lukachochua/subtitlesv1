@@ -2206,3 +2206,101 @@ Every persisted project 5 cue now has a small text correction form whose success
 ### Next
 
 Manually correct one project 5 cue, play its interval, reload the page, and verify the corrected text remains in both the table and overlay.
+
+## 2026-08-23 — Step 9.2
+
+### Goal
+
+Jump native video playback directly to a selected caption cue's start time.
+
+### Changes
+
+- Added a typed Vue reference to the native video element.
+- Added local seek behavior that converts the cue's integer start milliseconds to browser seconds.
+- Turned each cue number into an accessible button with an explicit seek label.
+- Updated local playback state immediately after seeking so active-cue selection stays synchronized.
+- Preserved the video's current paused or playing state; clicking a cue does not auto-play.
+- No backend, database, cue selection, text persistence, timing edit, or dependency changed.
+
+### Decisions
+
+- Use an explicit cue-number button instead of making the entire row clickable, avoiding accidental seeks while editing text.
+- Seek without auto-playing so the editor controls when playback begins.
+- Keep seeking as immediate local Vue state with no server request.
+
+### Verification
+
+- Prettier completed successfully.
+- The frontend active-cue suite passes: 8 tests.
+- Vue TypeScript checking completed with no errors.
+- ESLint completed with no errors.
+- The Vite production build completed successfully.
+- The project-page suite passes: 6 tests and 43 assertions.
+- The existing optional `fontaine` optimization notice remains informational.
+- `git diff --check` completed with no errors.
+- Actual browser seeking while paused and playing has not yet been manually verified.
+
+### Result
+
+Every caption cue can now seek the project video to its exact stored start time without a server round trip.
+
+### Problems / Notes
+
+- The seek control does not auto-play or scroll the video into view.
+- Cue start and end times remain read-only.
+
+### Next
+
+Manually verify seeking on project 5, then add a validated backend boundary for editing one cue's start time.
+
+## 2026-08-23 — Step 9.3
+
+### Goal
+
+Allow a saved cue's start time to be edited from the cue table while preserving core timing validity.
+
+### Changes
+
+- Added a project-scoped PATCH endpoint dedicated to cue start time.
+- Added a Form Request requiring integer milliseconds at or above zero.
+- Added validation requiring start time before cue end and no later than known video duration.
+- Rejected timing edits when video duration is unknown.
+- Added a single-action controller that updates only validated `start_ms`.
+- Added a Wayfinder-backed per-cue number input and explicit Save control in the Start column.
+- Added isolated errors, saving/success state, preserved scroll, and basic HTML timing limits.
+- Added focused tests for valid updates, ignored unrelated fields, malformed input, timing boundaries, unknown duration, and cross-project access.
+- Did not add end-time editing, overlap rules, automatic playback, split, or merge behavior.
+
+### Decisions
+
+- Keep integer milliseconds visible in the first timing editor so its value exactly matches internal storage.
+- Give start time its own endpoint and form so text and timing validation remain independent.
+- Defer cue-overlap policy until the complete timestamp-invariant step after end-time editing.
+
+### Verification
+
+- Wayfinder regenerated typed action, route, and form definitions successfully.
+- Laravel Pint completed successfully.
+- The focused start-time suite passes: 10 tests and 48 assertions.
+- The complete Pest suite passes: 124 tests and 360 assertions.
+- The frontend active-cue suite passes: 8 tests.
+- Vue TypeScript checking completed with no errors.
+- ESLint completed with no errors.
+- The Vite production build completed successfully.
+- The nested start-time route is registered with the expected name.
+- The existing optional `fontaine` optimization notice remains informational.
+- `git diff --check` completed with no errors.
+- Browser start-time editing and the resulting overlay boundary shift have not yet been manually verified.
+
+### Result
+
+Persisted cues can now have their start boundary corrected in integer milliseconds from the browser without exposing other cue fields.
+
+### Problems / Notes
+
+- The initial millisecond input is precise but not yet a friendly timestamp formatter.
+- Editing a start can currently create overlap with the previous cue because overlap policy is deliberately not yet established.
+
+### Next
+
+Manually verify project 5 timing edits, then implement Phase 9.4 end-time editing before establishing complete timestamp and overlap invariants in Phase 9.5.

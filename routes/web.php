@@ -3,6 +3,7 @@
 use App\Http\Controllers\ShowVideoProjectController;
 use App\Http\Controllers\ShowVideoProjectMediaController;
 use App\Http\Controllers\StoreVideoProjectController;
+use App\Http\Controllers\UpdateCaptionCueStartTimeController;
 use App\Http\Controllers\UpdateCaptionCueTextController;
 use Illuminate\Support\Facades\Route;
 
@@ -23,3 +24,10 @@ Route::patch(
 )
     ->scopeBindings()
     ->name('video-projects.caption-cues.update');
+
+Route::patch(
+    '/video-projects/{videoProject}/caption-cues/{captionCue}/start-time',
+    UpdateCaptionCueStartTimeController::class,
+)
+    ->scopeBindings()
+    ->name('video-projects.caption-cues.start-time.update');

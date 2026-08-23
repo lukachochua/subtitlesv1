@@ -6,6 +6,7 @@ import { findActiveCaptionCue } from '@/lib/caption-cues';
 import { home } from '@/routes';
 import { media as videoProjectMedia } from '@/routes/video-projects';
 import { update as updateCaptionCue } from '@/routes/video-projects/caption-cues';
+import { update as updateCaptionCueStartTime } from '@/routes/video-projects/caption-cues/start-time';
 
 interface VideoProject {
     id: number;
@@ -35,6 +36,7 @@ const formattedDuration =
 const formatCueTime = (milliseconds: number): string =>
     `${(milliseconds / 1_000).toFixed(3)} s`;
 
+const videoElement = ref<HTMLVideoElement | null>(null);
 const currentTimeSeconds = ref(0);
 const currentTimeMilliseconds = computed(() =>
     Math.round(currentTimeSeconds.value * 1_000),
@@ -49,6 +51,17 @@ const updateCurrentTime = (event: Event): void => {
     currentTimeSeconds.value = (
         event.currentTarget as HTMLVideoElement
     ).currentTime;
+};
+
+const seekToCue = (cue: CaptionCue): void => {
+    if (videoElement.value === null) {
+        return;
+    }
+
+    const cueStartSeconds = cue.start_ms / 1_000;
+
+    videoElement.value.currentTime = cueStartSeconds;
+    currentTimeSeconds.value = cueStartSeconds;
 };
 </script>
 
@@ -83,6 +96,7 @@ const updateCurrentTime = (event: Event): void => {
                     class="relative mx-auto mt-6 w-fit max-w-full overflow-hidden rounded-xl bg-black"
                 >
                     <video
+                        ref="videoElement"
                         controls
                         preload="metadata"
                         :src="videoProjectMedia.url(videoProject.id)"
@@ -220,7 +234,14 @@ const updateCurrentTime = (event: Event): void => {
                                 <td
                                     class="px-6 py-4 font-medium whitespace-nowrap text-stone-500 dark:text-stone-400"
                                 >
-                                    {{ cue.order }}
+                                    <button
+                                        type="button"
+                                        :aria-label="`Seek video to caption cue ${cue.order}`"
+                                        class="rounded-md px-2 py-1 font-semibold text-red-700 hover:bg-red-50 hover:text-red-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 dark:text-red-400 dark:hover:bg-red-950 dark:hover:text-red-300 dark:focus-visible:ring-red-400"
+                                        @click="seekToCue(cue)"
+                                    >
+                                        #{{ cue.order }}
+                                    </button>
                                 </td>
                                 <td class="min-w-80 px-6 py-4 leading-6">
                                     <Form
@@ -289,7 +310,77 @@ const updateCurrentTime = (event: Event): void => {
                                 <td
                                     class="px-6 py-4 font-mono whitespace-nowrap"
                                 >
-                                    {{ formatCueTime(cue.start_ms) }}
+                                    <Form
+                                        v-if="cue.id !== null"
+                                        v-bind="
+                                            updateCaptionCueStartTime.form({
+                                                videoProject: videoProject.id,
+                                                captionCue: cue.id,
+                                            })
+                                        "
+                                        :error-bag="`caption-cue-start-time-${cue.id}`"
+                                        :options="{ preserveScroll: true }"
+                                        set-defaults-on-success
+                                        class="grid min-w-44 gap-2"
+                                        #default="{
+                                            errors,
+                                            processing,
+                                            recentlySuccessful,
+                                        }"
+                                    >
+                                        <label
+                                            :for="`caption-cue-${cue.id}-start-ms`"
+                                            class="sr-only"
+                                        >
+                                            Caption cue {{ cue.order }} start
+                                            time in milliseconds
+                                        </label>
+                                        <div class="flex items-center gap-2">
+                                            <input
+                                                :id="`caption-cue-${cue.id}-start-ms`"
+                                                name="start_ms"
+                                                type="number"
+                                                :value="cue.start_ms"
+                                                min="0"
+                                                :max="cue.end_ms - 1"
+                                                step="1"
+                                                inputmode="numeric"
+                                                :disabled="processing"
+                                                class="w-24 rounded-lg border border-stone-300 bg-white px-2 py-1.5 font-mono text-stone-950 tabular-nums focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 disabled:cursor-wait disabled:opacity-60 dark:border-stone-700 dark:bg-stone-950 dark:text-stone-50 dark:focus-visible:ring-red-400"
+                                            />
+                                            <span
+                                                class="text-xs text-stone-500 dark:text-stone-400"
+                                            >
+                                                ms
+                                            </span>
+                                            <button
+                                                type="submit"
+                                                :disabled="processing"
+                                                class="rounded-md border border-stone-300 px-2 py-1.5 text-xs font-semibold text-stone-700 hover:bg-stone-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 disabled:cursor-wait disabled:opacity-60 dark:border-stone-700 dark:text-stone-200 dark:hover:bg-stone-800 dark:focus-visible:ring-red-400"
+                                            >
+                                                {{
+                                                    processing
+                                                        ? 'Saving…'
+                                                        : 'Save'
+                                                }}
+                                            </button>
+                                        </div>
+                                        <span
+                                            v-if="recentlySuccessful"
+                                            class="font-sans text-xs font-medium text-emerald-700 dark:text-emerald-400"
+                                        >
+                                            Saved
+                                        </span>
+                                        <p
+                                            v-if="errors.start_ms"
+                                            class="max-w-52 font-sans text-xs whitespace-normal text-red-700 dark:text-red-400"
+                                        >
+                                            {{ errors.start_ms }}
+                                        </p>
+                                    </Form>
+                                    <template v-else>
+                                        {{ formatCueTime(cue.start_ms) }}
+                                    </template>
                                 </td>
                                 <td
                                     class="px-6 py-4 font-mono whitespace-nowrap"

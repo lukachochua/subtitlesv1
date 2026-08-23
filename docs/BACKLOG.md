@@ -1,10 +1,10 @@
 # Current
 
-- Phase 3.4c: Add a minimal manual application entry point for inspecting one `VideoProject` with the tested action.
+- Manually run `video-projects:inspect` against one real uploaded project and verify its persisted duration.
 
 # Next
 
-- Run the inspection operation against one real uploaded project and verify persisted duration.
+- Display the persisted duration on the project page after real inspection succeeds.
 
 # Later
 
@@ -42,6 +42,7 @@
 - Phase 3.3: Inspected a real uploaded MP4 and confirmed duration plus H.264 video and AAC audio streams.
 - Phase 3.4a: Added nullable integer-millisecond duration storage and model support without altering existing rows.
 - Phase 3.4b: Added and tested a single-purpose action that validates ffprobe output and persists duration.
+- Phase 3.4c: Added a tested Artisan command for inspecting one `VideoProject` by ID.
 
 # Rejected / Out of Scope
 

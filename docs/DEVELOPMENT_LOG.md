@@ -620,3 +620,41 @@ The application now has a tested internal operation that can inspect and persist
 ### Next
 
 Add the smallest manual entry point for invoking this action against one existing `VideoProject`.
+
+## 2026-08-23 — Step 3.4c
+
+### Goal
+
+Expose the existing inspection action through one minimal manual application entry point.
+
+### Changes
+
+- Added `video-projects:inspect {videoProject}` as an auto-registered Artisan command.
+- Resolved a positive project ID, delegated inspection to `InspectVideoProject`, and printed the persisted millisecond duration on success.
+- Added clear failure output for non-positive and missing project IDs.
+- Added focused command tests using fake storage and Laravel's fake Process API.
+
+### Decisions
+
+- Keep this entry point manual and console-only until the real ffprobe invocation and persisted value are verified.
+- Let media-inspection exceptions surface unchanged so failures remain visible during the proof-of-concept stage.
+
+### Verification
+
+- Three focused command tests pass with nine assertions.
+- The success test verifies command delegation and persistence of `7,967` milliseconds.
+- Invalid and missing IDs fail without starting a subprocess.
+- `php artisan help video-projects:inspect` confirms automatic command registration, required argument, description, and usage.
+- The complete automated verification results are recorded in the checkpoint for this step.
+
+### Result
+
+One existing project can now be inspected through application code with `php artisan video-projects:inspect <id>`.
+
+### Problems / Notes
+
+- The command has not yet run against a real stored MP4, so application-level ffprobe execution is not manually verified.
+
+### Next
+
+Run the command for one existing project and verify that its real ffprobe duration is persisted correctly.

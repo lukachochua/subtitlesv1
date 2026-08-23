@@ -8,6 +8,7 @@ export interface CaptionStyle {
     lineHeight: number;
     textColor: string;
     backgroundColor: string;
+    backgroundOpacity: number;
     textAlign: CSSProperties['textAlign'];
     textShadow: string;
 }
@@ -30,6 +31,7 @@ export const CAPTION_FONT_OPTIONS = Object.freeze([
 export const CAPTION_FONT_SIZE_MIN_PX = 12;
 export const CAPTION_FONT_SIZE_MAX_PX = 72;
 export const CAPTION_FONT_SIZE_DEFAULT_PX = 28;
+export const CAPTION_BACKGROUND_OPACITY_DEFAULT_PERCENT = 75;
 
 export const normalizeCaptionFontSize = (fontSizePx: number): number =>
     Number.isFinite(fontSizePx)
@@ -39,6 +41,26 @@ export const normalizeCaptionFontSize = (fontSizePx: number): number =>
           )
         : CAPTION_FONT_SIZE_DEFAULT_PX;
 
+export const normalizeCaptionBackgroundOpacityPercent = (
+    opacityPercent: number,
+): number =>
+    Number.isFinite(opacityPercent)
+        ? Math.min(100, Math.max(0, Math.round(opacityPercent)))
+        : CAPTION_BACKGROUND_OPACITY_DEFAULT_PERCENT;
+
+const colorWithOpacity = (hexColor: string, opacity: number): string => {
+    const match = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(hexColor);
+
+    if (match === null) {
+        throw new Error(`Invalid caption color: ${hexColor}`);
+    }
+
+    const [, red, green, blue] = match;
+    const normalizedOpacity = Math.min(1, Math.max(0, opacity));
+
+    return `rgb(${Number.parseInt(red, 16)} ${Number.parseInt(green, 16)} ${Number.parseInt(blue, 16)} / ${normalizedOpacity})`;
+};
+
 export const DEFAULT_CAPTION_STYLE: Readonly<CaptionStyle> = Object.freeze({
     fontFamily: 'Arial, "Noto Sans Georgian", sans-serif',
     fontSizePx: CAPTION_FONT_SIZE_DEFAULT_PX,
@@ -46,7 +68,8 @@ export const DEFAULT_CAPTION_STYLE: Readonly<CaptionStyle> = Object.freeze({
     fontStyle: 'normal',
     lineHeight: 1.25,
     textColor: '#ffffff',
-    backgroundColor: 'rgb(0 0 0 / 0.75)',
+    backgroundColor: '#000000',
+    backgroundOpacity: CAPTION_BACKGROUND_OPACITY_DEFAULT_PERCENT / 100,
     textAlign: 'center',
     textShadow: '0 1px 2px rgb(0 0 0 / 0.9)',
 });
@@ -58,7 +81,10 @@ export const captionStyleToCss = (style: CaptionStyle): CSSProperties => ({
     fontStyle: style.fontStyle,
     lineHeight: style.lineHeight,
     color: style.textColor,
-    backgroundColor: style.backgroundColor,
+    backgroundColor: colorWithOpacity(
+        style.backgroundColor,
+        style.backgroundOpacity,
+    ),
     textAlign: style.textAlign,
     textShadow: style.textShadow,
 });

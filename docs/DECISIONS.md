@@ -509,7 +509,8 @@ Named values create the smallest usable style boundary for live controls without
 ### Consequences
 
 - Browser preview has one inspectable and testable default.
-- Phase 10 controls can change font family, size, weight, style, and text color in local state from this baseline.
+- Phase 10 controls can change font family, size, weight, style, text color, background color, and background opacity in local state from this baseline.
+- Background color and opacity remain separate style values so users can adjust transparency without changing the chosen color and later rendering can map both explicitly.
 - Persistence remains undecided until useful controls exist and their data shape is proven.
 - Final ASS/libass mapping must be validated separately; CSS values are not assumed to render identically.
 

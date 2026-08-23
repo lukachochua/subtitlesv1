@@ -9,6 +9,7 @@ import {
     CAPTION_FONT_SIZE_MAX_PX,
     CAPTION_FONT_SIZE_MIN_PX,
     DEFAULT_CAPTION_STYLE,
+    normalizeCaptionBackgroundOpacityPercent,
     normalizeCaptionFontSize,
 } from '@/lib/caption-style';
 import { home } from '@/routes';
@@ -81,6 +82,10 @@ const currentTimeMilliseconds = computed(() =>
 const captionFontSizePx = ref(DEFAULT_CAPTION_STYLE.fontSizePx);
 const captionFontFamily = ref(DEFAULT_CAPTION_STYLE.fontFamily);
 const captionTextColor = ref(DEFAULT_CAPTION_STYLE.textColor);
+const captionBackgroundColor = ref(DEFAULT_CAPTION_STYLE.backgroundColor);
+const captionBackgroundOpacityPercent = ref(
+    Math.round(DEFAULT_CAPTION_STYLE.backgroundOpacity * 100),
+);
 const captionIsBold = ref(DEFAULT_CAPTION_STYLE.fontWeight >= 700);
 const captionIsItalic = ref(DEFAULT_CAPTION_STYLE.fontStyle === 'italic');
 const captionStyle = computed(() => ({
@@ -92,6 +97,8 @@ const captionStyle = computed(() => ({
         ? ('italic' as const)
         : ('normal' as const),
     textColor: captionTextColor.value,
+    backgroundColor: captionBackgroundColor.value,
+    backgroundOpacity: captionBackgroundOpacityPercent.value / 100,
 }));
 const activeCue = computed(() =>
     props.cues === null
@@ -121,6 +128,14 @@ const updateCaptionFontSize = (event: Event): void => {
 
     captionFontSizePx.value = normalizeCaptionFontSize(input.valueAsNumber);
     input.value = captionFontSizePx.value.toString();
+};
+
+const updateCaptionBackgroundOpacity = (event: Event): void => {
+    const input = event.currentTarget as HTMLInputElement;
+
+    captionBackgroundOpacityPercent.value =
+        normalizeCaptionBackgroundOpacityPercent(input.valueAsNumber);
+    input.value = captionBackgroundOpacityPercent.value.toString();
 };
 </script>
 
@@ -345,6 +360,75 @@ const updateCaptionFontSize = (event: Event): void => {
                                     </label>
                                 </div>
                             </fieldset>
+                        </div>
+
+                        <div class="grid gap-4 sm:grid-cols-2">
+                            <div>
+                                <label
+                                    for="caption-background-color"
+                                    class="block text-sm font-medium text-stone-700 dark:text-stone-200"
+                                >
+                                    Background color
+                                </label>
+                                <div class="mt-2 flex items-center gap-3">
+                                    <input
+                                        id="caption-background-color"
+                                        v-model="captionBackgroundColor"
+                                        type="color"
+                                        class="h-10 w-14 cursor-pointer rounded-lg border border-stone-300 bg-white p-1 dark:border-stone-700 dark:bg-stone-950"
+                                    />
+                                    <output
+                                        for="caption-background-color"
+                                        class="font-mono text-sm uppercase"
+                                    >
+                                        {{ captionBackgroundColor }}
+                                    </output>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div
+                                    class="flex items-center justify-between gap-3"
+                                >
+                                    <label
+                                        for="caption-background-opacity"
+                                        class="text-sm font-medium text-stone-700 dark:text-stone-200"
+                                    >
+                                        Background opacity
+                                    </label>
+                                    <output
+                                        for="caption-background-opacity"
+                                        class="font-mono text-sm tabular-nums"
+                                    >
+                                        {{ captionBackgroundOpacityPercent }}%
+                                    </output>
+                                </div>
+                                <div
+                                    class="mt-2 grid grid-cols-[minmax(0,1fr)_5rem] items-center gap-3"
+                                >
+                                    <input
+                                        id="caption-background-opacity"
+                                        v-model.number="
+                                            captionBackgroundOpacityPercent
+                                        "
+                                        type="range"
+                                        min="0"
+                                        max="100"
+                                        step="1"
+                                        class="w-full accent-red-700 dark:accent-red-500"
+                                    />
+                                    <input
+                                        :value="captionBackgroundOpacityPercent"
+                                        type="number"
+                                        min="0"
+                                        max="100"
+                                        step="1"
+                                        aria-label="Caption background opacity percentage"
+                                        class="w-full rounded-lg border border-stone-300 bg-white px-2 py-1.5 font-mono text-sm text-stone-950 tabular-nums focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 dark:border-stone-700 dark:bg-stone-950 dark:text-stone-50 dark:focus-visible:ring-red-400"
+                                        @change="updateCaptionBackgroundOpacity"
+                                    />
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

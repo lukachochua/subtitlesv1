@@ -2683,3 +2683,50 @@ The live browser overlay now supports font family, font size, bold, italic, and 
 ### Next
 
 Manually test every font choice with Georgian Mkhedruli text, then begin container styling with background color and opacity.
+
+## 2026-08-23 — Steps 10.6–10.7
+
+### Goal
+
+Add independent live controls for the caption background color and opacity.
+
+### Changes
+
+- Separated background color and opacity in the typed browser caption style.
+- Added a live background-color picker with its current hexadecimal value.
+- Added synchronized range and numeric controls for background opacity from 0% to 100%.
+- Normalized direct opacity input to a whole percentage within the supported range.
+- Added pure CSS mapping from a six-digit hexadecimal color plus opacity to a browser color value.
+- Added focused tests for independent background mapping and opacity normalization.
+- Did not add style persistence, placement controls, outlines, shadows, or final-render mapping.
+
+### Decisions
+
+- Represent background color and opacity independently so transparency can change without losing the selected color.
+- Keep these controls in immediate Vue state while the useful browser-preview style shape is still being established.
+- Preserve black at 75% opacity as the default for caption readability.
+
+### Verification
+
+- The active-cue frontend suite passes: 8 tests.
+- The caption-style frontend suite passes: 7 tests.
+- The complete Pest suite passes: 153 tests and 531 assertions.
+- Vue TypeScript checking completed with no errors.
+- ESLint completed with no errors.
+- The Vite production build completed successfully.
+- The existing optional `fontaine` optimization notice remains informational.
+- Background appearance over real video has not yet been manually verified.
+
+### Result
+
+The live browser overlay now supports independently adjustable background color and opacity from the Caption style panel.
+
+### Problems / Notes
+
+- Both choices reset to black at 75% opacity on page reload.
+- Low opacity can make captions difficult to read over complex footage.
+- Browser CSS and final ASS/libass rendering still require separate visual comparison.
+
+### Next
+
+Manually verify background color and opacity on project 5, then add Phase 10.8 basic top, middle, and bottom placement.

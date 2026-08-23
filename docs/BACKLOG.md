@@ -1,11 +1,11 @@
 # Current
 
-- Manually verify all browser text-style controls with real Georgian captions on project 5.
+- Manually verify caption background color and opacity with real Georgian captions on project 5.
 
 # Next
 
-- Add live caption background color control.
-- Add live caption background opacity control.
+- Add basic top, middle, and bottom caption placement.
+- Add a live vertical-offset control after basic placement is verified.
 
 # Later
 
@@ -103,6 +103,8 @@
 - Phase 10.4: Added browser-local live bold control.
 - Phase 10.5: Added browser-local live italic control.
 - Phase 10.11a: Added Georgian-aware browser font-stack choices pending real-machine font QA.
+- Phase 10.6: Added browser-local live caption background-color control.
+- Phase 10.7: Added browser-local live caption background-opacity control.
 
 # Rejected / Out of Scope
 

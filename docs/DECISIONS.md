@@ -175,3 +175,23 @@ Integer milliseconds avoid floating-point comparison behavior, retain sufficient
 - Existing projects remain valid with `duration_ms = null` until inspected.
 - Downstream duration comparisons can use integer arithmetic.
 - This decision covers overall video duration only; detailed ASR timestamp and cue-boundary rules remain deferred until real ASR output is available.
+## Decision: Isolate ffprobe duration inspection in one application action
+
+### Context
+
+The application must safely execute ffprobe, validate its output, and persist overall duration without coupling media inspection to an HTTP request, queue, or provider framework prematurely.
+
+### Decision
+
+Use `App\Actions\InspectVideoProject` as the single operation boundary. It resolves the model's recorded private file, invokes `/usr/bin/ffprobe` synchronously through Laravel's Process facade with array arguments and a 30-second timeout, requires positive container duration plus video and audio streams, then persists rounded integer milliseconds.
+
+### Reason
+
+The action keeps one domain operation independently testable while Laravel's Process facade provides safe argument handling, timeouts, fakes, and stray-process prevention without another dependency or custom wrapper.
+
+### Consequences
+
+- Callers can invoke one operation without knowing ffprobe syntax or response structure.
+- Invalid files, failed processes, and malformed metadata leave `duration_ms` unchanged.
+- `/usr/bin/ffprobe` is currently a development-machine assumption and may need configuration when deployment requirements exist.
+- The synchronous boundary is appropriate for this small inspection; longer processing may later justify a queue based on observed request duration.

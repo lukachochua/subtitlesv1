@@ -580,3 +580,43 @@ Add the approved integer-millisecond duration representation without inventing d
 ### Next
 
 Introduce the smallest application operation that inspects one project, converts the container duration to milliseconds, and persists it.
+
+## 2026-08-23 — Step 3.4b
+
+### Goal
+
+Create one safe, testable application operation for inspecting a `VideoProject` and persisting its overall duration.
+
+### Changes
+
+- Added `App\Actions\InspectVideoProject` as the first focused application action.
+- Resolved the media path from the project's recorded storage disk and generated path.
+- Invoked ffprobe through Laravel's Process facade with argument-array execution and a 30-second timeout.
+- Parsed the narrow JSON response, required positive container duration plus video and audio streams, and persisted rounded integer milliseconds only after validation.
+- Added focused Pest coverage using process fakes and stray-process prevention.
+
+### Decisions
+
+- Use Laravel's existing Process facade rather than adding an FFmpeg wrapper or custom process abstraction.
+- Keep inspection synchronous for this short metadata operation; no queue has been justified.
+- Surface existing process/runtime exceptions initially rather than introducing a custom exception hierarchy before UI error requirements exist.
+
+### Verification
+
+- Eight focused test cases pass with 20 assertions.
+- The success case verifies `7.966667` seconds persists as `7,967` milliseconds.
+- Failure cases cover a missing source file, non-zero process exit, invalid JSON, missing/non-positive duration, and missing video or audio streams.
+- Tests assert the exact argument-array command and timeout while preventing any real subprocess from running.
+- The complete automated verification results are recorded in the checkpoint for this step.
+
+### Result
+
+The application now has a tested internal operation that can inspect and persist one project's duration, but it has no command, route, or UI entry point yet.
+
+### Problems / Notes
+
+- The ffprobe executable path is currently the verified development path `/usr/bin/ffprobe`.
+
+### Next
+
+Add the smallest manual entry point for invoking this action against one existing `VideoProject`.

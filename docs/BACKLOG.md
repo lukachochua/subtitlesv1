@@ -1,10 +1,10 @@
 # Current
 
-- Phase 3.4: Persist an inspected video's rounded ffprobe duration through the application.
+- Phase 3.4c: Add a minimal manual application entry point for inspecting one `VideoProject` with the tested action.
 
 # Next
 
-- Confirm the application can distinguish an uninspected video from one with persisted duration.
+- Run the inspection operation against one real uploaded project and verify persisted duration.
 
 # Later
 
@@ -41,6 +41,7 @@
 - Phase 3.1: Confirmed FFmpeg and ffprobe 6.1.1 are already installed; Phase 3.2 installation is unnecessary.
 - Phase 3.3: Inspected a real uploaded MP4 and confirmed duration plus H.264 video and AAC audio streams.
 - Phase 3.4a: Added nullable integer-millisecond duration storage and model support without altering existing rows.
+- Phase 3.4b: Added and tested a single-purpose action that validates ffprobe output and persists duration.
 
 # Rejected / Out of Scope
 

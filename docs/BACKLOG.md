@@ -1,11 +1,11 @@
 # Current
 
-- Phase 5.1: Research and compare a small number of current Georgian-capable ASR providers.
+- Propose the minimum internal timestamped-word representation using the approved integer-millisecond timestamp rules.
 
 # Next
 
-- Select one ASR provider for the first real Georgian proof of concept.
-- Complete the selected provider's manual account and credential setup.
+- Convert preserved NeMo output into the approved internal word representation.
+- Test conversion with a representative saved response fixture.
 
 # Later
 
@@ -18,7 +18,9 @@
 - Evaluate ASS/libass and FFmpeg for final rendered MP4 export.
 - Build a representative Georgian QA set covering names, sports terminology, code-switching, varied speakers, and difficult audio.
 - Benchmark alternative Georgian ASR providers only after the complete workflow works.
-- Consider custom Georgian dictionaries, proper-name correction, speaker labels, transcript search, smart cue segmentation, reusable presets, alternate aspect-ratio previews, subtitle export, transcription export, local/private ASR, and batch processing after evidence justifies them.
+- Repeat the NeMo experiment with improved audio and benchmark it on the RTX 4060 Ti machine when useful.
+- Benchmark Google Cloud Speech-to-Text Chirp and current OpenAI transcription models after the first complete provider workflow works.
+- Consider custom Georgian dictionaries, proper-name correction, speaker labels, transcript search, smart cue segmentation, reusable presets, alternate aspect-ratio previews, subtitle export, transcription export, and batch processing after evidence justifies them.
 - Consider accounts, subscriptions, billing, storage quotas, collaboration, commercial infrastructure, and production scaling only after personal V1 is demonstrably useful.
 
 # Done
@@ -50,6 +52,15 @@
 - Phase 4.2b: Added a tested Artisan command for extracting audio from one `VideoProject` by ID.
 - Phase 4.3: Verified a real extracted WAV's codec, sample rate, channel count, duration, and complete decoding.
 - Phase 4: Produced and verified one valid ASR-ready audio file from a real uploaded video.
+- Phase 5.1: Compared current Georgian-capable ASR options and recommended ElevenLabs Scribe v2 for the first experiment.
+- Phase 5.1b: Chose local faster-whisper as the first experiment to prioritize privacy and avoid per-minute API costs.
+- Phase 5.2: Created an isolated external Python environment and verified faster-whisper 1.2.1 imports successfully.
+- Phase 5.3: Ran and preserved the first local Georgian transcription with `medium`, CPU `int8`, and word timestamps.
+- Phase 5.3b: Compared generic `large-v3` on the same clearer recording and measured its quality, timing, and CPU cost.
+- Phase 5.3c: Tested `large-v3-turbo`; inference improved substantially but Georgian text quality remained unusable.
+- Phase 5.4: Researched GeoCaption's disclosed pipeline and credible Georgian-specific local ASR models; recommended NVIDIA Georgian FastConformer.
+- Phase 5.5: Ran NVIDIA Georgian FastConformer through native NeMo and preserved word, segment, character, and token timestamps.
+- Phase 6.1: Chose validated integer milliseconds as the internal ASR timestamp representation.
 
 # Rejected / Out of Scope
 

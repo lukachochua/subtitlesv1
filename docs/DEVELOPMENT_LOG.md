@@ -809,3 +809,343 @@ One real uploaded video now produces a valid, fully decodable audio file suitabl
 ### Next
 
 Research a small number of current Georgian-capable ASR providers and recommend one for the first experiment.
+
+## 2026-08-23 — Step 5.1
+
+### Goal
+
+Compare a small number of current Georgian-capable speech-recognition services and recommend one for the first real timestamped transcription experiment.
+
+### Changes
+
+- No application code or dependencies changed.
+- Compared ElevenLabs Scribe v2, Google Cloud Speech-to-Text Chirp, and current OpenAI transcription models using official documentation.
+- Recommended ElevenLabs Scribe v2 as the first experiment, pending approval and manual provider setup.
+
+### Decisions
+
+- Prefer ElevenLabs Scribe v2 for the first proof of concept because Georgian support, word-level start/end timestamps, speaker IDs, diarization, multilingual detection, and a simple multipart API are explicitly documented together.
+- Submit our existing mono 16 kHz PCM WAV with Georgian specified where supported, while retaining verbatim output and avoiding optional rewriting features.
+- Keep Google Chirp as a later benchmark: Georgian `ka-GE`, automatic punctuation, model adaptation, and word-level confidence are documented, but Georgian diarization is not listed and Google Cloud setup is heavier for this first experiment.
+- Keep current OpenAI transcription models as a later benchmark: code-switching and diarization options are promising, but the reviewed current model pages do not establish as clear a Georgian word-timestamp contract as Scribe's response schema.
+
+### Verification
+
+- ElevenLabs officially lists Georgian and documents precise word timestamps, speaker diarization, language detection, PCM `s16le` 16 kHz mono input, files up to 5 GB, and a structured `words` response containing `text`, `start`, `end`, `type`, and `speaker_id`.
+- ElevenLabs' current API pricing page lists Scribe v2 batch transcription at `$0.22` per audio hour, excluding taxes; optional keyterm prompting is an additional `$0.05` per hour.
+- Google officially lists Georgian `ka-GE` for Chirp models in European regions and lists automatic punctuation, model adaptation, and word-level confidence for Chirp 2. Its current standard V2 rate begins at `$0.016` per minute.
+- OpenAI officially describes GPT Transcribe as supporting keyword and multiple-language hints for multilingual audio and code-switching, and separately offers a diarization model; actual Georgian accuracy and word timing would still require an experiment.
+- Provider marketing claims were not treated as proof of Georgian accuracy. No provider has yet been tested against our real Georgian audio.
+
+### Result
+
+ElevenLabs Scribe v2 is the recommended first ASR provider for experimentation, not a permanent provider commitment.
+
+### Problems / Notes
+
+- ElevenLabs logging defaults to enabled; its API documentation says zero-retention mode is limited to enterprise customers. Do not send sensitive media during the personal proof of concept without accepting that constraint.
+- Published general multilingual claims do not establish Georgian-specific quality for names, sports terminology, accents, noise, or code-switching.
+- Sources reviewed: `https://elevenlabs.io/docs/api-reference/speech-to-text/convert`, `https://elevenlabs.io/pricing/api`, `https://elevenlabs.io/speech-to-text`, `https://docs.cloud.google.com/speech-to-text/docs/speech-to-text-supported-languages`, `https://cloud.google.com/speech-to-text/pricing`, `https://developers.openai.com/api/docs/models/gpt-transcribe`, and `https://developers.openai.com/api/docs/models/gpt-4o-transcribe-diarize`.
+
+### Next
+
+After approval, provide the manual ElevenLabs account, API-key, and environment-variable setup checkpoint required by Phase 5.2.
+
+## 2026-08-23 — Step 5.2
+
+### Goal
+
+Prepare an isolated local ASR runtime without adding Python dependencies to Laravel or paying a hosted provider.
+
+### Changes
+
+- Chose local faster-whisper for the first experiment after reviewing hosted-provider cost and privacy tradeoffs.
+- Created the Python virtual environment outside the repository at `/home/lukachochua/.virtualenvs/georgian-captioner-asr` as a manual setup step.
+- Installed faster-whisper 1.2.1 into that isolated environment.
+- No application code or Composer/npm dependencies changed.
+
+### Decisions
+
+- Start the real experiment with multilingual Whisper `medium`, CPU `int8`, and word timestamps.
+- Keep ElevenLabs Scribe v2 as a later quality benchmark rather than the first provider.
+- Do not design the Laravel/Python integration boundary until real Georgian output and local runtime performance are known.
+
+### Verification
+
+- The environment uses the already-installed Python 3.12 runtime with `venv` isolation.
+- `import faster_whisper` succeeded and reported version `1.2.1`.
+- Importing `WhisperModel` succeeded and printed `faster-whisper ready`.
+- The model itself has not yet been downloaded or run.
+
+### Result
+
+The machine is ready to run the first local Georgian timestamped-transcription experiment without an API account or key.
+
+### Problems / Notes
+
+- Model inference will be CPU-based because this machine has Intel integrated graphics and no NVIDIA CUDA GPU.
+- The model download, runtime, Georgian accuracy, and timestamp quality remain unverified.
+
+### Next
+
+Download `medium` through the faster-whisper runtime and transcribe project 3's real WAV with CPU `int8` and word timestamps, preserving the raw result for inspection.
+
+## 2026-08-23 — Step 5.3
+
+### Goal
+
+Run one real Georgian WAV through local faster-whisper and preserve enough raw output to evaluate text, timestamps, and performance before application integration.
+
+### Changes
+
+- Added the root-level `transcribe_local.py` experiment script.
+- Fixed the experiment to multilingual Whisper `medium`, CPU `int8`, Georgian language `ka`, and word timestamps.
+- Serialized experiment settings, runtime, language metadata, transcript text, segment metadata, and word timing/probability data to private JSON.
+- Documented activation and execution commands in the README.
+- Ignored generated Python bytecode directories.
+
+### Decisions
+
+- Keep this as an explicit experiment rather than connecting Laravel to Python prematurely.
+- Preserve the output beside the private project media at `video-projects/{id}/transcription.raw.json`; do not commit media or transcription artifacts.
+- Treat model-reported language probability as metadata, not evidence of transcription accuracy.
+
+### Verification
+
+- Python syntax compilation and command help completed successfully.
+- The first run downloaded and loaded `medium`, then transcribed project 3's real `7.825125`-second WAV.
+- Model download/load took `206.727` seconds; transcription took `94.924` seconds on CPU.
+- The result reported Georgian `ka` with language probability `1.0` and preserved one segment containing nine timestamped words.
+- The private JSON file is valid, readable, and 2,271 bytes.
+- Several words have identical start and end timestamps, so the raw word timing is not yet acceptable without further evaluation.
+- The transcript is `სე჎ე სე჈ე დიკიაე. სემიე სეეთე ეე გეიიე დეთე რრედრერ.` and appears linguistically implausible; the user has not yet compared it with the actual speech.
+- A controlled repeat used newly uploaded project 4 with clearer sound: application inspection persisted `14,067` milliseconds and extraction produced a valid `13.885563`-second mono 16 kHz PCM WAV.
+- With the model already cached, project 4 loaded in `2.972` seconds and took `201.320` seconds to transcribe on CPU.
+- The second transcript still contained malformed or obsolete Georgian characters, mixed Latin fragments, and five zero-duration words among 14 words. Better recording volume therefore did not resolve the observed `medium` quality problem.
+
+### Result
+
+Local ASR and timestamp serialization work technically, but `medium` is slow and produced unusable Georgian text and timing on two recordings. It is rejected for application integration.
+
+### Problems / Notes
+
+- The initial model download used unauthenticated Hugging Face access and emitted only a rate-limit warning.
+- Three words received zero-duration timestamps, which would violate future cue timing rules.
+- A warm repeat run may separate model-download cost from normal model load and inference cost, but text quality should be evaluated first.
+
+### Next
+
+Decide whether to run one controlled `large-v3` experiment against project 4 before reconsidering hosted or Georgian-specialized alternatives.
+
+## 2026-08-23 — Step 5.3b
+
+### Goal
+
+Determine whether generic Whisper `large-v3` materially improves Georgian text and word timing over the rejected `medium` model on the same clear recording.
+
+### Changes
+
+- Added an explicit `--model` choice to `transcribe_local.py`, limited to the two models under active evaluation.
+- Documented the controlled `large-v3` command in the README.
+- Removed the rejected 1.5 GB `medium` model cache at the user's request.
+- Downloaded and ran `large-v3` with the same CPU `int8`, Georgian-language, and word-timestamp settings against project 4.
+
+### Decisions
+
+- Keep this result experimental; do not connect `large-v3` to Laravel.
+- Treat CPU runtime and timestamp integrity as first-class acceptance criteria alongside transcript readability.
+- Do not switch to a community Georgian fine-tune solely because it is language-specific; inspect its data, metrics, runtime format, and timestamp support first.
+
+### Verification
+
+- The `large-v3` cache occupies 2.9 GB; the previous `medium` cache is absent.
+- Initial model download/load took `467.154` seconds.
+- Transcribing project 4's `13.885563`-second WAV took `480.536` seconds on CPU `int8`.
+- The result preserved two segments and 27 word entries from `1.26` through `13.86` seconds.
+- Eleven word entries have identical start and end times, so timestamp integrity remains unacceptable.
+- Text quality improved dramatically: the model recognized a Georgian counting sequence and greetings, but retained spelling errors, hallucinated text, and Unicode replacement characters.
+- The Georgian Large v2 community fine-tune reviewed during the run reports self-evaluated Common Voice 11 Georgian WER of approximately `31.85%`, sparse intended-use documentation, and a Transformers/PyTorch rather than ready-made faster-whisper runtime.
+
+### Result
+
+Generic `large-v3` is substantially more capable in Georgian than `medium`, but its eight-minute CPU transcription time for fourteen seconds of audio and its invalid word timings make it unsuitable for direct personal-V1 integration on this machine.
+
+### Problems / Notes
+
+- A warm `large-v3` run would remove download cost but not the measured `480.536`-second inference cost.
+- The exact spoken reference text is still needed to classify transcription errors objectively.
+- `large-v3-turbo` may offer a better speed/quality balance, but Georgian quality is unproven.
+
+### Next
+
+Compare the transcript with the exact spoken Georgian, then decide whether one `large-v3-turbo` experiment is justified.
+
+## 2026-08-23 — Step 5.3c
+
+### Goal
+
+Determine whether `large-v3-turbo` provides a practical local CPU speed/quality compromise for Georgian transcription.
+
+### Changes
+
+- Added `large-v3-turbo` as an explicit experiment-script model choice and documented its command in the README.
+- Removed the 2.9 GB generic `large-v3` cache at the user's request while retaining its private JSON result.
+- Downloaded and ran `large-v3-turbo` against project 4 with the same CPU `int8`, Georgian-language, and word-timestamp settings.
+
+### Decisions
+
+- Reject generic `large-v3-turbo` for the current Georgian workflow because speed improvement did not preserve usable text quality.
+- Keep its 1.6 GB cache until explicitly asked to remove it.
+- Stop treating progressively different generic Whisper sizes as likely solutions; investigate Georgian-specific local models next.
+
+### Verification
+
+- The generic `large-v3` cache is absent and can only be restored by downloading it again.
+- The Turbo model download/load took `352.945` seconds; transcription took `85.550` seconds for `13.885563` seconds of audio.
+- Turbo produced one segment with 14 timed words and no zero-duration entries from `2.08` through `13.86` seconds.
+- The transcript was `ეერსს ლდს მიიც გაუივეს მის უირთრს მოირს მვირს განხოის ყიოუეს იყუოვთრყბი ნსსოს ოსთოს მხარ�`, which is unusable Georgian despite structurally better timestamps.
+- The Turbo cache occupies 1.6 GB at `models--mobiuslabsgmbh--faster-whisper-large-v3-turbo`.
+
+### Result
+
+Turbo reduced inference time by approximately 82% relative to generic `large-v3`, but its Georgian text quality failed the core product requirement. It is not suitable for integration.
+
+### Problems / Notes
+
+- Even Turbo remained over six times slower than real time on this CPU.
+- Language probability remained `1.0` despite unusable text, reinforcing that it cannot be treated as an accuracy score.
+
+### Next
+
+Evaluate Georgian-specific local ASR candidates before installing or downloading another model.
+
+## 2026-08-23 — Step 5.4
+
+### Goal
+
+Determine what GeoCaption publicly discloses about its transcription pipeline and identify credible Georgian-specific local ASR candidates using documented data, metrics, licensing, runtime, and timestamp support.
+
+### Changes
+
+- No application code or dependencies changed.
+- Reviewed GeoCaption's public website, blog, upload-page client bundle, and public API-route names without authenticating or probing private endpoints.
+- Compared Georgian Whisper, Wav2Vec2, NVIDIA FastConformer, Meta Omnilingual ASR, and CPU-oriented conversions.
+- Recommended NVIDIA `stt_ka_fastconformer_hybrid_large_pc` as the next controlled local model experiment.
+
+### Decisions
+
+- Treat GeoCaption's published accuracy and speed figures as product claims rather than independently verified benchmarks.
+- Prefer the NVIDIA Georgian FastConformer checkpoint over the older Georgian Whisper Large v2 fine-tune because its documented Georgian data, WER, model size, and timestamp-capable NeMo architecture are substantially stronger.
+- Do not install NeMo, ONNX Runtime, CrispASR, or another Python runtime until the exact experiment path is approved.
+- Keep raw recognition and optional Georgian correction as separate stages; do not allow correction to invent caption timing.
+
+### Verification
+
+- GeoCaption publicly states that it uses Whisper Large v3 for recognition and describes a two-stage recognition plus Georgian grammar/punctuation correction system.
+- GeoCaption's public assets identify Next.js, Supabase, `/api/upload`, and `/api/transcribe`, but do not disclose its compute provider, GPU, Whisper runtime, correction model, or alignment implementation.
+- NVIDIA's official Georgian FastConformer is approximately 115M parameters, accepts mono 16 kHz WAV, uses a 1,024-token Georgian SentencePiece vocabulary, and is trained on approximately 163 hours from Common Voice 17 and FLEURS.
+- NVIDIA reports greedy-decoding WER of `5.73%` on Common Voice 17 and `13.44%` on FLEURS; these are self-reported benchmark results and not evidence for our real media.
+- NVIDIA NeMo documents word timestamp computation for FastConformer transducer/CTC models.
+- The official checkpoint is CC BY 4.0. Community conversions include a PyTorch-free ONNX export and GGUF sizes of 219 MB F16, 130 MB Q8, and 82 MB Q4; conversion quality and timestamp workflow still require testing.
+- The older Georgian Whisper Large v2 fine-tune reports approximately `31.85%` WER. The older Georgian Wav2Vec2 checkpoint shows plausible examples but has outdated runtime instructions and weaker published evidence.
+- Meta Omnilingual ASR is actively maintained and Apache 2.0, but its recommended models and fairseq2 runtime are heavier and no Georgian-specific benchmark was located in this research pass.
+
+### Result
+
+NVIDIA Georgian FastConformer is the best-supported local candidate found for the next experiment. GeoCaption appears to obtain its product quality from generic Large v3 plus undisclosed infrastructure and post-correction rather than a publicly disclosed Georgian-specific model.
+
+### Problems / Notes
+
+- GeoCaption's claimed two-stage correction could improve spelling while also altering words; timing must remain grounded in ASR or alignment output.
+- The lightest community FastConformer conversions are not NVIDIA-published artifacts even though they preserve the official weights.
+- Sources reviewed include `https://www.geocaption.com/`, `https://www.geocaption.com/blog/kartuli-ai-subtitrebi-sruli-gaidi-2025`, `https://huggingface.co/nvidia/stt_ka_fastconformer_hybrid_large_pc`, `https://docs.nvidia.com/nemo-framework/user-guide/24.07/nemotoolkit/asr/intro.html`, `https://huggingface.co/OpenVoiceOS/stt_ka_fastconformer_hybrid_large_pc_onnx`, `https://huggingface.co/cstr/stt-ka-fastconformer-hybrid-ctc-large-GGUF`, and `https://github.com/facebookresearch/omnilingual-asr`.
+
+### Next
+
+Approve NVIDIA Georgian FastConformer as the next experiment, then select and set up the smallest runtime that can test both transcription quality and timestamp extraction.
+
+## 2026-08-23 — Step 5.5
+
+### Goal
+
+Test NVIDIA's Georgian FastConformer through its native NeMo runtime and inspect real timestamp output before integrating any ASR runtime with Laravel.
+
+### Changes
+
+- Created a separate external NeMo environment with CPU-only PyTorch; no application dependency was added.
+- Added `transcribe_nemo.py` as a controlled single-file experiment for `nvidia/stt_ka_fastconformer_hybrid_large_pc`.
+- Documented the exact NeMo experiment command in the README.
+- Removed the rejected 1.6 GB `large-v3-turbo` cache at the user's request.
+- Preserved the private project 4 result as `transcription.nemo-fastconformer.raw.json`.
+
+### Decisions
+
+- Evaluate the official checkpoint through NeMo before considering its lighter community ONNX conversion.
+- Keep the experiment outside Laravel until transcription quality is manually assessed.
+- Preserve NeMo's native timestamp structures without normalizing them into the application's future internal format.
+
+### Verification
+
+- PyTorch `2.13.0+cpu` and NeMo ASR imported successfully on the Intel-only development laptop.
+- The model restored successfully from the official NVIDIA Hugging Face checkpoint.
+- Initial model download/load took `68.662` seconds; transcribing the `13.885563`-second project 4 WAV took `1.038` seconds on CPU.
+- NeMo returned token timestep, character, word, and segment timestamp structures.
+- All 17 word entries have positive duration and are ordered without overlap.
+- The final timestamp ends at `13.92` seconds, approximately 34 milliseconds beyond ffprobe's audio duration; future normalization must account for this if the model is selected.
+- The transcript is `ერთი ორი, სამი, ოთხი, ხუთი ექვსი შვიდი რვა ცხრა ათი გამარჯობა გაგიმარჯოს, როგორ ხარმე. შელო მოხარმეც კარგა.`
+- Script syntax compilation passed.
+- Manual comparison found that the intended final phrase was `როგორ ხარ შენ? კარგად ვარ, შენ?`; the model returned `როგორ ხარმე. შელო მოხარმეც კარგა.`. The preceding counting and greeting were substantially more accurate.
+
+### Result
+
+The official Georgian FastConformer runs substantially faster than real time on this laptop after loading and produces structurally useful word and segment timestamps. It remains the leading local candidate, with further quality testing deferred until better representative audio is available.
+
+### Problems / Notes
+
+- This laptop has no NVIDIA GPU; the same experiment can later use CUDA on the user's RTX 4060 Ti PC after machine-specific PyTorch setup.
+- NeMo emits informational training-configuration and missing-accelerator warnings during CPU inference; they did not prevent successful transcription.
+- The first model download was unauthenticated and emitted a Hugging Face rate-limit warning.
+
+### Next
+
+Define the application's internal timestamp representation from the observed NeMo word output.
+
+## 2026-08-23 — Step 6.1
+
+### Goal
+
+Choose a deterministic internal timestamp representation using the first real NeMo word output and the already persisted media duration.
+
+### Changes
+
+- Added the internal ASR timestamp decision to `DECISIONS.md`.
+- Updated the immediate backlog to move from provider experimentation toward the minimum internal word representation.
+- No application code, schema, raw transcription, or dependencies changed.
+
+### Decisions
+
+- Normalize provider word boundaries to rounded integer milliseconds named `start_ms` and `end_ms`.
+- Require ordered, positive-duration intervals bounded by the known audio duration.
+- Clamp only timestamp-granularity overruns to the known duration; reject other invalid timing during conversion.
+- Preserve provider output unchanged and initially retain punctuation within word text.
+- Defer confidence and speaker fields until real provider data justifies them.
+
+### Verification
+
+- Checked the rules against project 4's 17 NeMo word timestamps: all are ordered and positive-duration.
+- The observed final boundary converts to `13,920` milliseconds and therefore demonstrates the need to clamp against the measured `13,886`-millisecond audio duration.
+- Documentation whitespace validation passed.
+- No automated application test was required because this step records a design decision only.
+
+### Result
+
+The application now has an explicit provider-independent timestamp unit and minimum validation rules grounded in real Georgian ASR output.
+
+### Problems / Notes
+
+- The exact tolerance that distinguishes a harmless granularity overrun from invalid provider data should be defined alongside conversion code and tests, rather than guessed in this documentation-only step.
+- Cue overlap and inclusive/exclusive playback boundaries are intentionally still undecided.
+
+### Next
+
+Propose the smallest internal timestamped-word shape before implementing conversion.

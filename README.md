@@ -25,3 +25,52 @@ php artisan video-projects:extract-audio <project-id>
 ```
 
 The project ID is visible in the uploaded project's page URL. Extracted audio is stored privately and is not browser-accessible.
+
+## Local Georgian ASR Experiment
+
+The first ASR proof of concept uses faster-whisper 1.2.1 in an external Python virtual environment. Activate it before running the experiment:
+
+```bash
+source /home/lukachochua/.virtualenvs/georgian-captioner-asr/bin/activate
+```
+
+Transcribe an extracted WAV with multilingual Whisper `medium`, CPU `int8`, and word timestamps:
+
+```bash
+python transcribe_local.py \
+  storage/app/private/video-projects/3/audio.wav \
+  storage/app/private/video-projects/3/transcription.raw.json
+```
+
+The first run downloads the model into the local Hugging Face cache. Both the extracted WAV and raw transcription JSON remain in private application storage and must not be committed.
+
+Run the controlled `large-v3` comparison with the same CPU `int8` and word-timestamp settings:
+
+```bash
+python transcribe_local.py \
+  storage/app/private/video-projects/4/audio.wav \
+  storage/app/private/video-projects/4/transcription.large-v3.raw.json \
+  --model large-v3
+```
+
+The Whisper experiments, including `large-v3-turbo`, did not produce usable
+Georgian transcription. The next
+controlled experiment uses NVIDIA's Georgian FastConformer through its native
+NeMo runtime. Activate the separate CPU environment:
+
+```bash
+source /home/lukachochua/.virtualenvs/georgian-captioner-nemo/bin/activate
+```
+
+Run it against project 4's extracted audio:
+
+```bash
+python transcribe_nemo.py \
+  storage/app/private/video-projects/4/audio.wav \
+  storage/app/private/video-projects/4/transcription.nemo-fastconformer.raw.json
+```
+
+The first run downloads the model into the local cache. The output preserves
+the transcript and any native timestamp structures returned by NeMo. The script
+uses CUDA automatically when the active PyTorch installation supports it;
+otherwise, it runs on CPU.

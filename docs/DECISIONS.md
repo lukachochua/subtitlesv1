@@ -175,6 +175,30 @@ Integer milliseconds avoid floating-point comparison behavior, retain sufficient
 - Existing projects remain valid with `duration_ms = null` until inspected.
 - Downstream duration comparisons can use integer arithmetic.
 - This decision covers overall video duration only; detailed ASR timestamp and cue-boundary rules remain deferred until real ASR output is available.
+
+## Decision: Normalize ASR word timestamps to integer milliseconds
+
+### Context
+
+The first native NVIDIA NeMo Georgian FastConformer result returned floating-point seconds for words, characters, and segments. Its 17 word intervals were ordered and had positive duration, but the final word ended at `13.92` seconds while ffprobe measured the extracted audio as `13.885563` seconds. Downstream cue generation and editing need deterministic comparisons against media duration without depending on provider-specific floating-point values.
+
+### Decision
+
+Represent normalized ASR word boundaries as integer `start_ms` and `end_ms` values. Convert provider seconds by multiplying by 1,000 and rounding to the nearest integer. Require ordered words with `start_ms >= 0` and `end_ms > start_ms`. When a provider boundary exceeds the known audio duration only because of timestamp granularity, clamp it to `duration_ms`; otherwise treat invalid ordering or duration as conversion failure. Preserve the original provider response unchanged alongside normalized data.
+
+Initially retain punctuation as part of the recognized word text. Do not add speaker or confidence fields until a real provider result supplies meaningful values.
+
+### Reason
+
+Integer milliseconds match the existing video-duration representation and are precise enough for browser caption timing. Explicit validation prevents malformed provider timestamps from silently entering cue generation, while preserving raw output allows later conversion improvements without another transcription request.
+
+### Consequences
+
+- Provider adapters must convert and validate timestamps before downstream code consumes them.
+- The known media duration is the upper bound for normalized word timestamps.
+- Small model-boundary overruns, such as the observed 34 milliseconds, can be normalized deterministically.
+- Cue boundary inclusivity, overlap policy, and cue-specific validation remain separate decisions for the cue-generation and editing phases.
+- NeMo token, character, and segment timestamps remain available in raw experimental output but are not part of the first internal word representation.
 ## Decision: Isolate ffprobe duration inspection in one application action
 
 ### Context
@@ -217,3 +241,25 @@ Uncompressed mono PCM is simple to inspect and broadly usable for initial ASR ex
 - The action checks that output exists and is non-empty; media-format and duration verification remain a separate next step.
 - WAV files are larger than compressed audio, and the exact provider input format may be revisited after selecting and testing one ASR provider.
 - `/usr/bin/ffmpeg` and synchronous execution are current personal-V1 assumptions that may need configuration or queued execution when real processing evidence justifies it.
+
+## Decision: Test local faster-whisper before a hosted ASR provider
+
+### Context
+
+Hosted Georgian-capable providers offer explicit timestamp APIs but introduce per-minute cost, external media transfer, credentials, and provider retention policies. The personal-V1 development machine has an Intel Core Ultra 5 125U, 16 GB RAM, and no NVIDIA CUDA GPU.
+
+### Decision
+
+Use faster-whisper as the first real Georgian ASR experiment. Start with the multilingual `medium` model on CPU using `int8` computation and request word-level timestamps. Keep its Python virtual environment outside the Laravel repository. Do not integrate the runtime into Laravel until real output and performance have been inspected.
+
+### Reason
+
+This path avoids usage fees and keeps test media local while still providing a practical word-timestamp experiment on the available CPU. Starting with `medium` limits download, memory, and processing cost before evidence justifies trying `large-v3`.
+
+### Consequences
+
+- The first model download and inference use local bandwidth, disk, memory, CPU time, and power rather than a metered ASR API.
+- Speaker diarization is not included in the initial experiment.
+- Georgian transcription quality and timing accuracy remain unproven until tested against real audio.
+- ElevenLabs Scribe v2, Google Chirp, OpenAI transcription models, Meta Omnilingual ASR, and larger Whisper models remain later benchmarks rather than current integrations.
+- A future application boundary must treat the Python runtime as a separate media-processing concern instead of adding Python dependencies to PHP.

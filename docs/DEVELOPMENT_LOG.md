@@ -3543,3 +3543,54 @@ The project page now restores meaningful export state after navigation or reload
 ### Next
 
 Manually verify the export-state presentation, then inspect project 5 source and export stream characteristics before proposing a small quality control.
+
+## 2026-08-23 — Personal V1 automatic generation and export quality
+
+### Goal
+
+Remove the manual shell-command gap between video upload and editable Georgian captions, and address the observed exported-video quality loss.
+
+### Changes
+
+- Measured project 5 source and existing export streams before changing encoder settings.
+- Added High, Balanced, and Smaller render-quality presets, strict request validation, persisted selection, and a browser selector.
+- Added configurable direct invocation of the external NeMo Python executable without shell activation.
+- Added validated temporary-to-final NeMo JSON handling with partial-output cleanup.
+- Added one orchestration action for media inspection, audio extraction, NeMo transcription, internal conversion, cue generation, and protected persistence.
+- Added nullable transcription lifecycle, safe error, and completion timestamp fields with enum casts.
+- Added a project-page Generate captions action, progress feedback, persistent status, and error presentation.
+- Updated `.env.example`, local configuration, Wayfinder types, and README setup/workflow instructions.
+
+### Decisions
+
+- Default to High quality (CRF 14/slow); retain Balanced as the previous CRF 18 behavior and provide Smaller at CRF 23/fast.
+- Require an absolute per-machine `NEMO_PYTHON_PATH`; activation with `source` is unnecessary for application use.
+- Refuse generation when saved cues exist so human corrections cannot be overwritten.
+- Keep generation synchronous for the first end-to-end V1 test; measure representative server behavior before introducing the database queue.
+- Treat empty or malformed word timestamps and zero generated cues as failed processing.
+
+### Verification
+
+- Focused integration suites pass: 32 tests with 171 assertions before the final full run.
+- All 223 Laravel tests pass with 824 assertions.
+- All 26 frontend logic tests pass.
+- Focused PHPStan reports zero errors; Vue TypeScript, ESLint, Laravel Pint, and diff checks pass.
+- The production frontend build completes successfully.
+- Both new migrations applied successfully to the development SQLite database.
+- Project 5 rendered successfully using High: video bitrate increased to about 1,056 kb/s versus about 701 kb/s source and 644 kb/s prior export; duration, 368×640 resolution, 30 fps, H.264, and copied AAC remained intact.
+- The configured local NeMo Python executable exists and is executable.
+- A new-video browser generation run has not yet been manually verified.
+
+### Result
+
+The application now contains the complete browser-facing personal V1 path from uploaded MP4 through automatic Georgian cue generation, editing/styling, quality-selected rendering, and download.
+
+### Problems / Notes
+
+- The first NeMo run on a machine may download the model and requires network access.
+- Long generation and rendering requests may exceed production web-server timeouts; this must be measured before choosing a queue transition.
+- High quality intentionally produces a larger file and cannot eliminate all generational loss because burned captions require re-encoding.
+
+### Next
+
+Upload a new Georgian MP4 and manually verify the complete personal V1 workflow from Generate captions through downloaded export.

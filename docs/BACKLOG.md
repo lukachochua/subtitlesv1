@@ -1,11 +1,9 @@
 # Current
 
-- Inspect source and rendered project 5 video characteristics to identify the observed quality loss before designing export quality choices.
+- Manually test the complete upload → Generate captions → edit/style → quality-select → export/download V1 workflow with a new Georgian video.
 
 # Next
 
-- Inspect source and rendered project 5 video characteristics to identify the observed quality loss before designing export quality choices.
-- Offer a small set of understandable V1 export quality presets if the comparison supports them.
 - Manually trigger Export MP4 and download the result from project 5 in the browser.
 - Manually compare Clean, Social, News, and Minimal on project 5 and verify selected-state, Custom-state, save, and reload behavior.
 
@@ -130,6 +128,10 @@
 - Phase 12.7a: Added reversible nullable render status, safe error, and successful-render timestamp storage.
 - Phase 12.7b: Added enum-backed model state and tested render-action lifecycle transitions.
 - Phase 12.7c: Exposed persistent export status, safe failure context, and last-success time on the project page.
+- Export quality: Measured project 5 and added tested High, Balanced, and Smaller H.264 presets with persisted selection.
+- Automatic caption generation: Integrated inspection, audio extraction, local NeMo transcription, cue conversion, and protected cue persistence behind one action.
+- Transcription lifecycle: Added safe persistent pending, processing, completed, and failed state.
+- Generate captions UI: Added a project-page action that requires no shell environment activation.
 - Caption position UI: Moved the vertical slider directly below the video preview.
 - Caption editor UI: Grouped start/end timing and moved split/merge into a compact per-cue actions menu.
 

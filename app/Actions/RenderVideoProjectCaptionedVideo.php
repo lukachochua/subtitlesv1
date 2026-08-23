@@ -2,6 +2,7 @@
 
 namespace App\Actions;
 
+use App\Enums\VideoRenderQuality;
 use App\Enums\VideoRenderStatus;
 use App\Models\VideoProject;
 use Illuminate\Support\Facades\Process;
@@ -15,11 +16,14 @@ class RenderVideoProjectCaptionedVideo
 
     public function __construct(private GenerateVideoProjectAssFile $generateVideoProjectAssFile) {}
 
-    public function handle(VideoProject $videoProject): string
+    public function handle(VideoProject $videoProject, ?VideoRenderQuality $quality = null): string
     {
+        $quality ??= $videoProject->render_quality ?? VideoRenderQuality::High;
+
         $videoProject->update([
             'render_status' => VideoRenderStatus::Pending,
             'render_error' => null,
+            'render_quality' => $quality,
         ]);
 
         $videoProject->update([
@@ -59,9 +63,9 @@ class RenderVideoProjectCaptionedVideo
                 '-c:v',
                 'libx264',
                 '-preset',
-                'medium',
+                $quality->preset(),
                 '-crf',
-                '18',
+                (string) $quality->crf(),
                 '-c:a',
                 'copy',
                 '-movflags',

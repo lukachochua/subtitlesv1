@@ -28,10 +28,16 @@ test('displays safe uploaded video metadata', function () {
             ])
             ->where('cues', null)
             ->where('captionStyle', VideoProject::DEFAULT_CAPTION_STYLE)
+            ->where('renderQuality', 'high')
             ->where('renderState', [
                 'status' => null,
                 'error' => null,
                 'rendered_at' => null,
+            ])
+            ->where('transcriptionState', [
+                'status' => null,
+                'error' => null,
+                'transcribed_at' => null,
             ])
             ->where('hasCaptionedVideo', false)
             ->missing('videoProject.disk')

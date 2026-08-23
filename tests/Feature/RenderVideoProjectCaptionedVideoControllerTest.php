@@ -1,6 +1,7 @@
 <?php
 
 use App\Actions\RenderVideoProjectCaptionedVideo;
+use App\Enums\VideoRenderQuality;
 use App\Models\VideoProject;
 
 use function Pest\Laravel\mock;
@@ -11,10 +12,10 @@ test('renders a project and redirects back to its editor', function () {
     mock(RenderVideoProjectCaptionedVideo::class)
         ->shouldReceive('handle')
         ->once()
-        ->withArgs(fn (VideoProject $project): bool => $project->is($videoProject))
+        ->withArgs(fn (VideoProject $project, VideoRenderQuality $quality): bool => $project->is($videoProject) && $quality === VideoRenderQuality::Balanced)
         ->andReturn("video-projects/{$videoProject->id}/captioned.mp4");
 
-    $this->post(route('video-projects.render.store', $videoProject))
+    $this->post(route('video-projects.render.store', $videoProject), ['quality' => 'balanced'])
         ->assertRedirectToRoute('video-projects.show', $videoProject)
         ->assertSessionHasNoErrors();
 });
@@ -27,11 +28,19 @@ test('returns a useful form error when browser rendering fails', function () {
         ->once()
         ->andThrow(new RuntimeException('FFmpeg failed.'));
 
-    $this->post(route('video-projects.render.store', $videoProject))
+    $this->post(route('video-projects.render.store', $videoProject), ['quality' => 'high'])
         ->assertRedirectToRoute('video-projects.show', $videoProject)
         ->assertSessionHasErrors([
             'render' => 'The captioned video could not be exported. Check the media files and try again.',
         ]);
+});
+
+test('validates the requested render quality', function () {
+    $videoProject = createVideoProjectForBrowserRender();
+    mock(RenderVideoProjectCaptionedVideo::class)->shouldNotReceive('handle');
+
+    $this->post(route('video-projects.render.store', $videoProject), ['quality' => 'lossless'])
+        ->assertSessionHasErrors('quality');
 });
 
 test('returns not found when rendering a missing project', function () {

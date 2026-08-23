@@ -2,6 +2,7 @@
 
 use App\Actions\GenerateVideoProjectAssFile;
 use App\Actions\RenderVideoProjectCaptionedVideo;
+use App\Enums\VideoRenderQuality;
 use App\Enums\VideoRenderStatus;
 use App\Models\VideoProject;
 use Illuminate\Contracts\Process\ProcessResult;
@@ -44,6 +45,7 @@ test('renders captioned video to a verified private project path', function () {
     expect($outputPath)->toBe($completedOutputPath)
         ->and(Storage::disk('local')->get($completedOutputPath))->toBe('new-captioned-video')
         ->and($videoProject->render_status)->toBe(VideoRenderStatus::Completed)
+        ->and($videoProject->render_quality)->toBe(VideoRenderQuality::High)
         ->and($videoProject->render_error)->toBeNull()
         ->and($videoProject->rendered_at)->not->toBeNull();
     Storage::disk('local')->assertMissing($pendingOutputPath);
@@ -68,9 +70,9 @@ test('renders captioned video to a verified private project path', function () {
                 '-c:v',
                 'libx264',
                 '-preset',
-                'medium',
+                'slow',
                 '-crf',
-                '18',
+                '14',
                 '-c:a',
                 'copy',
                 '-movflags',

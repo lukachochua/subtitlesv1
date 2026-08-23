@@ -36,6 +36,20 @@ npm run test:frontend
 
 ## Local Georgian ASR Experiment
 
+The application invokes the NeMo environment directly; activating it with
+`source` is not required for browser caption generation. Configure the absolute
+Python executable path in `.env`:
+
+```dotenv
+NEMO_PYTHON_PATH=/home/your-user/.virtualenvs/georgian-captioner-nemo/bin/python
+```
+
+Each processing machine needs its own NeMo environment. The model downloads to
+that machine's local cache on its first run. After configuration, upload an MP4
+and use **Generate captions** on its project page. The application inspects the
+video, extracts audio, runs NVIDIA Georgian FastConformer, and saves editable
+caption cues in one operation.
+
 The first ASR proof of concept uses faster-whisper 1.2.1 in an external Python virtual environment. Activate it before running the experiment:
 
 ```bash
@@ -123,3 +137,7 @@ The command regenerates the ASS file and writes
 `storage/app/private/video-projects/{id}/captioned.mp4`. The source upload is
 never modified. A failed render removes its partial temporary file and preserves
 the previous completed export.
+
+The browser export form offers High quality (CRF 14/slow), Balanced (CRF
+18/medium), and Smaller file (CRF 23/fast). Audio is copied without re-encoding;
+video must be re-encoded to burn captions into its frames.

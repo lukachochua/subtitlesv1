@@ -1,5 +1,7 @@
 <?php
 
+use App\Enums\TranscriptionStatus;
+use App\Enums\VideoRenderQuality;
 use App\Enums\VideoRenderStatus;
 use App\Models\VideoProject;
 use Carbon\CarbonInterface;
@@ -61,6 +63,23 @@ test('casts persisted render lifecycle fields', function () {
     expect($videoProject->render_status)->toBe(VideoRenderStatus::Completed)
         ->and($videoProject->render_error)->toBeNull()
         ->and($videoProject->rendered_at)->toBeInstanceOf(CarbonInterface::class);
+});
+
+test('casts quality and transcription lifecycle fields', function () {
+    $videoProject = VideoProject::create([
+        'original_filename' => 'transcribed.mp4',
+        'disk' => 'local',
+        'path' => 'video-projects/test/transcribed.mp4',
+        'mime_type' => 'video/mp4',
+        'size_bytes' => 1_024,
+        'render_quality' => VideoRenderQuality::High,
+        'transcription_status' => TranscriptionStatus::Completed,
+        'transcribed_at' => '2026-08-23 21:00:00',
+    ])->fresh();
+
+    expect($videoProject->render_quality)->toBe(VideoRenderQuality::High)
+        ->and($videoProject->transcription_status)->toBe(TranscriptionStatus::Completed)
+        ->and($videoProject->transcribed_at)->toBeInstanceOf(CarbonInterface::class);
 });
 
 test('resolves the complete default caption style when none is stored', function () {

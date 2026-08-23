@@ -156,6 +156,48 @@ These fields are sufficient to restore meaningful UI state, record the last succ
 - The project page receives a safe render-state object and combines it with request-local form processing feedback; polling is unnecessary while rendering remains synchronous.
 - Existing projects retain `null` values and require no data backfill.
 
+## Decision: Use three explicit H.264 export quality presets
+
+### Context
+
+Project 5's source retained 368×640, 30 fps, H.264 video and copied AAC audio, but the original CRF 18 export reduced video bitrate from about 701 kb/s to 644 kb/s and looked worse to the user.
+
+### Decision
+
+Offer High (CRF 14, slow preset), Balanced (CRF 18, medium), and Smaller (CRF 23, fast). Default new and previously unset projects to High and persist the last selected preset on the video project.
+
+### Reason
+
+These choices express the useful product trade-off without exposing encoder jargon in the UI. Burned captions require video re-encoding, so source stream copying is not possible.
+
+### Consequences
+
+- High produces larger files and slower renders but materially reduces visible generation loss.
+- Audio continues to be copied unchanged.
+- Resolution and frame rate remain inherited from the source.
+- Advanced codec, bitrate, resolution, and arbitrary CRF controls remain out of scope.
+
+## Decision: Invoke local NeMo directly from Laravel for personal V1
+
+### Context
+
+The proven Georgian NeMo script previously required separate shell commands and manual environment activation between upload and cue editing.
+
+### Decision
+
+Configure an absolute `NEMO_PYTHON_PATH` per processing machine and invoke `transcribe_nemo.py` through Laravel Process with array arguments and a one-hour timeout. One application action inspects media when needed, extracts audio, transcribes, validates timestamp output, converts cues, and persists them only when no edited cues exist.
+
+### Reason
+
+Direct executable invocation removes shell activation from the user workflow while reusing the tested local model and existing application boundaries without a new package or service.
+
+### Consequences
+
+- Each machine must install its own compatible NeMo environment and model cache.
+- Safe lifecycle fields record status while raw process details remain server-side.
+- Saved or edited cues are never overwritten automatically.
+- Processing remains synchronous until representative server timing justifies the existing database queue.
+
 ## Decision: Retain dormant starter infrastructure during personal V1
 
 ### Context

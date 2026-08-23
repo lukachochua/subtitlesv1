@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\TranscriptionStatus;
+use App\Enums\VideoRenderQuality;
 use App\Enums\VideoRenderStatus;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
@@ -20,10 +22,14 @@ use Illuminate\Support\Carbon;
  * @property VideoRenderStatus|null $render_status
  * @property string|null $render_error
  * @property Carbon|null $rendered_at
+ * @property VideoRenderQuality|null $render_quality
+ * @property TranscriptionStatus|null $transcription_status
+ * @property string|null $transcription_error
+ * @property Carbon|null $transcribed_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['original_filename', 'disk', 'path', 'mime_type', 'size_bytes', 'duration_ms', 'caption_style', 'render_status', 'render_error', 'rendered_at'])]
+#[Fillable(['original_filename', 'disk', 'path', 'mime_type', 'size_bytes', 'duration_ms', 'caption_style', 'render_status', 'render_error', 'rendered_at', 'render_quality', 'transcription_status', 'transcription_error', 'transcribed_at'])]
 class VideoProject extends Model
 {
     /**
@@ -115,6 +121,9 @@ class VideoProject extends Model
             'caption_style' => 'array',
             'render_status' => VideoRenderStatus::class,
             'rendered_at' => 'datetime',
+            'render_quality' => VideoRenderQuality::class,
+            'transcription_status' => TranscriptionStatus::class,
+            'transcribed_at' => 'datetime',
         ];
     }
 }

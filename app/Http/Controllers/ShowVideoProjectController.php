@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Actions\LoadVideoProjectCaptionData;
+use App\Enums\VideoRenderQuality;
 use App\Models\CaptionCue as PersistedCaptionCue;
 use App\Models\VideoProject;
 use App\ValueObjects\CaptionCue as GeneratedCaptionCue;
@@ -29,10 +30,16 @@ class ShowVideoProjectController extends Controller
                 $loadVideoProjectCaptionData,
             ),
             'captionStyle' => $videoProject->resolvedCaptionStyle(),
+            'renderQuality' => ($videoProject->render_quality ?? VideoRenderQuality::High)->value,
             'renderState' => [
                 'status' => $videoProject->render_status?->value,
                 'error' => $videoProject->render_error,
                 'rendered_at' => $videoProject->rendered_at?->toIso8601String(),
+            ],
+            'transcriptionState' => [
+                'status' => $videoProject->transcription_status?->value,
+                'error' => $videoProject->transcription_error,
+                'transcribed_at' => $videoProject->transcribed_at?->toIso8601String(),
             ],
             'hasCaptionedVideo' => Storage::disk($videoProject->disk)
                 ->exists("video-projects/{$videoProject->id}/captioned.mp4"),

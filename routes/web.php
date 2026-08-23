@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DownloadVideoProjectCaptionedVideoController;
+use App\Http\Controllers\GenerateVideoProjectCaptionsController;
 use App\Http\Controllers\MergeCaptionCueWithNextController;
 use App\Http\Controllers\RenderVideoProjectCaptionedVideoController;
 use App\Http\Controllers\ShowVideoProjectController;
@@ -30,6 +31,11 @@ Route::post(
     '/video-projects/{videoProject}/render',
     RenderVideoProjectCaptionedVideoController::class,
 )->name('video-projects.render.store');
+
+Route::post(
+    '/video-projects/{videoProject}/captions/generate',
+    GenerateVideoProjectCaptionsController::class,
+)->name('video-projects.captions.generate.store');
 
 Route::post('/video-projects', StoreVideoProjectController::class)
     ->name('video-projects.store');

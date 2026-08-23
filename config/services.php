@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'nemo_asr' => [
+        'python' => env('NEMO_PYTHON_PATH'),
+    ],
+
 ];

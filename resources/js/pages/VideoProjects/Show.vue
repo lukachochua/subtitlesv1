@@ -2,6 +2,7 @@
 import { Form, Head, Link, useForm } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import DownloadVideoProjectCaptionedVideoController from '@/actions/App/Http/Controllers/DownloadVideoProjectCaptionedVideoController';
+import GenerateVideoProjectCaptionsController from '@/actions/App/Http/Controllers/GenerateVideoProjectCaptionsController';
 import RenderVideoProjectCaptionedVideoController from '@/actions/App/Http/Controllers/RenderVideoProjectCaptionedVideoController';
 import type { CaptionCue } from '@/lib/caption-cues';
 import { findActiveCaptionCue } from '@/lib/caption-cues';
@@ -42,6 +43,8 @@ interface VideoProject {
 }
 
 type VideoRenderStatus = 'pending' | 'processing' | 'completed' | 'failed';
+type VideoRenderQuality = 'high' | 'balanced' | 'smaller';
+type TranscriptionStatus = 'pending' | 'processing' | 'completed' | 'failed';
 
 interface VideoRenderState {
     status: VideoRenderStatus | null;
@@ -49,11 +52,19 @@ interface VideoRenderState {
     rendered_at: string | null;
 }
 
+interface TranscriptionState {
+    status: TranscriptionStatus | null;
+    error: string | null;
+    transcribed_at: string | null;
+}
+
 const props = defineProps<{
     videoProject: VideoProject;
     cues: CaptionCue[] | null;
     captionStyle: CaptionStyleConfiguration;
+    renderQuality: VideoRenderQuality;
     renderState: VideoRenderState;
+    transcriptionState: TranscriptionState;
     hasCaptionedVideo: boolean;
 }>();
 
@@ -184,6 +195,7 @@ const captionPreviewStyle = computed(() => ({
     textAlign: captionTextAlignment.value,
 }));
 const captionStyleForm = useForm<CaptionStyleConfiguration>(props.captionStyle);
+const selectedRenderQuality = ref<VideoRenderQuality>(props.renderQuality);
 const activeCue = computed(() =>
     props.cues === null
         ? null
@@ -192,6 +204,48 @@ const activeCue = computed(() =>
 const hasSavedCaptionCues = computed(
     () => props.cues?.some((cue) => cue.id !== null) ?? false,
 );
+
+const formattedTranscribedAt =
+    props.transcriptionState.transcribed_at === null
+        ? null
+        : new Intl.DateTimeFormat(undefined, {
+              dateStyle: 'medium',
+              timeStyle: 'short',
+          }).format(new Date(props.transcriptionState.transcribed_at));
+
+const transcriptionStatusLabel = computed(() => {
+    switch (props.transcriptionState.status) {
+        case 'pending':
+            return 'Pending';
+        case 'processing':
+            return 'Processing';
+        case 'completed':
+            return 'Completed';
+        case 'failed':
+            return 'Failed';
+        default:
+            return hasSavedCaptionCues.value
+                ? 'Captions ready'
+                : 'Not generated';
+    }
+});
+
+const transcriptionStatusClasses = computed(() => {
+    switch (props.transcriptionState.status) {
+        case 'pending':
+            return 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300';
+        case 'processing':
+            return 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300';
+        case 'completed':
+            return 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300';
+        case 'failed':
+            return 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300';
+        default:
+            return hasSavedCaptionCues.value
+                ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
+                : 'bg-stone-100 text-stone-700 dark:bg-stone-800 dark:text-stone-300';
+    }
+});
 
 const updateCurrentTime = (event: Event): void => {
     currentTimeSeconds.value = (
@@ -425,6 +479,85 @@ const saveCaptionStyle = (): void => {
 
                 <Form
                     v-bind="
+                        GenerateVideoProjectCaptionsController.form(
+                            videoProject.id,
+                        )
+                    "
+                    :options="{ preserveScroll: true }"
+                    class="mt-4 rounded-lg border border-stone-200 p-4 dark:border-stone-700"
+                    #default="{ errors, processing, recentlySuccessful }"
+                >
+                    <div
+                        class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+                    >
+                        <div>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <h3 class="font-semibold">
+                                    Automatic Georgian captions
+                                </h3>
+                                <span
+                                    class="rounded-full px-2.5 py-1 text-xs font-semibold"
+                                    :class="transcriptionStatusClasses"
+                                >
+                                    {{ transcriptionStatusLabel }}
+                                </span>
+                            </div>
+                            <p
+                                class="mt-1 text-xs text-stone-500 dark:text-stone-400"
+                            >
+                                Extract audio and run the local NVIDIA NeMo
+                                Georgian model. This may take several minutes.
+                            </p>
+                            <p
+                                v-if="formattedTranscribedAt"
+                                class="mt-1 text-xs text-stone-500 dark:text-stone-400"
+                            >
+                                Generated:
+                                <time
+                                    :datetime="
+                                        transcriptionState.transcribed_at ?? ''
+                                    "
+                                >
+                                    {{ formattedTranscribedAt }}
+                                </time>
+                            </p>
+                        </div>
+                        <button
+                            type="submit"
+                            :disabled="processing || hasSavedCaptionCues"
+                            class="shrink-0 rounded-lg bg-red-700 px-4 py-2 text-sm font-semibold text-white hover:bg-red-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-red-600 dark:hover:bg-red-500 dark:focus-visible:ring-red-400 dark:focus-visible:ring-offset-stone-900"
+                        >
+                            {{
+                                processing
+                                    ? 'Generating…'
+                                    : hasSavedCaptionCues
+                                      ? 'Captions generated'
+                                      : 'Generate captions'
+                            }}
+                        </button>
+                    </div>
+                    <p
+                        v-if="errors.transcription"
+                        class="mt-3 text-sm text-red-700 dark:text-red-400"
+                    >
+                        {{ errors.transcription }}
+                    </p>
+                    <p
+                        v-else-if="transcriptionState.status === 'failed'"
+                        class="mt-3 text-sm text-red-700 dark:text-red-400"
+                    >
+                        {{ transcriptionState.error }}
+                    </p>
+                    <p
+                        v-else-if="recentlySuccessful"
+                        class="mt-3 text-sm text-emerald-700 dark:text-emerald-400"
+                    >
+                        Captions generated and ready to edit.
+                    </p>
+                </Form>
+
+                <Form
+                    v-bind="
                         RenderVideoProjectCaptionedVideoController.form(
                             videoProject.id,
                         )
@@ -466,6 +599,20 @@ const saveCaptionStyle = (): void => {
                             </p>
                         </div>
                         <div class="flex flex-wrap items-center gap-3">
+                            <label class="text-sm font-medium">
+                                <span class="sr-only">Export quality</span>
+                                <select
+                                    v-model="selectedRenderQuality"
+                                    name="quality"
+                                    class="rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 dark:border-stone-700 dark:bg-stone-950 dark:text-stone-100 dark:focus-visible:ring-red-400"
+                                >
+                                    <option value="high">High quality</option>
+                                    <option value="balanced">Balanced</option>
+                                    <option value="smaller">
+                                        Smaller file
+                                    </option>
+                                </select>
+                            </label>
                             <a
                                 v-if="hasCaptionedVideo"
                                 :href="

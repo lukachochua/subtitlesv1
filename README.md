@@ -76,7 +76,7 @@ uses CUDA automatically when the active PyTorch installation supports it;
 otherwise, it runs on CPU.
 
 Inspect one project's preserved NeMo result as normalized integer-millisecond
-words without modifying it:
+words and generated caption cues without modifying it:
 
 ```bash
 php artisan video-projects:inspect-transcription <project-id>

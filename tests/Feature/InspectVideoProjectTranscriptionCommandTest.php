@@ -3,7 +3,7 @@
 use App\Models\VideoProject;
 use Illuminate\Support\Facades\Storage;
 
-test('displays normalized words for one video project', function () {
+test('displays normalized words and generated cues for one video project', function () {
     Storage::fake('local');
     $videoProject = createVideoProjectForTranscriptionInspection();
     $fixture = file_get_contents(base_path('tests/Fixtures/nemo-transcription.json'));
@@ -26,6 +26,13 @@ test('displays normalized words for one video project', function () {
                 [1, 'ერთი', 160, 240],
                 [2, 'ორი,', 640, 960],
                 [3, 'გამარჯობა.', 1600, 2886],
+            ],
+        )
+        ->expectsOutput('Generated caption cues:')
+        ->expectsTable(
+            ['Order', 'Text', 'Start (ms)', 'End (ms)'],
+            [
+                [1, 'ერთი ორი, გამარჯობა.', 160, 2886],
             ],
         )
         ->assertSuccessful();

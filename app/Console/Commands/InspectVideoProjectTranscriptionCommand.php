@@ -3,20 +3,24 @@
 namespace App\Console\Commands;
 
 use App\Actions\ConvertNemoTranscriptionWords;
+use App\Actions\GenerateCaptionCues;
 use App\Models\VideoProject;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
+use InvalidArgumentException;
 use JsonException;
 use UnexpectedValueException;
 
 #[Signature('video-projects:inspect-transcription {videoProject : The video project ID}')]
-#[Description('Display normalized NeMo words for one video project')]
+#[Description('Display normalized NeMo words and generated cues for one video project')]
 class InspectVideoProjectTranscriptionCommand extends Command
 {
-    public function handle(ConvertNemoTranscriptionWords $convertNemoTranscriptionWords): int
-    {
+    public function handle(
+        ConvertNemoTranscriptionWords $convertNemoTranscriptionWords,
+        GenerateCaptionCues $generateCaptionCues,
+    ): int {
         $videoProjectId = filter_var(
             $this->argument('videoProject'),
             FILTER_VALIDATE_INT,
@@ -67,7 +71,8 @@ class InspectVideoProjectTranscriptionCommand extends Command
                 $transcription,
                 $videoProject->duration_ms,
             );
-        } catch (JsonException|UnexpectedValueException $exception) {
+            $cues = $generateCaptionCues->handle($words);
+        } catch (InvalidArgumentException|JsonException|UnexpectedValueException $exception) {
             $this->error("Could not inspect video project {$videoProjectId} transcription: {$exception->getMessage()}");
 
             return self::FAILURE;
@@ -80,6 +85,16 @@ class InspectVideoProjectTranscriptionCommand extends Command
         }
 
         $this->table(['Order', 'Text', 'Start (ms)', 'End (ms)'], $rows);
+
+        $cueRows = [];
+
+        foreach ($cues as $cue) {
+            $cueRows[] = [$cue->order, $cue->text, $cue->startMs, $cue->endMs];
+        }
+
+        $this->newLine();
+        $this->info('Generated caption cues:');
+        $this->table(['Order', 'Text', 'Start (ms)', 'End (ms)'], $cueRows);
 
         return self::SUCCESS;
     }

@@ -1513,3 +1513,42 @@ Validated transcription words can now become deterministic, ordered `CaptionCue`
 ### Next
 
 Extend the existing read-only project transcription command to display generated cues, then compare those boundaries manually before changing the algorithm.
+
+## 2026-08-23 — Step 7.4
+
+### Goal
+
+Run deterministic cue generation against the real project 4 transcription and display the result without persistence or browser integration.
+
+### Changes
+
+- Injected `GenerateCaptionCues` into the existing read-only transcription inspection command.
+- Added a second console table for generated cue order, text, start milliseconds, and end milliseconds.
+- Extended the command feature test to verify fixture-backed cue generation and table output.
+- Updated the README to state that the command displays both normalized words and generated cues.
+
+### Decisions
+
+- Keep word and cue tables together in the development command so the grouping result remains traceable to its source words.
+- Do not persist cues or duplicate this loading logic in the project-page controller during this step.
+
+### Verification
+
+- The command feature suite passes with its expanded output: 7 tests and 26 assertions.
+- The command, generator, and related value-object suites pass together: 37 tests and 86 assertions.
+- Pint formatted the changed command successfully.
+- PHPStan completed with zero errors.
+- Running `php artisan video-projects:inspect-transcription 4` against the real private result displayed all 17 words followed by exactly the four expected cues from Step 7.2a.
+
+### Result
+
+Real Georgian ASR words now become inspectable caption cues through Laravel, validating the complete transient path from preserved NeMo JSON to deterministic cue output.
+
+### Problems / Notes
+
+- Cue timing and readability have not yet been manually compared with playing project 4 video.
+- The command currently owns private result loading; browser display should first extract the smallest reusable application boundary rather than duplicate that logic.
+
+### Next
+
+Review the four cue boundaries against project 4 playback, then propose the smallest reusable boundary for a read-only cue table on the project page.

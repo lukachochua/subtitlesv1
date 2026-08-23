@@ -1,11 +1,11 @@
 # Current
 
-- Extend the read-only transcription inspection command to display generated project 4 cues.
+- Manually review the four generated project 4 cues before exposing them in the browser.
 
 # Next
 
-- Display generated project 4 cues as a read-only table for manual inspection.
 - Manually compare generated cue boundaries with project 4 playback before tuning thresholds.
+- Propose the smallest reusable application boundary for loading transient generated cues on the project page.
 
 # Later
 
@@ -71,6 +71,7 @@
 - Phase 7.3a: Implemented and unit-tested the minimum immutable `CaptionCue` representation.
 - Phase 7.2a: Defined the first deterministic word-to-cue grouping rules and expected project 4 output.
 - Phase 7.2b: Implemented and unit-tested deterministic word-to-cue generation.
+- Phase 7.4: Generated and displayed four real project 4 caption cues through the read-only inspection command.
 
 # Rejected / Out of Scope
 

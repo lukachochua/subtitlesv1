@@ -1,10 +1,10 @@
 # Current
 
-- Manually inspect project 5's generated ASS file and its disposable libass-rendered sample frame.
+- Manually compare project 5's application-rendered `captioned.mp4` against the browser preview.
 
 # Next
 
-- Render one captioned sample MP4 from actual project cues and the generated ASS file.
+- Document concrete preview-versus-render timing and style differences from project 5.
 - Manually compare Clean, Social, News, and Minimal on project 5 and verify selected-state, Custom-state, save, and reload behavior.
 
 # Later
@@ -121,6 +121,7 @@
 - Phase 11: Completed the planned Clean, Social, News, and Minimal caption preset set.
 - Phase 12.1: Confirmed the installed FFmpeg/libass stack renders shaped Georgian text and documented style mappings and fidelity limits.
 - Phase 12.2: Added tested, dimension-aware ASS generation for real saved cues and complete persisted styles.
+- Phase 12.3: Added safe application rendering and produced a verified captioned project 5 MP4.
 - Caption position UI: Moved the vertical slider directly below the video preview.
 - Caption editor UI: Grouped start/end timing and moved split/merge into a compact per-cue actions menu.
 

@@ -107,6 +107,30 @@ ASS supports the core V1 requirements: precise cue timing, Georgian Unicode text
 - Browser and libass line wrapping may differ. Preview-versus-render comparison remains a required later step.
 - The next step is limited to generating one ASS file from real cues with one default style; it does not yet render an MP4.
 
+## Decision: Render the first V1 export as H.264 MP4 with copied source audio
+
+### Context
+
+Burning ASS captions requires video re-encoding, but the source audio does not need modification. Failed or interrupted media processing must not replace an earlier usable export with a partial file.
+
+### Decision
+
+Render with FFmpeg `libx264`, the `medium` preset, CRF 18, copied source audio when present, and `+faststart`. Write to a fixed private temporary MP4 and move it to `captioned.mp4` only after FFmpeg succeeds and the output is non-empty.
+
+Regenerate ASS at the start of every render so the export always reflects the current saved cues and style.
+
+### Reason
+
+H.264 MP4 has broad playback compatibility. CRF 18 provides a high-quality V1 output, copying audio avoids unnecessary quality loss, and fast-start metadata improves playback behavior. A temporary output protects the last completed export from failed FFmpeg runs.
+
+### Consequences
+
+- Video rendering may take substantial time and currently runs synchronously from the Artisan command.
+- The current one-hour process timeout is a development guard, not a final job-processing design.
+- A later application-facing render action may require processing status and a queue if real media proves too slow for a request lifecycle.
+- Re-rendering replaces the previous completed `captioned.mp4` only after a new usable temporary output exists.
+- The source upload is never modified.
+
 ## Decision: Retain dormant starter infrastructure during personal V1
 
 ### Context

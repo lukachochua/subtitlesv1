@@ -3309,3 +3309,52 @@ The application can now convert real saved Georgian cues and the complete persis
 ### Next
 
 Render one sample project MP4 with the generated ASS file and compare its timing and appearance with the browser preview.
+
+## 2026-08-23 — Phase 12.3: Render one captioned MP4
+
+### Goal
+
+Move the manually verified FFmpeg render command into a safe, tested application boundary and render one real project output.
+
+### Changes
+
+- Added a single-purpose captioned-video render action that regenerates ASS before every export.
+- Added fixed FFmpeg argument-array construction without shell interpolation.
+- Configured H.264 `libx264` video at CRF 18 with the medium preset, copied optional source audio, and enabled MP4 fast start.
+- Rendered to `captioned.rendering.mp4`, verified a non-empty result, and only then replaced `captioned.mp4`.
+- Added failed-render cleanup while preserving any earlier completed export.
+- Added the protected `video-projects:render` Artisan command.
+- Documented the render command and private output path in the README.
+- Added focused action and command coverage for success, exact FFmpeg arguments, invalid IDs, missing projects, partial failures, and missing output.
+
+### Decisions
+
+- Keep this step synchronous and command-driven until real application usage demonstrates the need for a queue.
+- Copy audio rather than re-encode it because caption burning changes only the video stream.
+- Keep output paths generated and project-controlled; no user input enters the FFmpeg filter or filesystem targets.
+- Preserve the last completed export when FFmpeg fails.
+
+### Verification
+
+- Focused render action and command coverage passes: 8 tests with 27 assertions.
+- The full application suite passes: 203 tests with 720 assertions.
+- Focused PHPStan analysis passes with zero errors for the new render production files.
+- Laravel Pint completed successfully.
+- `video-projects:render 5` produced a real 1,564,904-byte private MP4.
+- ffprobe reports a 17.466667-second MP4 containing H.264 video and AAC audio.
+- FFmpeg decoded the entire rendered output with no errors.
+- The new application-rendered MP4 has not yet been manually compared side-by-side with the browser preview.
+
+### Result
+
+The backend can now regenerate current ASS subtitles and safely render a complete captioned MP4 without modifying the source upload or sacrificing an older export on failure.
+
+### Problems / Notes
+
+- Rendering remains accessible only through Artisan; there is no browser Export button or download route yet.
+- Processing status is not persisted because this synchronous proof is fast on the current short sample.
+- Preview-versus-render fidelity still needs explicit manual comparison.
+
+### Next
+
+Compare project 5's browser preview and rendered MP4 for timing, line breaks, position, font, and size before exposing rendering through the application UI.

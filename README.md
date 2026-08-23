@@ -112,3 +112,14 @@ php artisan video-projects:generate-ass <project-id>
 The command inspects the source video's dimensions and writes
 `storage/app/private/video-projects/{id}/captions.ass`. It does not render or
 modify the source MP4.
+
+Render one project's current saved cues and style into a private captioned MP4:
+
+```bash
+php artisan video-projects:render <project-id>
+```
+
+The command regenerates the ASS file and writes
+`storage/app/private/video-projects/{id}/captioned.mp4`. The source upload is
+never modified. A failed render removes its partial temporary file and preserves
+the previous completed export.

@@ -1,11 +1,10 @@
 # Current
 
-- Phase 2.4: Persist the stored video's approved metadata and clean up the file if persistence fails.
+- Phase 2.6: Serve and play the stored MP4 with the native browser video element.
 
 # Next
 
-- Display the uploaded video's project information.
-- Play the stored MP4 with the native browser video element.
+- Manually verify native playback with a real Georgian MP4.
 
 # Later
 
@@ -35,6 +34,8 @@
 - Phase 2.1: Added a native MP4 selection interface without submission behavior.
 - Phase 2.2: Added and tested server-side MP4 validation with a 500 MB development limit.
 - Phase 2.3: Stored validated MP4 uploads privately using generated paths.
+- Phase 2.4: Persisted uploaded-video metadata and added orphan-file cleanup when persistence fails.
+- Phase 2.5: Redirected successful uploads to a page displaying safe video-project metadata.
 
 # Rejected / Out of Scope
 

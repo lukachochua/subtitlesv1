@@ -355,3 +355,78 @@ The application can validate and privately store one MP4 using a generated path.
 ### Next
 
 Persist the stored file's approved metadata as a `VideoProject` and handle storage cleanup if persistence fails.
+
+## 2026-08-23 — Step 2.4
+
+### Goal
+
+Persist the stored MP4's approved metadata and avoid leaving an orphaned file if database persistence fails.
+
+### Changes
+
+- Created one `VideoProject` after successfully storing an upload.
+- Persisted the original filename, private disk, generated relative path, detected MIME type, and byte size.
+- Deleted the newly stored file before rethrowing an exception if model persistence fails.
+- Extended the upload feature test to verify all persisted metadata.
+- Added a focused failure-path test that forces a persistence exception and verifies file cleanup.
+
+### Decisions
+
+- Keep the upload and single-record persistence flow in the existing invokable controller until repeated processing logic justifies an action or service.
+- Preserve the client-supplied original filename only as display metadata; never use it to construct a storage path.
+- Let persistence exceptions retain their normal reporting and response behavior after storage cleanup.
+
+### Verification
+
+- The focused upload feature tests pass with 15 assertions, covering successful persistence and cleanup after a simulated persistence failure.
+- The complete verification results are recorded in the checkpoint for this step.
+- Automated tests use `Storage::fake('local')`; a real browser upload and real-disk/database pairing have not yet been manually verified.
+
+### Result
+
+A successful MP4 upload now creates one discoverable `VideoProject` record whose path identifies its private stored file. Failed metadata persistence does not leave that newly uploaded file behind.
+
+### Problems / Notes
+
+- The application still redirects to the upload page and does not display the newly created project.
+
+### Next
+
+Display the uploaded video's project information after a successful upload.
+
+## 2026-08-23 — Step 2.5
+
+### Goal
+
+Redirect a successful upload to a minimal page that displays the newly created video project's safe metadata.
+
+### Changes
+
+- Added a named show route with implicit `VideoProject` route-model binding.
+- Added an invokable show controller that returns an Inertia response containing the project's ID, original filename, MIME type, and byte size.
+- Redirected successful uploads to the new project page.
+- Added a typed Vue page that displays the filename, MIME type, and human-readable size, with a Wayfinder-backed link to upload another video.
+- Added feature coverage for the Inertia response, omitted private storage details, missing-project 404 behavior, and the updated post-upload redirect.
+
+### Decisions
+
+- Do not send the private disk or stored path to the browser because this page only needs display metadata.
+- Keep video delivery and playback out of this step; private media access needs its own route and security boundary.
+
+### Verification
+
+- The focused show and upload feature tests pass with 28 assertions.
+- The complete verification results are recorded in the checkpoint for this step.
+- Page appearance and post-upload navigation have not yet been manually verified in a browser.
+
+### Result
+
+After a successful upload, the application redirects to a dedicated project page and displays the uploaded video's safe metadata. It does not serve or play the private video yet.
+
+### Problems / Notes
+
+- The project page intentionally states that video playback is the next development step.
+
+### Next
+
+Serve the stored MP4 safely and play it with the native browser video element.

@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreVideoProjectRequest;
+use App\Models\VideoProject;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+use Throwable;
 
 class StoreVideoProjectController extends Controller
 {
@@ -17,6 +20,20 @@ class StoreVideoProjectController extends Controller
 
         abort_if($path === false, 500, 'Unable to store the uploaded video.');
 
-        return to_route('home');
+        try {
+            $videoProject = VideoProject::create([
+                'original_filename' => $video->getClientOriginalName(),
+                'disk' => 'local',
+                'path' => $path,
+                'mime_type' => $video->getMimeType(),
+                'size_bytes' => $video->getSize(),
+            ]);
+        } catch (Throwable $exception) {
+            Storage::disk('local')->delete($path);
+
+            throw $exception;
+        }
+
+        return to_route('video-projects.show', $videoProject);
     }
 }

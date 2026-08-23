@@ -1,6 +1,6 @@
 # Current
 
-- Expose the persisted render lifecycle on the project page without introducing a queue or progress framework.
+- Inspect source and rendered project 5 video characteristics to identify the observed quality loss before designing export quality choices.
 
 # Next
 
@@ -129,6 +129,7 @@
 - Phase 12.6: Added a project-page Export action, inline feedback, export availability, and private MP4 download.
 - Phase 12.7a: Added reversible nullable render status, safe error, and successful-render timestamp storage.
 - Phase 12.7b: Added enum-backed model state and tested render-action lifecycle transitions.
+- Phase 12.7c: Exposed persistent export status, safe failure context, and last-success time on the project page.
 - Caption position UI: Moved the vertical slider directly below the video preview.
 - Caption editor UI: Grouped start/end timing and moved split/merge into a compact per-cue actions menu.
 

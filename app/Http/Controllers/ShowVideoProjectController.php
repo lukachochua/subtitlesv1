@@ -29,6 +29,11 @@ class ShowVideoProjectController extends Controller
                 $loadVideoProjectCaptionData,
             ),
             'captionStyle' => $videoProject->resolvedCaptionStyle(),
+            'renderState' => [
+                'status' => $videoProject->render_status?->value,
+                'error' => $videoProject->render_error,
+                'rendered_at' => $videoProject->rendered_at?->toIso8601String(),
+            ],
             'hasCaptionedVideo' => Storage::disk($videoProject->disk)
                 ->exists("video-projects/{$videoProject->id}/captioned.mp4"),
         ]);

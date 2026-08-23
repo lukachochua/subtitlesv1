@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\VideoRenderStatus;
 use App\Models\VideoProject;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -27,6 +28,11 @@ test('displays safe uploaded video metadata', function () {
             ])
             ->where('cues', null)
             ->where('captionStyle', VideoProject::DEFAULT_CAPTION_STYLE)
+            ->where('renderState', [
+                'status' => null,
+                'error' => null,
+                'rendered_at' => null,
+            ])
             ->where('hasCaptionedVideo', false)
             ->missing('videoProject.disk')
             ->missing('videoProject.path'));
@@ -40,6 +46,8 @@ test('reports when a completed captioned video is available', function () {
         'path' => 'video-projects/exported.mp4',
         'mime_type' => 'video/mp4',
         'size_bytes' => 2_048,
+        'render_status' => VideoRenderStatus::Completed,
+        'rendered_at' => '2026-08-23 20:00:00',
     ]);
     Storage::disk('local')->put(
         "video-projects/{$videoProject->id}/captioned.mp4",
@@ -49,6 +57,39 @@ test('reports when a completed captioned video is available', function () {
     $this->get(route('video-projects.show', $videoProject))
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page
+            ->where('renderState', [
+                'status' => 'completed',
+                'error' => null,
+                'rendered_at' => $videoProject->rendered_at?->toIso8601String(),
+            ])
+            ->where('hasCaptionedVideo', true));
+});
+
+test('exposes a safe failed render state while retaining an older export', function () {
+    Storage::fake('local');
+    $videoProject = VideoProject::create([
+        'original_filename' => 'failed-export.mp4',
+        'disk' => 'local',
+        'path' => 'video-projects/failed-export.mp4',
+        'mime_type' => 'video/mp4',
+        'size_bytes' => 2_048,
+        'render_status' => VideoRenderStatus::Failed,
+        'render_error' => 'The captioned video could not be exported. Check the media files and try again.',
+        'rendered_at' => '2026-08-22 18:30:00',
+    ]);
+    Storage::disk('local')->put(
+        "video-projects/{$videoProject->id}/captioned.mp4",
+        'older-captioned-video',
+    );
+
+    $this->get(route('video-projects.show', $videoProject))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('renderState', [
+                'status' => 'failed',
+                'error' => 'The captioned video could not be exported. Check the media files and try again.',
+                'rendered_at' => $videoProject->rendered_at?->toIso8601String(),
+            ])
             ->where('hasCaptionedVideo', true));
 });
 

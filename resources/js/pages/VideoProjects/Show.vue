@@ -41,10 +41,19 @@ interface VideoProject {
     duration_ms: number | null;
 }
 
+type VideoRenderStatus = 'pending' | 'processing' | 'completed' | 'failed';
+
+interface VideoRenderState {
+    status: VideoRenderStatus | null;
+    error: string | null;
+    rendered_at: string | null;
+}
+
 const props = defineProps<{
     videoProject: VideoProject;
     cues: CaptionCue[] | null;
     captionStyle: CaptionStyleConfiguration;
+    renderState: VideoRenderState;
     hasCaptionedVideo: boolean;
 }>();
 
@@ -63,6 +72,48 @@ const formattedDuration =
     props.videoProject.duration_ms === null
         ? 'Not inspected'
         : `${(props.videoProject.duration_ms / 1_000).toFixed(3)} seconds`;
+
+const formattedRenderedAt =
+    props.renderState.rendered_at === null
+        ? null
+        : new Intl.DateTimeFormat(undefined, {
+              dateStyle: 'medium',
+              timeStyle: 'short',
+          }).format(new Date(props.renderState.rendered_at));
+
+const renderStatusLabel = computed(() => {
+    switch (props.renderState.status) {
+        case 'pending':
+            return 'Pending';
+        case 'processing':
+            return 'Processing';
+        case 'completed':
+            return 'Completed';
+        case 'failed':
+            return 'Failed';
+        default:
+            return props.hasCaptionedVideo
+                ? 'Export available'
+                : 'Not exported';
+    }
+});
+
+const renderStatusClasses = computed(() => {
+    switch (props.renderState.status) {
+        case 'pending':
+            return 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300';
+        case 'processing':
+            return 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300';
+        case 'completed':
+            return 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300';
+        case 'failed':
+            return 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300';
+        default:
+            return props.hasCaptionedVideo
+                ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
+                : 'bg-stone-100 text-stone-700 dark:bg-stone-800 dark:text-stone-300';
+    }
+});
 
 const formatCueTime = (milliseconds: number): string =>
     `${(milliseconds / 1_000).toFixed(3)} s`;
@@ -386,15 +437,32 @@ const saveCaptionStyle = (): void => {
                         class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
                     >
                         <div>
-                            <h3 class="font-semibold">
-                                Export captioned video
-                            </h3>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <h3 class="font-semibold">
+                                    Export captioned video
+                                </h3>
+                                <span
+                                    class="rounded-full px-2.5 py-1 text-xs font-semibold"
+                                    :class="renderStatusClasses"
+                                >
+                                    {{ renderStatusLabel }}
+                                </span>
+                            </div>
                             <p
                                 class="mt-1 text-xs text-stone-500 dark:text-stone-400"
                             >
                                 Save caption and style changes first. Exporting
                                 may take a while and replaces the previous
                                 completed export only after success.
+                            </p>
+                            <p
+                                v-if="formattedRenderedAt"
+                                class="mt-1 text-xs text-stone-500 dark:text-stone-400"
+                            >
+                                Last successful export:
+                                <time :datetime="renderState.rendered_at ?? ''">
+                                    {{ formattedRenderedAt }}
+                                </time>
                             </p>
                         </div>
                         <div class="flex flex-wrap items-center gap-3">
@@ -437,10 +505,31 @@ const saveCaptionStyle = (): void => {
                         {{ errors.render }}
                     </p>
                     <p
+                        v-else-if="renderState.status === 'failed'"
+                        class="mt-3 text-sm text-red-700 dark:text-red-400"
+                    >
+                        {{ renderState.error }}
+                        <span v-if="hasCaptionedVideo">
+                            Your previous completed export is still available.
+                        </span>
+                    </p>
+                    <p
                         v-else-if="recentlySuccessful"
                         class="mt-3 text-sm text-emerald-700 dark:text-emerald-400"
                     >
                         Export completed. The MP4 is ready to download.
+                    </p>
+                    <p
+                        v-else-if="renderState.status === 'pending'"
+                        class="mt-3 text-sm text-amber-700 dark:text-amber-400"
+                    >
+                        This export is waiting to start.
+                    </p>
+                    <p
+                        v-else-if="renderState.status === 'processing'"
+                        class="mt-3 text-sm text-blue-700 dark:text-blue-400"
+                    >
+                        This export is currently processing.
                     </p>
                 </Form>
 

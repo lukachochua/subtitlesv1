@@ -3499,3 +3499,47 @@ Every application render attempt now leaves a durable, typed success or failure 
 ### Next
 
 Expose the persisted lifecycle and last successful render time on the project page, then inspect source-versus-export quality before proposing quality presets.
+
+## 2026-08-23 — Phase 12.7c: Project-page render status
+
+### Goal
+
+Make the persisted render lifecycle understandable on the existing export panel without adding background jobs, polling, or progress estimates.
+
+### Changes
+
+- Added one explicit `renderState` Inertia prop containing the enum value, safe error, and ISO 8601 successful-render time.
+- Added status badges for never exported, pending, processing, completed, and failed states.
+- Kept pre-lifecycle MP4 files understandable as Export available even though their new database status remains null.
+- Displayed the browser-localized time of the last successful export when one exists.
+- Displayed the persisted safe failure message after reload and clarified when an older completed export remains downloadable.
+- Retained request-local Exporting feedback while the synchronous request is active.
+- Added page-prop coverage for untouched, completed, and failed projects.
+
+### Decisions
+
+- Keep immediate form processing state separate from durable server state: the former describes the current browser request and the latter survives reloads.
+- Send only safe display data to Vue; storage paths and raw FFmpeg diagnostics remain private.
+- Do not introduce polling because rendering still completes within the initiating HTTP request.
+
+### Verification
+
+- Focused project-page and render-controller suites pass: 12 tests with 91 assertions.
+- The complete Laravel suite passes: 213 tests with 781 assertions.
+- The frontend logic suites pass: 26 tests.
+- Vue TypeScript checking, ESLint, Laravel Pint, focused PHPStan, and diff checks pass.
+- The production frontend build completes successfully.
+- The new browser presentation has not yet been manually verified.
+
+### Result
+
+The project page now restores meaningful export state after navigation or reload and shows when the downloadable MP4 was last produced successfully.
+
+### Problems / Notes
+
+- Pending and processing remain brief for normal synchronous exports; a stale value may indicate an interrupted request.
+- The build repeats the existing optional `fontaine` optimization notice; no dependency was added.
+
+### Next
+
+Manually verify the export-state presentation, then inspect project 5 source and export stream characteristics before proposing a small quality control.

@@ -153,6 +153,7 @@ These fields are sufficient to restore meaningful UI state, record the last succ
 - Progress percentages, job IDs, attempts, separate render history, and processing timestamps remain unimplemented.
 - `VideoRenderStatus` provides the four allowed application values, and the render action now persists each lifecycle transition.
 - A new attempt clears the previous error; a failed re-export preserves both the prior completed MP4 and its last successful `rendered_at` timestamp.
+- The project page receives a safe render-state object and combines it with request-local form processing feedback; polling is unnecessary while rendering remains synchronous.
 - Existing projects retain `null` values and require no data backfill.
 
 ## Decision: Retain dormant starter infrastructure during personal V1

@@ -5,6 +5,7 @@ import {
     captionStyleToCss,
     captionVerticalPositionToCss,
     CAPTION_FONT_OPTIONS,
+    CAPTION_TEXT_ALIGNMENT_OPTIONS,
     DEFAULT_CAPTION_STYLE,
     normalizeCaptionBackgroundOpacityPercent,
     normalizeCaptionFontSize,
@@ -131,6 +132,21 @@ test('maps outline and shadow styles independently', () => {
 
     assert.equal(css.WebkitTextStroke, '2.5px #ef4444');
     assert.equal(css.textShadow, 'none');
+});
+
+test('provides and maps the supported text alignments', () => {
+    assert.deepEqual(
+        CAPTION_TEXT_ALIGNMENT_OPTIONS.map((option) => option.value),
+        ['left', 'center', 'right'],
+    );
+
+    for (const textAlign of ['left', 'center', 'right'] as const) {
+        assert.equal(
+            captionStyleToCss({ ...DEFAULT_CAPTION_STYLE, textAlign })
+                .textAlign,
+            textAlign,
+        );
+    }
 });
 
 test('normalizes outline width to supported half pixels', () => {

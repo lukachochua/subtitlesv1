@@ -2868,3 +2868,44 @@ The position slider remains visible immediately below the preview, and captions 
 ### Next
 
 Manually verify the relocated slider, several outline widths, and shadow toggle on project 5, then add horizontal alignment for multi-line captions.
+
+## 2026-08-23 — Caption text alignment
+
+### Goal
+
+Complete the original V1 caption-alignment requirement with the smallest useful browser-preview control.
+
+### Changes
+
+- Added left, center, and right text-alignment choices.
+- Kept center alignment as the established default.
+- Added a narrow alignment type and shared option list to the typed caption-style boundary.
+- Connected alignment to immediate Vue preview state and existing CSS mapping.
+- Added focused tests for all three supported values.
+- Did not add horizontal caption-box positioning or style persistence.
+
+### Decisions
+
+- Treat alignment as line alignment inside a potentially multi-line caption box.
+- Keep horizontal box placement centered because moving the entire caption box is a separate feature not required by the current styling scope.
+
+### Verification
+
+- The active-cue frontend suite passes: 8 tests.
+- The caption-style frontend suite passes: 12 tests.
+- Vue TypeScript checking completed with no errors.
+- ESLint completed with no errors.
+- Alignment appearance on a real multi-line Georgian caption has not yet been manually verified.
+
+### Result
+
+The browser preview now supports left, center, and right alignment for wrapped or explicitly multi-line caption text.
+
+### Problems / Notes
+
+- Alignment is not visually distinguishable on a single short line whose box fits its contents.
+- The setting resets to center on reload until style persistence is implemented.
+
+### Next
+
+Manually verify alignment on a multi-line cue, then propose the minimum project-level caption-style persistence representation before changing the database.

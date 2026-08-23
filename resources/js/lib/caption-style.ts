@@ -1,5 +1,7 @@
 import type { CSSProperties } from 'vue';
 
+export type CaptionTextAlignment = 'left' | 'center' | 'right';
+
 export interface CaptionStyle {
     fontFamily: string;
     fontSizePx: number;
@@ -11,11 +13,20 @@ export interface CaptionStyle {
     backgroundOpacity: number;
     outlineColor: string;
     outlineWidthPx: number;
-    textAlign: CSSProperties['textAlign'];
+    textAlign: CaptionTextAlignment;
     textShadow: string;
 }
 
 export const CAPTION_VERTICAL_POSITION_DEFAULT_PERCENT = 100;
+
+export const CAPTION_TEXT_ALIGNMENT_OPTIONS: ReadonlyArray<{
+    label: string;
+    value: CaptionTextAlignment;
+}> = Object.freeze([
+    { label: 'Left', value: 'left' },
+    { label: 'Center', value: 'center' },
+    { label: 'Right', value: 'right' },
+]);
 
 export const CAPTION_FONT_OPTIONS = Object.freeze([
     {

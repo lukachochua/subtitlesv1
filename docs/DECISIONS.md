@@ -515,6 +515,7 @@ Named values create the smallest usable style boundary for live controls without
 - Background color and opacity remain separate style values so users can adjust transparency without changing the chosen color and later rendering can map both explicitly.
 - Represent vertical position as an integer percentage from 0 (top) through 50 (middle) to 100 (bottom). Bottom remains the default, and the browser preview reserves space above native video controls.
 - Represent outline width in half-pixel steps from 0 through 4 pixels and keep outline color independent. Keep the initial shadow as a boolean choice until real rendering comparison justifies more parameters.
+- Limit initial text alignment to left, center, and right, with center as the default. This aligns lines within the caption box; it does not move the box horizontally across the video.
 - Persistence remains undecided until useful controls exist and their data shape is proven.
 - Final ASS/libass mapping must be validated separately; CSS values are not assumed to render identically.
 

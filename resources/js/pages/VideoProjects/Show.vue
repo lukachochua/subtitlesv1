@@ -11,6 +11,7 @@ import {
     CAPTION_FONT_SIZE_MAX_PX,
     CAPTION_FONT_SIZE_MIN_PX,
     CAPTION_OUTLINE_WIDTH_MAX_PX,
+    CAPTION_TEXT_ALIGNMENT_OPTIONS,
     DEFAULT_CAPTION_STYLE,
     normalizeCaptionBackgroundOpacityPercent,
     normalizeCaptionFontSize,
@@ -94,6 +95,7 @@ const captionBackgroundOpacityPercent = ref(
 const captionOutlineColor = ref(DEFAULT_CAPTION_STYLE.outlineColor);
 const captionOutlineWidthPx = ref(DEFAULT_CAPTION_STYLE.outlineWidthPx);
 const captionHasShadow = ref(DEFAULT_CAPTION_STYLE.textShadow !== 'none');
+const captionTextAlignment = ref(DEFAULT_CAPTION_STYLE.textAlign);
 const captionVerticalPositionPercent = ref(
     CAPTION_VERTICAL_POSITION_DEFAULT_PERCENT,
 );
@@ -115,6 +117,7 @@ const captionStyle = computed(() => ({
     textShadow: captionHasShadow.value
         ? DEFAULT_CAPTION_STYLE.textShadow
         : 'none',
+    textAlign: captionTextAlignment.value,
 }));
 const activeCue = computed(() =>
     props.cues === null
@@ -560,16 +563,48 @@ const updateCaptionOutlineWidth = (event: Event): void => {
                             </div>
                         </div>
 
-                        <label
-                            class="flex cursor-pointer items-center gap-2 text-sm font-medium text-stone-700 dark:text-stone-200"
-                        >
-                            <input
-                                v-model="captionHasShadow"
-                                type="checkbox"
-                                class="size-4 accent-red-700 dark:accent-red-500"
-                            />
-                            Shadow
-                        </label>
+                        <div class="grid gap-4 sm:grid-cols-2">
+                            <fieldset>
+                                <legend
+                                    class="text-sm font-medium text-stone-700 dark:text-stone-200"
+                                >
+                                    Text alignment
+                                </legend>
+                                <div
+                                    class="mt-2 grid grid-cols-3 rounded-lg border border-stone-300 p-1 dark:border-stone-700"
+                                >
+                                    <label
+                                        v-for="alignmentOption in CAPTION_TEXT_ALIGNMENT_OPTIONS"
+                                        :key="alignmentOption.value"
+                                        class="cursor-pointer"
+                                    >
+                                        <input
+                                            v-model="captionTextAlignment"
+                                            type="radio"
+                                            name="caption-text-alignment"
+                                            :value="alignmentOption.value"
+                                            class="peer sr-only"
+                                        />
+                                        <span
+                                            class="block rounded-md px-2 py-2 text-center text-xs font-semibold text-stone-600 peer-checked:bg-red-700 peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-red-600 peer-focus-visible:ring-offset-2 dark:text-stone-300 dark:peer-checked:bg-red-600 dark:peer-focus-visible:ring-red-400 dark:peer-focus-visible:ring-offset-stone-900"
+                                        >
+                                            {{ alignmentOption.label }}
+                                        </span>
+                                    </label>
+                                </div>
+                            </fieldset>
+
+                            <label
+                                class="flex cursor-pointer items-center gap-2 self-end py-2 text-sm font-medium text-stone-700 dark:text-stone-200"
+                            >
+                                <input
+                                    v-model="captionHasShadow"
+                                    type="checkbox"
+                                    class="size-4 accent-red-700 dark:accent-red-500"
+                                />
+                                Shadow
+                            </label>
+                        </div>
                     </div>
                 </div>
 

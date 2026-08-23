@@ -2949,3 +2949,44 @@ The database can now hold one optional caption-style configuration per video pro
 ### Next
 
 Add the `VideoProject` JSON cast and tested default-style resolution as the next isolated step.
+
+## 2026-08-23 — Caption style model boundary
+
+### Goal
+
+Teach the `VideoProject` model to cast stored style JSON and resolve existing null styles to one complete canonical default.
+
+### Changes
+
+- Added `caption_style` to the model's fillable attributes and array casts.
+- Defined the complete normalized project-level default using product values rather than CSS strings.
+- Added `resolvedCaptionStyle()` to return the stored configuration or the complete default without writing defaults into existing rows.
+- Added focused tests for null default resolution and a stored JSON round trip.
+- Did not pass style data to Vue, add validation, add an endpoint, or add a Save style button.
+
+### Decisions
+
+- Keep the canonical persisted default on the backend model because Laravel will validate, store, and later supply this configuration to both preview and rendering paths.
+- Preserve null in the database for untouched projects while resolving it at the application boundary.
+
+### Verification
+
+- Laravel Pint completed successfully.
+- Focused model tests pass: 4 tests and 8 assertions.
+- The complete Pest suite passes: 155 tests and 535 assertions.
+- PHPStan completed but reports 28 existing issues in older cue relationship and action typing; it reports no caption-style cast or resolver issue.
+- Frontend receipt of the resolved style has not yet been implemented or tested.
+
+### Result
+
+Laravel now reads saved caption-style JSON as an array and provides a complete default for every existing unstyled project.
+
+### Problems / Notes
+
+- Backend product keys still need an explicit mapping to the frontend style representation.
+- The PHP and TypeScript defaults temporarily exist on opposite sides of an unimplemented prop boundary and must be reconciled in the next step.
+- There is still no Save style button.
+
+### Next
+
+Pass the resolved caption style to the Vue project page and initialize every local preview control from that prop.

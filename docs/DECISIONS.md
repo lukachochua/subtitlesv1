@@ -536,6 +536,7 @@ Personal V1 has one shared caption style per project. A separate one-to-one tabl
 ### Consequences
 
 - Existing projects remain valid with a null style and resolve to application defaults.
+- The `VideoProject` model owns the canonical normalized default and exposes `resolvedCaptionStyle()` without replacing the stored null value.
 - Style updates must validate the complete supported shape because SQLite does not enforce individual JSON fields.
 - Vue preview CSS and future ASS/libass values must be derived from normalized product settings.
 - Per-cue styling, reusable presets, and style versioning remain postponed until evidence requires them.

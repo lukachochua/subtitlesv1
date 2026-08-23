@@ -43,3 +43,45 @@ test('allows duration to remain unknown before media inspection', function () {
 
     expect($videoProject->duration_ms)->toBeNull();
 });
+
+test('resolves the complete default caption style when none is stored', function () {
+    $videoProject = VideoProject::create([
+        'original_filename' => 'unstyled.mp4',
+        'disk' => 'local',
+        'path' => 'video-projects/test/unstyled.mp4',
+        'mime_type' => 'video/mp4',
+        'size_bytes' => 1_024,
+    ]);
+
+    expect($videoProject->caption_style)->toBeNull()
+        ->and($videoProject->resolvedCaptionStyle())->toBe(VideoProject::DEFAULT_CAPTION_STYLE);
+});
+
+test('casts and resolves a stored caption style as an array', function () {
+    $captionStyle = [
+        'font' => 'georgian_serif',
+        'font_size_px' => 36,
+        'bold' => false,
+        'italic' => true,
+        'text_color' => '#facc15',
+        'background_color' => '#1d4ed8',
+        'background_opacity_percent' => 60,
+        'text_alignment' => 'left',
+        'vertical_position_percent' => 40,
+        'outline_color' => '#000000',
+        'outline_width_px' => 1.5,
+        'shadow' => false,
+    ];
+
+    $videoProject = VideoProject::create([
+        'original_filename' => 'styled.mp4',
+        'disk' => 'local',
+        'path' => 'video-projects/test/styled.mp4',
+        'mime_type' => 'video/mp4',
+        'size_bytes' => 2_048,
+        'caption_style' => $captionStyle,
+    ])->fresh();
+
+    expect($videoProject->caption_style)->toBe($captionStyle)
+        ->and($videoProject->resolvedCaptionStyle())->toBe($captionStyle);
+});

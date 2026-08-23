@@ -78,6 +78,35 @@ An HTML overlay is the smallest approach for responsive editing and avoids trans
 - Preview styles should be introduced with awareness that final rendering must plausibly reproduce them.
 - ASS/libass remains a likely direction, not yet a validated implementation choice.
 
+## Decision: Use ASS/libass for the first rendered-caption export
+
+### Context
+
+The application now stores integer-millisecond cues and complete project-level styles covering font, size, emphasis, colors, background opacity, alignment, vertical position, outline, and shadow. Final export needs a deterministic subtitle representation that FFmpeg can burn into MP4 while shaping Georgian text correctly.
+
+The installed FFmpeg 6.1.1 build includes libass 0.17.1, Fontconfig, FreeType, FriBidi, and HarfBuzz. A 368×640 probe using Noto Sans Georgian rendered four Georgian samples successfully with complex shaping and selected the expected regular and bold font files.
+
+### Decision
+
+Use generated ASS subtitles with FFmpeg's libass-backed `ass` filter for the first V1 rendered export.
+
+Keep ASS generation as an explicit application boundary. Map product settings into ASS deliberately rather than exposing raw ASS fields to the editor.
+
+### Reason
+
+ASS supports the core V1 requirements: precise cue timing, Georgian Unicode text, explicit fonts and sizes, bold and italic variants, text and background colors with opacity, alignment, vertical placement, outline, shadow, and line breaks. The required rendering stack is already installed on the current machine, so no dependency installation is needed now.
+
+### Consequences
+
+- Rendering must use a known Georgian-capable font rather than relying on browser CSS fallback stacks. Noto Sans Georgian and Noto Serif Georgian are available on the current machine; deployment machines must provide the chosen fonts or a controlled `fontsdir`.
+- ASS timestamps use centiseconds, so integer-millisecond cue boundaries need a documented deterministic conversion and tests.
+- CSS pixels do not map directly to source-video pixels. Font size, outline width, shadow, and vertical placement need a defined PlayRes-based mapping.
+- ASS colors require BGR channel order and inverse alpha conversion.
+- Browser left/center/right alignment and arbitrary vertical percentage require deliberate ASS alignment, margin, or position mapping.
+- ASS cannot exactly reproduce the browser overlay's rounded background. A single ordinary ASS style also cannot always preserve an independently colored translucent box and glyph outline exactly; V1 may approximate this or use layered dialogue after a focused experiment.
+- Browser and libass line wrapping may differ. Preview-versus-render comparison remains a required later step.
+- The next step is limited to generating one ASS file from real cues with one default style; it does not yet render an MP4.
+
 ## Decision: Retain dormant starter infrastructure during personal V1
 
 ### Context

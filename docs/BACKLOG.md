@@ -1,10 +1,11 @@
 # Current
 
-- Manually compare Clean, Social, News, and Minimal on project 5 and verify selected-state, Custom-state, save, and reload behavior.
+- Review the ASS/libass evaluation and its documented browser-preview fidelity limits.
 
 # Next
 
-- Evaluate ASS/libass against the actual persisted style representation before render implementation.
+- Generate one ASS file from actual saved cues using one default style.
+- Manually compare Clean, Social, News, and Minimal on project 5 and verify selected-state, Custom-state, save, and reload behavior.
 
 # Later
 
@@ -118,6 +119,7 @@
 - Phase 11.2: Added a larger, outlined Social caption style preset for vertical video.
 - Phase 11.3–11.4: Added News and Minimal presets plus active preset and Custom selection state.
 - Phase 11: Completed the planned Clean, Social, News, and Minimal caption preset set.
+- Phase 12.1: Confirmed the installed FFmpeg/libass stack renders shaped Georgian text and documented style mappings and fidelity limits.
 - Caption position UI: Moved the vertical slider directly below the video preview.
 - Caption editor UI: Grouped start/end timing and moved split/merge into a compact per-cue actions menu.
 

@@ -3211,3 +3211,49 @@ Phase 11 now provides all four planned reusable presets, immediate selection fee
 ### Next
 
 Manually review all presets on project 5, then evaluate ASS/libass against the actual cue and style requirements before implementing export.
+
+## 2026-08-23 — Phase 12.1: ASS/libass evaluation
+
+### Goal
+
+Determine whether the installed FFmpeg/libass stack can support Georgian final-caption rendering and identify mismatches with the browser style model before writing export code.
+
+### Changes
+
+- Inspected FFmpeg 6.1.1 and confirmed both `ass` and `subtitles` filters are enabled through libass.
+- Confirmed the renderer uses libass 0.17.1 with FreeType, FriBidi, HarfBuzz complex shaping, and Fontconfig.
+- Confirmed local Noto Sans Georgian and Noto Serif Georgian font families and weight variants are available.
+- Inspected project 5's real 368×640 media, saved millisecond cues, and persisted style configuration.
+- Generated a temporary four-style ASS probe outside the repository and rendered four 368×640 PNG frames.
+- Visually inspected Clean, Social, News, and Minimal Georgian output and recorded the durable renderer decision and fidelity limits.
+- Added no application rendering code, dependencies, or permanent probe assets.
+
+### Decisions
+
+- Use ASS/libass as the first V1 final-caption rendering direction.
+- Keep product style values independent of ASS syntax and introduce a tested conversion boundary.
+- Require controlled Georgian font availability and explicit timestamp, scale, color, alignment, and position mappings.
+- Treat rounded backgrounds and simultaneous independent box/outline styling as known preview-fidelity limitations requiring approximation or a later layering experiment.
+
+### Verification
+
+- FFmpeg reports `--enable-libass` and exposes the `ass` and `subtitles` video filters.
+- The probe rendered four valid 368×640 PNG frames with no decode or missing-glyph errors.
+- Libass selected Noto Sans Georgian Bold and Regular and reported HarfBuzz complex shaping.
+- Georgian Mkhedruli text was visually present and readable in all four rendered probe frames.
+- No automated application tests were added because this step changed documentation only and used a disposable environment probe.
+- No real project MP4 has yet been rendered with captions.
+
+### Result
+
+ASS/libass is suitable for the first V1 export path, with explicit, bounded mapping work needed to manage browser-preview differences.
+
+### Problems / Notes
+
+- The initial News probe demonstrated that ASS opaque-box behavior is not a direct CSS background mapping when outline and shadow values are zero.
+- Font size and vertical placement must be based on an explicit ASS PlayRes rather than copied blindly from browser CSS pixels.
+- Font availability must be verified again on the RTX 4060 Ti machine or any later deployment environment.
+
+### Next
+
+Generate one ASS file from actual saved caption cues using one default style, without rendering a final MP4 yet.

@@ -1,11 +1,11 @@
 # Current
 
-- Manually verify the split guidance and default caption style against project 5.
+- Manually verify the split tooltip and live font-size control against project 5.
 
 # Next
 
-- Add a live font-size control after the default style boundary is established.
 - Add live text-color control after font size.
+- Add live bold control after text color.
 
 # Later
 
@@ -98,6 +98,7 @@
 - Phase 9: Established saved cue correction, seeking, timing edits, invariants, splitting, and merging.
 - Phase 9.6b: Explained disabled split controls directly beside each cue.
 - Phase 10.1: Established and tested one typed default browser caption style.
+- Phase 10.2: Added a browser-local live caption font-size control.
 
 # Rejected / Out of Scope
 

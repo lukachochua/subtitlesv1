@@ -71,6 +71,11 @@ const currentTimeSeconds = ref(0);
 const currentTimeMilliseconds = computed(() =>
     Math.round(currentTimeSeconds.value * 1_000),
 );
+const captionFontSizePx = ref(DEFAULT_CAPTION_STYLE.fontSizePx);
+const captionStyle = computed(() => ({
+    ...DEFAULT_CAPTION_STYLE,
+    fontSizePx: captionFontSizePx.value,
+}));
 const activeCue = computed(() =>
     props.cues === null
         ? null
@@ -142,7 +147,7 @@ const seekToCue = (cue: CaptionCue): void => {
                     >
                         <p
                             class="max-w-[90%] rounded-md px-3 py-1.5 wrap-break-word whitespace-pre-wrap"
-                            :style="captionStyleToCss(DEFAULT_CAPTION_STYLE)"
+                            :style="captionStyleToCss(captionStyle)"
                         >
                             {{ activeCue.text }}
                         </p>
@@ -178,6 +183,63 @@ const seekToCue = (cue: CaptionCue): void => {
                             </template>
                             <template v-else>None</template>
                         </output>
+                    </div>
+                </div>
+
+                <div
+                    class="mt-4 rounded-lg border border-stone-200 p-4 dark:border-stone-700"
+                    aria-labelledby="caption-style-heading"
+                >
+                    <div class="flex items-start justify-between gap-4">
+                        <div>
+                            <h3
+                                id="caption-style-heading"
+                                class="font-semibold"
+                            >
+                                Caption style
+                            </h3>
+                            <p
+                                class="mt-1 text-xs text-stone-500 dark:text-stone-400"
+                            >
+                                Browser preview only; resets when this page is
+                                reloaded.
+                            </p>
+                        </div>
+                        <output
+                            for="caption-font-size"
+                            class="font-mono text-sm font-semibold tabular-nums"
+                        >
+                            {{ captionFontSizePx }} px
+                        </output>
+                    </div>
+
+                    <label
+                        for="caption-font-size"
+                        class="mt-4 block text-sm font-medium text-stone-700 dark:text-stone-200"
+                    >
+                        Font size
+                    </label>
+                    <div
+                        class="mt-2 grid grid-cols-[minmax(0,1fr)_5rem] items-center gap-3"
+                    >
+                        <input
+                            id="caption-font-size"
+                            v-model.number="captionFontSizePx"
+                            type="range"
+                            min="12"
+                            max="72"
+                            step="1"
+                            class="w-full accent-red-700 dark:accent-red-500"
+                        />
+                        <input
+                            v-model.number="captionFontSizePx"
+                            type="number"
+                            min="12"
+                            max="72"
+                            step="1"
+                            aria-label="Caption font size in pixels"
+                            class="w-full rounded-lg border border-stone-300 bg-white px-2 py-1.5 font-mono text-sm text-stone-950 tabular-nums focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 dark:border-stone-700 dark:bg-stone-950 dark:text-stone-50 dark:focus-visible:ring-red-400"
+                        />
                     </div>
                 </div>
 
@@ -517,43 +579,36 @@ const seekToCue = (cue: CaptionCue): void => {
                                             name="split_ms"
                                             :value="currentTimeMilliseconds"
                                         />
-                                        <button
-                                            :aria-describedby="`caption-cue-${cue.id}-split-help`"
-                                            type="submit"
-                                            :disabled="
-                                                processing ||
-                                                !canSplitCueAtPlayhead(cue)
+                                        <span
+                                            class="block"
+                                            :title="
+                                                getSplitUnavailableReason(
+                                                    cue,
+                                                ) ??
+                                                `Split at ${currentTimeMilliseconds} ms`
                                             "
-                                            class="rounded-md border border-stone-300 px-3 py-1.5 text-xs font-semibold whitespace-nowrap text-stone-700 hover:bg-stone-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 disabled:cursor-not-allowed disabled:opacity-40 dark:border-stone-700 dark:text-stone-200 dark:hover:bg-stone-800 dark:focus-visible:ring-red-400"
                                         >
-                                            {{
-                                                processing
-                                                    ? 'Splitting…'
-                                                    : 'Split at playhead'
-                                            }}
-                                        </button>
-                                        <p
-                                            :id="`caption-cue-${cue.id}-split-help`"
-                                            class="text-xs text-stone-500 dark:text-stone-400"
-                                        >
-                                            <template
-                                                v-if="
+                                            <button
+                                                type="submit"
+                                                :aria-label="
                                                     getSplitUnavailableReason(
                                                         cue,
-                                                    )
+                                                    ) ??
+                                                    `Split cue at ${currentTimeMilliseconds} milliseconds`
                                                 "
+                                                :disabled="
+                                                    processing ||
+                                                    !canSplitCueAtPlayhead(cue)
+                                                "
+                                                class="w-full rounded-md border border-stone-300 px-3 py-1.5 text-xs font-semibold whitespace-nowrap text-stone-700 hover:bg-stone-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 disabled:cursor-not-allowed disabled:opacity-40 dark:border-stone-700 dark:text-stone-200 dark:hover:bg-stone-800 dark:focus-visible:ring-red-400"
                                             >
                                                 {{
-                                                    getSplitUnavailableReason(
-                                                        cue,
-                                                    )
+                                                    processing
+                                                        ? 'Splitting…'
+                                                        : 'Split at playhead'
                                                 }}
-                                            </template>
-                                            <template v-else>
-                                                Ready at
-                                                {{ currentTimeMilliseconds }} ms
-                                            </template>
-                                        </p>
+                                            </button>
+                                        </span>
                                         <p
                                             v-if="errors.split_ms"
                                             class="max-w-52 text-xs whitespace-normal text-red-700 dark:text-red-400"

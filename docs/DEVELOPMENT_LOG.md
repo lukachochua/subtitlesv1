@@ -2589,3 +2589,49 @@ Browser captions now render from one typed, tested default style ready for the f
 ### Next
 
 Manually inspect the default on landscape and vertical project video, then implement Phase 10.2 live font-size control.
+
+## 2026-08-23 — Step 10.2
+
+### Goal
+
+Make caption font size adjustable with immediate feedback in the real video overlay.
+
+### Changes
+
+- Added a compact Caption style panel directly below the video preview.
+- Added synchronized range and numeric controls from 12 to 72 pixels.
+- Initialized local style state from the 28-pixel default.
+- Applied size changes immediately through the existing typed CSS mapping.
+- Clearly labeled the control as browser-preview-only and non-persistent.
+- Added a focused test confirming a changed size maps to CSS without mutating the default.
+- Moved unavailable split guidance from persistent row text into a compact native tooltip.
+- Did not add style persistence, text color, font selection, or rendering mapping.
+
+### Decisions
+
+- Prove useful style controls in local Vue state before choosing database persistence.
+- Use pixel values because they can later be compared explicitly with ASS/libass sizing.
+- Keep the current range deliberately bounded for normal caption use.
+
+### Verification
+
+- The active-cue frontend suite passes: 8 tests.
+- The caption-style frontend suite passes: 3 tests.
+- Vue TypeScript checking completed with no errors.
+- ESLint completed with no errors.
+- The Vite production build completed successfully.
+- The existing optional `fontaine` optimization notice remains informational.
+- Browser interaction and perceived sizing on real videos have not yet been manually verified.
+
+### Result
+
+The project page now exposes caption styling directly below the video, beginning with an immediate font-size control.
+
+### Problems / Notes
+
+- Font size resets to 28 pixels on page reload.
+- Browser pixels will require empirical mapping rather than assumed equivalence during ASS rendering work.
+
+### Next
+
+Manually verify the useful size range on project 5, then add Phase 10.3 live text-color control.

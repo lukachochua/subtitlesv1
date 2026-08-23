@@ -28,3 +28,13 @@ test('maps the default caption style to browser CSS', () => {
         textShadow: '0 1px 2px rgb(0 0 0 / 0.9)',
     });
 });
+
+test('maps a changed font size without changing the default', () => {
+    const css = captionStyleToCss({
+        ...DEFAULT_CAPTION_STYLE,
+        fontSizePx: 44,
+    });
+
+    assert.equal(css.fontSize, '44px');
+    assert.equal(DEFAULT_CAPTION_STYLE.fontSizePx, 28);
+});

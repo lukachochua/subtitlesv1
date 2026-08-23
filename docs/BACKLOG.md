@@ -1,10 +1,12 @@
 # Current
 
-- Manually trigger Export MP4 and download the result from project 5 in the browser.
+- Add model casts and tested render lifecycle transitions for the new status fields.
 
 # Next
 
-- Propose the minimum persistent render-status fields before adding pending, processing, completed, and failed states.
+- Inspect source and rendered project 5 video characteristics to identify the observed quality loss before designing export quality choices.
+- Offer a small set of understandable V1 export quality presets if the comparison supports them.
+- Manually trigger Export MP4 and download the result from project 5 in the browser.
 - Manually compare Clean, Social, News, and Minimal on project 5 and verify selected-state, Custom-state, save, and reload behavior.
 
 # Later
@@ -125,6 +127,7 @@
 - Phase 12.4: Compared project 5 preview/render mappings and documented the bounded fidelity differences.
 - Phase 12.5: Completed persisted-style-to-ASS mapping through the Phase 12.2 conversion boundary.
 - Phase 12.6: Added a project-page Export action, inline feedback, export availability, and private MP4 download.
+- Phase 12.7a: Added reversible nullable render status, safe error, and successful-render timestamp storage.
 - Caption position UI: Moved the vertical slider directly below the video preview.
 - Caption editor UI: Grouped start/end timing and moved split/merge into a compact per-cue actions menu.
 

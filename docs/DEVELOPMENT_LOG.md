@@ -3414,3 +3414,46 @@ The personal V1 editor can now render its current saved Georgian captions and st
 ### Next
 
 Manually exercise Export MP4 and Download MP4 on project 5, then propose the minimum Phase 12.7 persistent render-status representation.
+
+## 2026-08-23 — Phase 12.7a: Render-status migration
+
+### Goal
+
+Add only the approved persistent fields needed for a minimal render lifecycle without changing model or rendering behavior yet.
+
+### Changes
+
+- Added nullable `render_status`, `render_error`, and `rendered_at` columns to `video_projects`.
+- Added a complete rollback dropping all three columns.
+- Applied the migration to the development SQLite database without backfilling or changing existing projects.
+- Added export-quality investigation and a possible small preset set to the immediate backlog because final video quality is part of personal V1 success.
+
+### Decisions
+
+- Use `null` status for projects that have never requested a render.
+- Reserve pending, processing, completed, and failed lifecycle values for application logic in the next step.
+- Store safe failure information only; raw FFmpeg diagnostics and filesystem paths must not enter user-facing status data.
+- Do not add an index because personal V1 does not query or aggregate projects by render status.
+- Do not add output paths, job IDs, progress, attempts, or queue infrastructure.
+
+### Verification
+
+- All 210 Laravel tests pass with 750 assertions against the migrated test schema.
+- Laravel Pint completes successfully.
+- A disposable SQLite database completed migration up, rollback, and up again successfully.
+- The development SQLite database applied the migration successfully as batch 6.
+- Existing project 5 media and its completed export were not modified.
+- Model casts and render lifecycle transitions are not yet implemented.
+
+### Result
+
+The database can now persist the minimum render lifecycle while existing projects remain in an explicit never-requested null state.
+
+### Problems / Notes
+
+- The fields are intentionally inert until the next model/action step.
+- The reported export quality difference has not yet been measured; adding arbitrary encoder controls before inspection would make the UI harder to understand without proving the right fix.
+
+### Next
+
+Add model casts and tested pending, processing, completed, and failed transitions, then inspect source-versus-export quality characteristics before proposing user choices.

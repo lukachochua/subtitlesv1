@@ -131,6 +131,29 @@ H.264 MP4 has broad playback compatibility. CRF 18 provides a high-quality V1 ou
 - Re-rendering replaces the previous completed `captioned.mp4` only after a new usable temporary output exists.
 - The source upload is never modified.
 
+## Decision: Persist the minimum render lifecycle on the video project
+
+### Context
+
+Request-local button feedback disappears after navigation or failure, while longer videos may eventually require background processing. The application needs a durable lifecycle without introducing jobs, progress tracking, or separate render records prematurely.
+
+### Decision
+
+Store nullable `render_status`, `render_error`, and `rendered_at` fields directly on `video_projects`.
+
+Use `null` for never requested and reserve `pending`, `processing`, `completed`, and `failed` as the render lifecycle states. Store only a safe application-level failure message, not raw FFmpeg output or filesystem paths.
+
+### Reason
+
+These fields are sufficient to restore meaningful UI state, record the last successful export time, and support a later queue boundary without committing to queue infrastructure now.
+
+### Consequences
+
+- The deterministic output path remains outside the database.
+- Progress percentages, job IDs, attempts, separate render history, and processing timestamps remain unimplemented.
+- Model casts and render-action lifecycle transitions are separate follow-up steps.
+- Existing projects retain `null` values and require no data backfill.
+
 ## Decision: Retain dormant starter infrastructure during personal V1
 
 ### Context

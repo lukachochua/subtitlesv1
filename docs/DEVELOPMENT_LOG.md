@@ -207,3 +207,38 @@ The database can now represent the storage identity and basic metadata of a vide
 ### Next
 
 Create the minimal `VideoProject` model in a separate step.
+
+## 2026-08-23 — Step 1.3
+
+### Goal
+
+Create the minimal Eloquent model for the approved `video_projects` table.
+
+### Changes
+
+- Added the `App\Models\VideoProject` model.
+- Declared the five approved media metadata fields as mass assignable using Laravel's `Fillable` attribute.
+- Added a focused Pest feature test for conventional table mapping and metadata persistence, including a Georgian filename.
+
+### Decisions
+
+- Do not add relationships, casts, scopes, statuses, or lifecycle behavior until a concrete workflow requires them.
+- Defer a factory and seeder until tests or development setup need reusable video-project data; creating realistic stored-file records currently requires upload behavior that does not exist yet.
+
+### Verification
+
+- The focused model feature test passes with three assertions.
+- Laravel Pint passes after formatting the new PHP files.
+- The full Pest suite passes.
+
+### Result
+
+Application code can now persist and retrieve the approved video-project metadata through Eloquent. No records were added to the development database by the test.
+
+### Problems / Notes
+
+- Upload validation, file storage, and browser interaction are not implemented.
+
+### Next
+
+Add a deliberately simple upload interface without validation or storage behavior.

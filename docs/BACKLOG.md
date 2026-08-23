@@ -1,11 +1,11 @@
 # Current
 
-- Phase 1.3: Create the minimal `VideoProject` model.
+- Phase 2.1: Add a deliberately simple upload interface without validation or storage behavior.
 
 # Next
 
-- Verify the model against the approved database representation.
-- After Phase 1 is complete, add a deliberately simple upload interface without storage behavior.
+- Define the initial MP4-only validation rules and development upload-size limit.
+- Store one validated MP4 using a safe generated path.
 
 # Later
 
@@ -30,6 +30,8 @@
 - Phase 0: Established a documented, deliberately minimal Laravel/Inertia/Vue foundation.
 - Phase 1.1: Approved the minimum `VideoProject` domain and schema representation.
 - Phase 1.2: Added and reversibly verified the `video_projects` migration.
+- Phase 1.3: Added and tested the minimal `VideoProject` Eloquent model.
+- Phase 1: Established the minimum domain representation for one video project.
 
 # Rejected / Out of Scope
 

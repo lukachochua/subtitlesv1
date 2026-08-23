@@ -1,11 +1,11 @@
 # Current
 
-- Read saved cues as the editable source of truth on the project page.
+- Add validated cue-text update persistence.
 
 # Next
 
-- Add validated cue-text update persistence.
 - Add the first cue-text editing control to the table.
+- Verify corrected text updates the overlay and survives a page reload.
 
 # Later
 
@@ -86,6 +86,7 @@
 - Phase 9.1b: Added the tested `CaptionCue` Eloquent model and ordered project relationships.
 - Phase 9.1c: Added a transactional generated-cue persistence action that refuses to overwrite saved cues.
 - Phase 9.1d: Added and used a protected command to persist project 5's eight generated cues.
+- Phase 9.1e: Made ordered saved cues the project page's source of truth with transient NeMo fallback.
 
 # Rejected / Out of Scope
 

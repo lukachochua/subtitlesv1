@@ -2070,3 +2070,46 @@ Project 5 now has eight durable caption cues initialized from its preserved NeMo
 ### Next
 
 Make the project page prefer ordered saved cues as its editable source of truth.
+
+## 2026-08-23 — Step 9.1e
+
+### Goal
+
+Make durable saved cues the project page's caption source while retaining transient NeMo output for uninitialized projects.
+
+### Changes
+
+- Updated the project-page controller to query ordered saved cues first.
+- Returned saved cue text and timing through the existing frontend prop shape.
+- Kept transient NeMo loading only as the fallback when no saved cue exists.
+- Added a precedence test using deliberately invalid raw NeMo JSON alongside a valid saved correction.
+- No Vue component, route, form, database schema, or saved project 5 row changed.
+
+### Decisions
+
+- Do not inspect or parse raw ASR data once a project has saved cues.
+- Preserve the existing frontend cue contract until the editing endpoint requires database cue identity.
+- Keep uninitialized projects readable through the existing transient fallback during development.
+
+### Verification
+
+- Laravel Pint completed successfully.
+- The project-page suite passes: 6 tests and 43 assertions.
+- The complete Pest suite passes: 108 tests and 284 assertions.
+- Vue TypeScript checking completed with no errors.
+- The precedence test proves saved cues render even when the raw NeMo JSON is malformed.
+- `git diff --check` completed with no errors.
+- Project 5's unchanged saved text has not yet been visually distinguished from its identical generated source in the browser.
+
+### Result
+
+Project 5's eight saved database cues now drive its table, active-cue selection, and video overlay; raw NeMo output is no longer consulted for that project page.
+
+### Problems / Notes
+
+- Saved cue IDs are not yet exposed to Vue, so individual cues cannot be targeted for updates.
+- Caption text remains read-only in the browser.
+
+### Next
+
+Add a validated backend endpoint that updates only the text of one cue belonging to the selected video project.

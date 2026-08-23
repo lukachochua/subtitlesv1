@@ -62,6 +62,38 @@ test('exposes transient generated cues when a NeMo result exists', function () {
             ]]));
 });
 
+test('prefers saved cues over the NeMo transcription result', function () {
+    Storage::fake('local');
+    $videoProject = VideoProject::create([
+        'original_filename' => 'ქართული-ინტერვიუ.mp4',
+        'disk' => 'local',
+        'path' => 'video-projects/saved-cues-source.mp4',
+        'mime_type' => 'video/mp4',
+        'size_bytes' => 48_392_017,
+        'duration_ms' => 2_886,
+    ]);
+    $videoProject->captionCues()->create([
+        'order' => 1,
+        'text' => 'ხელით შესწორებული ტექსტი',
+        'start_ms' => 200,
+        'end_ms' => 2_400,
+    ]);
+    Storage::disk('local')->put(
+        "video-projects/{$videoProject->id}/transcription.nemo-fastconformer.raw.json",
+        '{invalid-json',
+    );
+
+    $this->get(route('video-projects.show', $videoProject))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('cues', [[
+                'order' => 1,
+                'text' => 'ხელით შესწორებული ტექსტი',
+                'start_ms' => 200,
+                'end_ms' => 2_400,
+            ]]));
+});
+
 test('does not hide malformed existing transcription data as an absent result', function () {
     Storage::fake('local');
     $videoProject = VideoProject::create([

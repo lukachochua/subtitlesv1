@@ -10,9 +10,11 @@ import {
     CAPTION_FONT_OPTIONS,
     CAPTION_FONT_SIZE_MAX_PX,
     CAPTION_FONT_SIZE_MIN_PX,
+    CAPTION_OUTLINE_WIDTH_MAX_PX,
     DEFAULT_CAPTION_STYLE,
     normalizeCaptionBackgroundOpacityPercent,
     normalizeCaptionFontSize,
+    normalizeCaptionOutlineWidth,
     normalizeCaptionVerticalPositionPercent,
 } from '@/lib/caption-style';
 import { home } from '@/routes';
@@ -89,6 +91,9 @@ const captionBackgroundColor = ref(DEFAULT_CAPTION_STYLE.backgroundColor);
 const captionBackgroundOpacityPercent = ref(
     Math.round(DEFAULT_CAPTION_STYLE.backgroundOpacity * 100),
 );
+const captionOutlineColor = ref(DEFAULT_CAPTION_STYLE.outlineColor);
+const captionOutlineWidthPx = ref(DEFAULT_CAPTION_STYLE.outlineWidthPx);
+const captionHasShadow = ref(DEFAULT_CAPTION_STYLE.textShadow !== 'none');
 const captionVerticalPositionPercent = ref(
     CAPTION_VERTICAL_POSITION_DEFAULT_PERCENT,
 );
@@ -105,6 +110,11 @@ const captionStyle = computed(() => ({
     textColor: captionTextColor.value,
     backgroundColor: captionBackgroundColor.value,
     backgroundOpacity: captionBackgroundOpacityPercent.value / 100,
+    outlineColor: captionOutlineColor.value,
+    outlineWidthPx: captionOutlineWidthPx.value,
+    textShadow: captionHasShadow.value
+        ? DEFAULT_CAPTION_STYLE.textShadow
+        : 'none',
 }));
 const activeCue = computed(() =>
     props.cues === null
@@ -150,6 +160,15 @@ const updateCaptionVerticalPosition = (event: Event): void => {
     captionVerticalPositionPercent.value =
         normalizeCaptionVerticalPositionPercent(input.valueAsNumber);
     input.value = captionVerticalPositionPercent.value.toString();
+};
+
+const updateCaptionOutlineWidth = (event: Event): void => {
+    const input = event.currentTarget as HTMLInputElement;
+
+    captionOutlineWidthPx.value = normalizeCaptionOutlineWidth(
+        input.valueAsNumber,
+    );
+    input.value = captionOutlineWidthPx.value.toString();
 };
 </script>
 
@@ -209,6 +228,43 @@ const updateCaptionVerticalPosition = (event: Event): void => {
                         >
                             {{ activeCue.text }}
                         </p>
+                    </div>
+                </div>
+
+                <div
+                    class="mt-3 rounded-lg border border-stone-200 bg-white px-3 py-3 dark:border-stone-700 dark:bg-stone-900"
+                >
+                    <div class="flex items-center justify-between gap-3">
+                        <label
+                            for="caption-vertical-position"
+                            class="text-sm font-medium text-stone-700 dark:text-stone-200"
+                        >
+                            Vertical position
+                        </label>
+                        <output
+                            for="caption-vertical-position"
+                            class="font-mono text-sm tabular-nums"
+                        >
+                            {{ captionVerticalPositionPercent }}%
+                        </output>
+                    </div>
+                    <input
+                        id="caption-vertical-position"
+                        v-model.number="captionVerticalPositionPercent"
+                        type="range"
+                        min="0"
+                        max="100"
+                        step="1"
+                        class="mt-2 w-full accent-red-700 dark:accent-red-500"
+                        @change="updateCaptionVerticalPosition"
+                    />
+                    <div
+                        class="flex justify-between text-xs font-medium text-stone-500 dark:text-stone-400"
+                        aria-hidden="true"
+                    >
+                        <span>Top</span>
+                        <span>Middle</span>
+                        <span>Bottom</span>
                     </div>
                 </div>
 
@@ -450,42 +506,70 @@ const updateCaptionVerticalPosition = (event: Event): void => {
                             </div>
                         </div>
 
-                        <div>
-                            <div
-                                class="flex items-center justify-between gap-3"
-                            >
+                        <div class="grid gap-4 sm:grid-cols-2">
+                            <div>
                                 <label
-                                    for="caption-vertical-position"
-                                    class="text-sm font-medium text-stone-700 dark:text-stone-200"
+                                    for="caption-outline-color"
+                                    class="block text-sm font-medium text-stone-700 dark:text-stone-200"
                                 >
-                                    Vertical position
+                                    Outline color
                                 </label>
-                                <output
-                                    for="caption-vertical-position"
-                                    class="font-mono text-sm tabular-nums"
-                                >
-                                    {{ captionVerticalPositionPercent }}%
-                                </output>
+                                <div class="mt-2 flex items-center gap-3">
+                                    <input
+                                        id="caption-outline-color"
+                                        v-model="captionOutlineColor"
+                                        type="color"
+                                        class="h-10 w-14 cursor-pointer rounded-lg border border-stone-300 bg-white p-1 dark:border-stone-700 dark:bg-stone-950"
+                                    />
+                                    <output
+                                        for="caption-outline-color"
+                                        class="font-mono text-sm uppercase"
+                                    >
+                                        {{ captionOutlineColor }}
+                                    </output>
+                                </div>
                             </div>
-                            <input
-                                id="caption-vertical-position"
-                                v-model.number="captionVerticalPositionPercent"
-                                type="range"
-                                min="0"
-                                max="100"
-                                step="1"
-                                class="mt-2 w-full accent-red-700 dark:accent-red-500"
-                                @change="updateCaptionVerticalPosition"
-                            />
-                            <div
-                                class="flex justify-between text-xs font-medium text-stone-500 dark:text-stone-400"
-                                aria-hidden="true"
-                            >
-                                <span>Top</span>
-                                <span>Middle</span>
-                                <span>Bottom</span>
+
+                            <div>
+                                <div
+                                    class="flex items-center justify-between gap-3"
+                                >
+                                    <label
+                                        for="caption-outline-width"
+                                        class="text-sm font-medium text-stone-700 dark:text-stone-200"
+                                    >
+                                        Outline width
+                                    </label>
+                                    <output
+                                        for="caption-outline-width"
+                                        class="font-mono text-sm tabular-nums"
+                                    >
+                                        {{ captionOutlineWidthPx }} px
+                                    </output>
+                                </div>
+                                <input
+                                    id="caption-outline-width"
+                                    v-model.number="captionOutlineWidthPx"
+                                    type="range"
+                                    min="0"
+                                    :max="CAPTION_OUTLINE_WIDTH_MAX_PX"
+                                    step="0.5"
+                                    class="mt-2 w-full accent-red-700 dark:accent-red-500"
+                                    @change="updateCaptionOutlineWidth"
+                                />
                             </div>
                         </div>
+
+                        <label
+                            class="flex cursor-pointer items-center gap-2 text-sm font-medium text-stone-700 dark:text-stone-200"
+                        >
+                            <input
+                                v-model="captionHasShadow"
+                                type="checkbox"
+                                class="size-4 accent-red-700 dark:accent-red-500"
+                            />
+                            Shadow
+                        </label>
                     </div>
                 </div>
 

@@ -8,6 +8,7 @@ import {
     DEFAULT_CAPTION_STYLE,
     normalizeCaptionBackgroundOpacityPercent,
     normalizeCaptionFontSize,
+    normalizeCaptionOutlineWidth,
     normalizeCaptionVerticalPositionPercent,
 } from './caption-style.ts';
 
@@ -49,6 +50,8 @@ test('defines one coherent default caption style', () => {
         textColor: '#ffffff',
         backgroundColor: '#000000',
         backgroundOpacity: 0.75,
+        outlineColor: '#000000',
+        outlineWidthPx: 0,
         textAlign: 'center',
         textShadow: '0 1px 2px rgb(0 0 0 / 0.9)',
     });
@@ -63,6 +66,7 @@ test('maps the default caption style to browser CSS', () => {
         lineHeight: 1.25,
         color: '#ffffff',
         backgroundColor: 'rgb(0 0 0 / 0.75)',
+        WebkitTextStroke: '0px #000000',
         textAlign: 'center',
         textShadow: '0 1px 2px rgb(0 0 0 / 0.9)',
     });
@@ -115,4 +119,23 @@ test('normalizes caption background opacity percentages', () => {
     assert.equal(normalizeCaptionBackgroundOpacityPercent(-1), 0);
     assert.equal(normalizeCaptionBackgroundOpacityPercent(48.6), 49);
     assert.equal(normalizeCaptionBackgroundOpacityPercent(101), 100);
+});
+
+test('maps outline and shadow styles independently', () => {
+    const css = captionStyleToCss({
+        ...DEFAULT_CAPTION_STYLE,
+        outlineColor: '#ef4444',
+        outlineWidthPx: 2.5,
+        textShadow: 'none',
+    });
+
+    assert.equal(css.WebkitTextStroke, '2.5px #ef4444');
+    assert.equal(css.textShadow, 'none');
+});
+
+test('normalizes outline width to supported half pixels', () => {
+    assert.equal(normalizeCaptionOutlineWidth(Number.NaN), 0);
+    assert.equal(normalizeCaptionOutlineWidth(-1), 0);
+    assert.equal(normalizeCaptionOutlineWidth(1.26), 1.5);
+    assert.equal(normalizeCaptionOutlineWidth(5), 4);
 });

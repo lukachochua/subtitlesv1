@@ -9,6 +9,8 @@ export interface CaptionStyle {
     textColor: string;
     backgroundColor: string;
     backgroundOpacity: number;
+    outlineColor: string;
+    outlineWidthPx: number;
     textAlign: CSSProperties['textAlign'];
     textShadow: string;
 }
@@ -34,6 +36,7 @@ export const CAPTION_FONT_SIZE_MIN_PX = 12;
 export const CAPTION_FONT_SIZE_MAX_PX = 72;
 export const CAPTION_FONT_SIZE_DEFAULT_PX = 28;
 export const CAPTION_BACKGROUND_OPACITY_DEFAULT_PERCENT = 75;
+export const CAPTION_OUTLINE_WIDTH_MAX_PX = 4;
 
 export const normalizeCaptionFontSize = (fontSizePx: number): number =>
     Number.isFinite(fontSizePx)
@@ -57,6 +60,14 @@ export const normalizeCaptionVerticalPositionPercent = (
         ? Math.min(100, Math.max(0, Math.round(positionPercent)))
         : CAPTION_VERTICAL_POSITION_DEFAULT_PERCENT;
 
+export const normalizeCaptionOutlineWidth = (outlineWidthPx: number): number =>
+    Number.isFinite(outlineWidthPx)
+        ? Math.min(
+              CAPTION_OUTLINE_WIDTH_MAX_PX,
+              Math.max(0, Math.round(outlineWidthPx * 2) / 2),
+          )
+        : 0;
+
 const colorWithOpacity = (hexColor: string, opacity: number): string => {
     const match = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(hexColor);
 
@@ -79,6 +90,8 @@ export const DEFAULT_CAPTION_STYLE: Readonly<CaptionStyle> = Object.freeze({
     textColor: '#ffffff',
     backgroundColor: '#000000',
     backgroundOpacity: CAPTION_BACKGROUND_OPACITY_DEFAULT_PERCENT / 100,
+    outlineColor: '#000000',
+    outlineWidthPx: 0,
     textAlign: 'center',
     textShadow: '0 1px 2px rgb(0 0 0 / 0.9)',
 });
@@ -94,6 +107,7 @@ export const captionStyleToCss = (style: CaptionStyle): CSSProperties => ({
         style.backgroundColor,
         style.backgroundOpacity,
     ),
+    WebkitTextStroke: `${style.outlineWidthPx}px ${style.outlineColor}`,
     textAlign: style.textAlign,
     textShadow: style.textShadow,
 });

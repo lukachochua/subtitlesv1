@@ -2824,3 +2824,47 @@ The caption can now move continuously from the top to the bottom of the video, a
 ### Next
 
 Manually verify smooth caption movement and actions-menu stability on project 5, then evaluate outline and shadow controls.
+
+## 2026-08-23 — Step 10.10 and position-control relocation
+
+### Goal
+
+Keep vertical positioning visible beside the preview and add useful outline and shadow controls that can plausibly map to final rendering.
+
+### Changes
+
+- Moved the vertical-position slider directly below the video and above playback diagnostics.
+- Added a live outline-color picker.
+- Added a live outline-width slider from 0 through 4 pixels in half-pixel steps.
+- Added a live shadow toggle using the established default shadow.
+- Extended the typed caption style and browser CSS mapping with outline color and width.
+- Added focused tests for outline/shadow mapping and outline-width normalization.
+- Did not add style persistence or ASS/libass mapping.
+
+### Decisions
+
+- Keep the position control visually adjacent to the video because it requires continuous preview feedback.
+- Start outline width at 0 pixels so this step does not silently change the established default appearance.
+- Use a simple shadow toggle before exposing offsets, blur, or color that may not map consistently to final rendering.
+
+### Verification
+
+- The active-cue frontend suite passes: 8 tests.
+- The caption-style frontend suite passes: 11 tests.
+- Vue TypeScript checking completed with no errors.
+- ESLint completed with no errors.
+- Browser outline and shadow appearance have not yet been manually verified.
+
+### Result
+
+The position slider remains visible immediately below the preview, and captions now support live outline color/width plus shadow visibility.
+
+### Problems / Notes
+
+- These controls reset on page reload.
+- Browser text stroke is vendor-prefixed and must be visually compared with ASS/libass outline rendering later.
+- Shadow currently uses one fixed preset rather than exposing low-value parameters prematurely.
+
+### Next
+
+Manually verify the relocated slider, several outline widths, and shadow toggle on project 5, then add horizontal alignment for multi-line captions.

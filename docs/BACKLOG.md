@@ -1,10 +1,11 @@
 # Current
 
-- Manually verify smooth vertical caption positioning and the anchored actions menu on project 5.
+- Manually verify the relocated position slider plus outline and shadow controls on project 5.
 
 # Next
 
-- Add outline and shadow controls only after confirming which settings can map cleanly to final rendering.
+- Add horizontal text alignment for multi-line captions.
+- Decide when browser-local caption styles should become persisted project settings.
 
 # Later
 
@@ -106,6 +107,8 @@
 - Phase 10.7: Added browser-local live caption background-opacity control.
 - Phase 10.8: Added browser-local top, middle, and bottom caption placement.
 - Phase 10.9: Replaced coarse placement buttons with continuous browser-local vertical positioning.
+- Phase 10.10: Added browser-local outline color/width and shadow controls.
+- Caption position UI: Moved the vertical slider directly below the video preview.
 - Caption editor UI: Grouped start/end timing and moved split/merge into a compact per-cue actions menu.
 
 # Rejected / Out of Scope

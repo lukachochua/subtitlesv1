@@ -3,6 +3,31 @@
 use App\Actions\ConvertNemoTranscriptionWords;
 use App\ValueObjects\TranscriptionWord;
 
+test('it converts a representative decoded NeMo response fixture', function () {
+    $fixture = file_get_contents(__DIR__.'/../Fixtures/nemo-transcription.json');
+
+    if ($fixture === false) {
+        throw new RuntimeException('The NeMo transcription fixture could not be read.');
+    }
+
+    $transcription = json_decode($fixture, true, flags: JSON_THROW_ON_ERROR);
+
+    if (! is_array($transcription)) {
+        throw new JsonException('The NeMo transcription fixture must decode to an array.');
+    }
+
+    $words = (new ConvertNemoTranscriptionWords)->handle(
+        $transcription,
+        durationMs: 2886,
+    );
+
+    expect($words)->toEqual([
+        new TranscriptionWord('ერთი', 160, 240),
+        new TranscriptionWord('ორი,', 640, 960),
+        new TranscriptionWord('გამარჯობა.', 1600, 2886),
+    ]);
+});
+
 test('it converts NeMo words to rounded internal timestamps', function () {
     $words = (new ConvertNemoTranscriptionWords)->handle(nemoTranscription([
         ['word' => 'ერთი', 'start' => 1.6804, 'end' => 1.7596],

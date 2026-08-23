@@ -1,0 +1,43 @@
+{
+  "experiment": {
+    "model": "nvidia/stt_ka_fastconformer_hybrid_large_pc",
+    "timestamps_requested": true
+  },
+  "text": "ერთი ორი, გამარჯობა.",
+  "timestamp": {
+    "timestep": [2, 8, 20],
+    "char": [],
+    "word": [
+      {
+        "word": "ერთი",
+        "start_offset": 2,
+        "end_offset": 3,
+        "start": 0.16,
+        "end": 0.24
+      },
+      {
+        "word": "ორი,",
+        "start_offset": 8,
+        "end_offset": 12,
+        "start": 0.64,
+        "end": 0.96
+      },
+      {
+        "word": "გამარჯობა.",
+        "start_offset": 20,
+        "end_offset": 37,
+        "start": 1.6,
+        "end": 2.92
+      }
+    ],
+    "segment": [
+      {
+        "segment": "ერთი ორი, გამარჯობა.",
+        "start_offset": 2,
+        "end_offset": 37,
+        "start": 0.16,
+        "end": 2.92
+      }
+    ]
+  }
+}

@@ -1,11 +1,11 @@
 # Current
 
-- Add one minimal saved NeMo response fixture and verify conversion against it.
+- Propose the smallest development-only way to inspect the ordered normalized words for one `VideoProject`.
 
 # Next
 
-- Run the converter against project 4's preserved experimental result without persisting normalized words.
 - Inspect the normalized words before designing cue generation.
+- Define the minimum caption-cue representation after inspecting the real normalized sequence.
 
 # Later
 
@@ -65,6 +65,8 @@
 - Phase 6.2b: Implemented and unit-tested the immutable `TranscriptionWord` value object.
 - Phase 6.3a: Defined the strict NeMo word-conversion boundary and one-frame duration tolerance.
 - Phase 6.3b: Implemented and unit-tested strict NeMo word conversion.
+- Phase 6.4: Added a representative NeMo JSON fixture and verified conversion independently of private media.
+- Phase 6: Established and tested a provider-independent timestamped-word format plus NeMo conversion.
 
 # Rejected / Out of Scope
 

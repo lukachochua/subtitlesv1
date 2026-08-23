@@ -1308,3 +1308,42 @@ Decoded NeMo output can now be converted deterministically into validated provid
 ### Next
 
 Add one minimal saved NeMo response fixture and prove it converts correctly without committing private media or the complete experimental response.
+
+## 2026-08-23 — Step 6.4
+
+### Goal
+
+Prove the converter handles a realistic JSON-decoded NeMo response without committing private media or the complete project 4 experiment.
+
+### Changes
+
+- Added a small synthetic `tests/Fixtures/nemo-transcription.json` response containing representative NeMo metadata, token, word, character, and segment structures.
+- Added a fixture-backed converter test covering real JSON decoding, ignored provider fields, Georgian punctuation, ordering, and duration clamping.
+- No private recording, complete experimental transcript, model file, storage path, or user-specific content was added to the fixture.
+
+### Decisions
+
+- Keep one minimal committed NeMo fixture rather than using the full private experimental response as permanent test data.
+- Include provider fields outside `timestamp.word` to prove the converter reads only its approved boundary.
+
+### Verification
+
+- The converter suite passes: 19 tests and 27 assertions.
+- The converter plus value-object suites pass together: 27 tests and 43 assertions.
+- The fixture's final `2,920`-millisecond word boundary correctly clamps to its synthetic `2,886`-millisecond media duration.
+- Pint completed successfully for changed PHP files.
+- PHPStan completed with zero errors.
+- Documentation whitespace validation passed.
+
+### Result
+
+Phase 6 is complete: downstream code can consume validated Georgian timestamped words without knowing NeMo's response structure, and conversion is covered by both focused edge cases and a representative decoded fixture.
+
+### Problems / Notes
+
+- The application still has no normal workflow that invokes NeMo or associates raw transcription output with a `VideoProject`.
+- Normalized words are intentionally not persisted yet.
+
+### Next
+
+Begin Phase 7.1 by proposing the smallest development-only path for displaying or debugging the ordered normalized word sequence from one real project result.

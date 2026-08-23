@@ -1,11 +1,11 @@
 # Current
 
-- Propose the read-only project-page cue table, including the explicit “no transcription yet” state.
+- Display the provided transient cues in a basic read-only Vue table with an explicit no-transcription state.
 
 # Next
 
-- Pass transient generated cues to the existing project page without exposing raw provider JSON.
 - Display a basic read-only cue table below the native video.
+- Manually compare generated cue boundaries with project 4 playback before tuning thresholds.
 
 # Later
 
@@ -73,6 +73,7 @@
 - Phase 7.2b: Implemented and unit-tested deterministic word-to-cue generation.
 - Phase 7.4: Generated and displayed four real project 4 caption cues through the read-only inspection command.
 - Phase 7.4b: Extracted and tested a reusable transient project caption-data loading boundary.
+- Phase 7.5a: Added tested project-page props for transient cues and explicit absent-result state.
 
 # Rejected / Out of Scope
 

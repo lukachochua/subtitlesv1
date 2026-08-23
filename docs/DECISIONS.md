@@ -366,7 +366,7 @@ One action keeps storage and transformation behavior reusable by console and HTT
 
 - The inspection command delegates loading and transformation to the same boundary intended for the project page.
 - Missing duration or result files fail explicitly; invalid JSON, word conversion, and cue generation also fail rather than returning incomplete captions.
-- The future project page must deliberately choose how to represent “no transcription yet” without weakening the action's strict contract.
+- The project-page backend sends `cues: null` only when the fixed private result file is absent. When a result exists, strict loading runs and malformed data remains an error rather than appearing absent.
 - Persistence will require a separate decision and will not silently replace this experimental raw-result boundary.
 ## Decision: Isolate ffprobe duration inspection in one application action
 

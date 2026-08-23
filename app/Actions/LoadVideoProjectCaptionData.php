@@ -28,7 +28,7 @@ class LoadVideoProjectCaptionData
             );
         }
 
-        $transcriptionPath = "video-projects/{$videoProject->id}/transcription.nemo-fastconformer.raw.json";
+        $transcriptionPath = $this->transcriptionPath($videoProject);
         $disk = Storage::disk($videoProject->disk);
 
         if (! $disk->exists($transcriptionPath)) {
@@ -63,5 +63,17 @@ class LoadVideoProjectCaptionData
             'words' => $words,
             'cues' => $this->generateCaptionCues->handle($words),
         ];
+    }
+
+    public function hasTranscriptionResult(VideoProject $videoProject): bool
+    {
+        return Storage::disk($videoProject->disk)->exists(
+            $this->transcriptionPath($videoProject),
+        );
+    }
+
+    private function transcriptionPath(VideoProject $videoProject): string
+    {
+        return "video-projects/{$videoProject->id}/transcription.nemo-fastconformer.raw.json";
     }
 }

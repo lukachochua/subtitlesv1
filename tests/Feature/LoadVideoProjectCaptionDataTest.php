@@ -53,6 +53,21 @@ test('requires a private NeMo result before loading caption data', function () {
         );
 });
 
+test('reports whether a private NeMo result exists', function () {
+    Storage::fake('local');
+    $videoProject = createVideoProjectForCaptionData();
+    $loadCaptionData = app(LoadVideoProjectCaptionData::class);
+
+    expect($loadCaptionData->hasTranscriptionResult($videoProject))->toBeFalse();
+
+    Storage::disk('local')->put(
+        "video-projects/{$videoProject->id}/transcription.nemo-fastconformer.raw.json",
+        '{}',
+    );
+
+    expect($loadCaptionData->hasTranscriptionResult($videoProject))->toBeTrue();
+});
+
 test('rejects invalid NeMo result JSON', function () {
     Storage::fake('local');
     $videoProject = createVideoProjectForCaptionData();

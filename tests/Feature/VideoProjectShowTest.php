@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\VideoProject;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia as Assert;
 
 test('displays safe uploaded video metadata', function () {
@@ -24,8 +25,59 @@ test('displays safe uploaded video metadata', function () {
                 'size_bytes' => 48_392_017,
                 'duration_ms' => 7_967,
             ])
+            ->where('cues', null)
             ->missing('videoProject.disk')
             ->missing('videoProject.path'));
+});
+
+test('exposes transient generated cues when a NeMo result exists', function () {
+    Storage::fake('local');
+    $videoProject = VideoProject::create([
+        'original_filename' => 'ქართული-ინტერვიუ.mp4',
+        'disk' => 'local',
+        'path' => 'video-projects/private-source.mp4',
+        'mime_type' => 'video/mp4',
+        'size_bytes' => 48_392_017,
+        'duration_ms' => 2886,
+    ]);
+    $fixture = file_get_contents(base_path('tests/Fixtures/nemo-transcription.json'));
+
+    if ($fixture === false) {
+        throw new RuntimeException('The NeMo transcription fixture could not be read.');
+    }
+
+    Storage::disk('local')->put(
+        "video-projects/{$videoProject->id}/transcription.nemo-fastconformer.raw.json",
+        $fixture,
+    );
+
+    $this->get(route('video-projects.show', $videoProject))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('cues', [[
+                'order' => 1,
+                'text' => 'ერთი ორი, გამარჯობა.',
+                'start_ms' => 160,
+                'end_ms' => 2886,
+            ]]));
+});
+
+test('does not hide malformed existing transcription data as an absent result', function () {
+    Storage::fake('local');
+    $videoProject = VideoProject::create([
+        'original_filename' => 'ქართული-ინტერვიუ.mp4',
+        'disk' => 'local',
+        'path' => 'video-projects/private-source.mp4',
+        'mime_type' => 'video/mp4',
+        'size_bytes' => 48_392_017,
+        'duration_ms' => 2886,
+    ]);
+    Storage::disk('local')->put(
+        "video-projects/{$videoProject->id}/transcription.nemo-fastconformer.raw.json",
+        '{invalid-json',
+    );
+
+    $this->get(route('video-projects.show', $videoProject))->assertServerError();
 });
 
 test('exposes an explicit null duration before inspection', function () {

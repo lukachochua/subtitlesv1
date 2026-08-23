@@ -1593,3 +1593,46 @@ Console and future HTTP callers now have one tested boundary for loading transie
 ### Next
 
 Propose the smallest read-only project-page cue table and its explicit no-transcription state before wiring backend props to Vue.
+
+## 2026-08-23 — Step 7.5a
+
+### Goal
+
+Provide transient generated cue data to the existing Inertia project page while distinguishing an absent transcription from malformed existing data.
+
+### Changes
+
+- Added fixed-path result-existence detection to `LoadVideoProjectCaptionData` without weakening its strict loading behavior.
+- Injected the caption-data loader into `ShowVideoProjectController`.
+- Added a root `cues` Inertia prop serialized as `order`, `text`, `start_ms`, and `end_ms`.
+- Sent `cues: null` when no private NeMo result exists.
+- Added endpoint tests for absent, valid, and malformed transcription states.
+- No Vue template, TypeScript prop, styling, persistence, or raw provider JSON exposure changed.
+
+### Decisions
+
+- Use `null` to mean “no transcription result exists yet”; use an array, including a possible empty array, for successfully loaded generated cue data.
+- Check only fixed-path result existence before invoking the loader. If a result exists, duration, JSON, normalization, and generation errors remain visible server failures.
+- Serialize millisecond fields with snake-case names to match existing backend page props.
+
+### Verification
+
+- Project-page and caption-data action tests pass: 10 tests and 44 assertions.
+- The complete focused backend caption pipeline passes: 66 tests and 157 assertions.
+- Tests verify `cues: null` without a result, exact generated cue props with a valid fixture, and a server error for invalid existing JSON.
+- Pint completed successfully for changed PHP files.
+- PHPStan completed with zero errors.
+- Inertia v3 endpoint assertion syntax was verified against the official current documentation and matches the repository's existing `AssertableInertia` convention.
+
+### Result
+
+The project-page response now carries safe transient generated cue data when available and an unambiguous absent state when transcription has not been produced.
+
+### Problems / Notes
+
+- The current Vue page does not declare or render the new prop yet, so there is no visible browser change in this step.
+- Loading still regenerates cues from the private raw response on every project-page request.
+
+### Next
+
+Add the typed nullable cue prop and a basic read-only cue table below the native video, with an explicit “No transcription yet” message.

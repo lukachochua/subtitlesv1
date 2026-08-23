@@ -195,3 +195,25 @@ The action keeps one domain operation independently testable while Laravel's Pro
 - Invalid files, failed processes, and malformed metadata leave `duration_ms` unchanged.
 - `/usr/bin/ffprobe` is currently a development-machine assumption and may need configuration when deployment requirements exist.
 - The synchronous boundary is appropriate for this small inspection; longer processing may later justify a queue based on observed request duration.
+
+## Decision: Extract one deterministic ASR-ready WAV through an application action
+
+### Context
+
+The application needs one audio artifact from an uploaded video before testing a real Georgian ASR provider. This operation must not expose filesystem paths to user input or introduce a queue, media framework, or provider abstraction prematurely.
+
+### Decision
+
+Use `App\Actions\ExtractVideoProjectAudio` as the single extraction boundary. It invokes `/usr/bin/ffmpeg` synchronously through Laravel's Process facade with array arguments and a 120-second timeout. It writes mono, 16 kHz, 16-bit PCM WAV audio to the project's private `video-projects/{id}/audio.wav` path, replacing any earlier artifact and deleting partial output on failure.
+
+### Reason
+
+Uncompressed mono PCM is simple to inspect and broadly usable for initial ASR experiments. A deterministic, application-controlled path makes repeated development runs understandable without trusting uploaded filenames or adding database state before it is needed.
+
+### Consequences
+
+- The source video and extracted audio remain on the project's configured private disk.
+- Successful extraction currently returns the relative audio path but does not persist it.
+- The action checks that output exists and is non-empty; media-format and duration verification remain a separate next step.
+- WAV files are larger than compressed audio, and the exact provider input format may be revisited after selecting and testing one ASR provider.
+- `/usr/bin/ffmpeg` and synchronous execution are current personal-V1 assumptions that may need configuration or queued execution when real processing evidence justifies it.

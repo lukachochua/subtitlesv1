@@ -1,10 +1,11 @@
 # Current
 
-- Manually run `video-projects:inspect` against one real upload and verify the project page displays the persisted duration.
+- Add the smallest manual entry point for extracting one project's ASR-ready audio.
 
 # Next
 
-- Phase 4.1: Propose the minimal media-processing boundary for extracting one ASR-ready audio file.
+- Run audio extraction against one real uploaded video.
+- Verify the extracted audio's path, duration, format, and successful decoding.
 
 # Later
 
@@ -44,6 +45,8 @@
 - Phase 3.4b: Added and tested a single-purpose action that validates ffprobe output and persists duration.
 - Phase 3.4c: Added a tested Artisan command for inspecting one `VideoProject` by ID.
 - Phase 3.4d: Displayed persisted duration, including an explicit uninspected state, on the project page.
+- Phase 4.1: Chose one single-purpose action as the minimal FFmpeg audio-extraction boundary.
+- Phase 4.2a: Added tested private extraction of mono 16 kHz PCM WAV audio with failed-output cleanup.
 
 # Rejected / Out of Scope
 

@@ -696,3 +696,43 @@ The project page now communicates whether media inspection has occurred and disp
 ### Next
 
 Run the command against one real upload, refresh its project page, and verify the displayed duration matches the command output.
+
+## 2026-08-23 — Step 4.2a
+
+### Goal
+
+Create the smallest tested application boundary that can extract one ASR-ready audio file from a stored video project.
+
+### Changes
+
+- Added `ExtractVideoProjectAudio` as a single-purpose action.
+- Added safe FFmpeg execution with array arguments, a 120-second timeout, and an application-controlled private output path.
+- Configured extraction as mono, 16 kHz, 16-bit PCM WAV.
+- Added stale-output removal, failed-process cleanup, and a non-empty output check.
+- Added focused tests covering success, missing source media, partial output after FFmpeg failure, and a successful process that produces no output.
+
+### Decisions
+
+- Keep extraction synchronous and callable only as an internal action for this step.
+- Reuse a deterministic per-project audio path without persisting another database field yet.
+- Defer ffprobe verification of the resulting audio's format and duration to the next verification step.
+
+### Verification
+
+- Four focused Pest tests pass with 11 assertions.
+- Laravel Process fakes prevent real subprocess execution while asserting the exact FFmpeg argument array and timeout.
+- Pint passes for the changed PHP files.
+- A real MP4 has not yet been processed through this application action.
+
+### Result
+
+The application has a tested internal operation for producing one private ASR-ready WAV artifact, but it has no command, route, or UI entry point yet.
+
+### Problems / Notes
+
+- The FFmpeg executable path is currently the verified development path `/usr/bin/ffmpeg`.
+- Output existence is tested; its actual codec, sample rate, channel count, decoding, and duration still require real-media verification.
+
+### Next
+
+Add the smallest manual Artisan entry point for invoking this action against one existing `VideoProject`.

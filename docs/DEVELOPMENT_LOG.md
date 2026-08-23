@@ -1472,3 +1472,44 @@ The first cue algorithm has explicit, testable inputs, thresholds, boundary prio
 ### Next
 
 Implement and unit-test only the deterministic word-to-cue grouping action.
+
+## 2026-08-23 — Step 7.2b
+
+### Goal
+
+Implement the approved deterministic word-to-cue rules and prove each boundary independently before connecting generation to project inspection.
+
+### Changes
+
+- Added `App\Actions\GenerateCaptionCues` with fixed first-pass thresholds for punctuation, speech gap, word count, Unicode character count, and cue duration.
+- Added deterministic text assembly, consecutive one-based ordering, first/last word timing, single-oversized-word handling, and explicit overlapping-input rejection.
+- Added focused Pest unit tests for the complete project 4 sequence and every approved boundary.
+- No command integration, persistence, frontend behavior, configurable presets, or dependency was added.
+
+### Decisions
+
+- Return an empty cue list for an empty word list; this represents transcription with no consumable speech rather than an invalid cue.
+- Keep the initial thresholds as private action constants until playback QA demonstrates a need for configuration.
+- Trust the documented `list<TranscriptionWord>` method contract and avoid redundant runtime type checks; chronological overlap remains validated explicitly.
+
+### Verification
+
+- The generator produces exactly the four project 4 cues documented in Step 7.2a.
+- Tests cover all four strong punctuation marks, the exact 800-millisecond gap boundary, the ninth-word split, multibyte-safe Georgian character limits, duration overflow, oversized single words, overlapping input rejection, and empty input.
+- The generator and both related value-object suites pass: 30 tests and 60 assertions.
+- Pint completed successfully for changed PHP files.
+- PHPStan completed with zero errors after removing a redundant `instanceof` check identified as always true from the typed list contract.
+- Documentation whitespace validation passed.
+
+### Result
+
+Validated transcription words can now become deterministic, ordered `CaptionCue` objects without provider knowledge, persistence, or an LLM.
+
+### Problems / Notes
+
+- The grouping thresholds have automated coverage but have not yet been manually evaluated over playing video.
+- Invalid ASR punctuation can still cause an undesirable early cue boundary; manual editing and later evidence-based tuning remain necessary.
+
+### Next
+
+Extend the existing read-only project transcription command to display generated cues, then compare those boundaries manually before changing the algorithm.

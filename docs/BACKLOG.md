@@ -1,11 +1,11 @@
 # Current
 
-- Implement the approved deterministic word-to-cue grouping action with focused unit tests.
+- Extend the read-only transcription inspection command to display generated project 4 cues.
 
 # Next
 
-- Implement the approved first cue-generation action with focused tests.
 - Display generated project 4 cues as a read-only table for manual inspection.
+- Manually compare generated cue boundaries with project 4 playback before tuning thresholds.
 
 # Later
 
@@ -70,6 +70,7 @@
 - Phase 7.1: Added and verified a read-only command that displays one project's normalized NeMo words.
 - Phase 7.3a: Implemented and unit-tested the minimum immutable `CaptionCue` representation.
 - Phase 7.2a: Defined the first deterministic word-to-cue grouping rules and expected project 4 output.
+- Phase 7.2b: Implemented and unit-tested deterministic word-to-cue generation.
 
 # Rejected / Out of Scope
 

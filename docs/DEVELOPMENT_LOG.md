@@ -2780,3 +2780,47 @@ Captions can be previewed at the top, middle, or bottom of the video, and genera
 ### Next
 
 Manually verify all three placements and the reorganized cue controls on project 5, then add Phase 10.9 vertical offset.
+
+## 2026-08-23 — Step 10.9 and anchored cue actions
+
+### Goal
+
+Allow fine vertical positioning across the video and prevent the caption actions trigger from moving when its menu opens.
+
+### Changes
+
+- Replaced the three placement buttons with one continuous 0–100 range control.
+- Labeled 0, 50, and 100 conceptually as Top, Middle, and Bottom while allowing every whole percentage between them.
+- Positioned the caption smoothly along a safe vertical track within the video.
+- Preserved space at the top and above native video controls at the bottom.
+- Added normalization and focused tests for invalid, out-of-range, and fractional position values.
+- Anchored each actions menu absolutely to a fixed-width three-dot trigger so opening it no longer changes the table layout or trigger position.
+- Did not persist the position or implement final-render mapping.
+
+### Decisions
+
+- Store browser-preview vertical position as an integer percentage because it is understandable, format-independent, and suitable for later rendering experiments.
+- Let Top, Middle, and Bottom act as slider landmarks rather than limiting users to three positions.
+- Overlay the actions menu without changing row dimensions.
+
+### Verification
+
+- The active-cue frontend suite passes: 8 tests.
+- The caption-style frontend suite passes: 9 tests.
+- Vue TypeScript checking completed with no errors.
+- ESLint completed with no errors.
+- Browser movement and menu anchoring have not yet been manually verified.
+
+### Result
+
+The caption can now move continuously from the top to the bottom of the video, and opening cue actions no longer intentionally reflows the table.
+
+### Problems / Notes
+
+- Vertical position resets to Bottom on reload.
+- The overlaid actions menu should be checked near the table's bottom and at narrow viewport widths for clipping.
+- Final ASS/libass positioning still requires a separate mapping and visual comparison.
+
+### Next
+
+Manually verify smooth caption movement and actions-menu stability on project 5, then evaluate outline and shadow controls.

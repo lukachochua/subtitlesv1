@@ -4,16 +4,16 @@ import { computed, ref } from 'vue';
 import type { CaptionCue } from '@/lib/caption-cues';
 import { findActiveCaptionCue } from '@/lib/caption-cues';
 import {
-    captionPlacementToCss,
     captionStyleToCss,
-    CAPTION_PLACEMENT_OPTIONS,
+    captionVerticalPositionToCss,
+    CAPTION_VERTICAL_POSITION_DEFAULT_PERCENT,
     CAPTION_FONT_OPTIONS,
     CAPTION_FONT_SIZE_MAX_PX,
     CAPTION_FONT_SIZE_MIN_PX,
     DEFAULT_CAPTION_STYLE,
-    DEFAULT_CAPTION_PLACEMENT,
     normalizeCaptionBackgroundOpacityPercent,
     normalizeCaptionFontSize,
+    normalizeCaptionVerticalPositionPercent,
 } from '@/lib/caption-style';
 import { home } from '@/routes';
 import { media as videoProjectMedia } from '@/routes/video-projects';
@@ -89,7 +89,9 @@ const captionBackgroundColor = ref(DEFAULT_CAPTION_STYLE.backgroundColor);
 const captionBackgroundOpacityPercent = ref(
     Math.round(DEFAULT_CAPTION_STYLE.backgroundOpacity * 100),
 );
-const captionPlacement = ref(DEFAULT_CAPTION_PLACEMENT);
+const captionVerticalPositionPercent = ref(
+    CAPTION_VERTICAL_POSITION_DEFAULT_PERCENT,
+);
 const captionIsBold = ref(DEFAULT_CAPTION_STYLE.fontWeight >= 700);
 const captionIsItalic = ref(DEFAULT_CAPTION_STYLE.fontStyle === 'italic');
 const captionStyle = computed(() => ({
@@ -141,6 +143,14 @@ const updateCaptionBackgroundOpacity = (event: Event): void => {
         normalizeCaptionBackgroundOpacityPercent(input.valueAsNumber);
     input.value = captionBackgroundOpacityPercent.value.toString();
 };
+
+const updateCaptionVerticalPosition = (event: Event): void => {
+    const input = event.currentTarget as HTMLInputElement;
+
+    captionVerticalPositionPercent.value =
+        normalizeCaptionVerticalPositionPercent(input.valueAsNumber);
+    input.value = captionVerticalPositionPercent.value.toString();
+};
 </script>
 
 <template>
@@ -186,12 +196,16 @@ const updateCaptionBackgroundOpacity = (event: Event): void => {
 
                     <div
                         v-if="activeCue"
-                        class="pointer-events-none absolute inset-0 flex justify-center px-4"
-                        :style="captionPlacementToCss(captionPlacement)"
+                        class="pointer-events-none absolute inset-0"
                     >
                         <p
-                            class="max-w-[90%] rounded-md px-3 py-1.5 wrap-break-word whitespace-pre-wrap"
-                            :style="captionStyleToCss(captionStyle)"
+                            class="w-max max-w-[90%] rounded-md px-3 py-1.5 wrap-break-word whitespace-pre-wrap"
+                            :style="[
+                                captionStyleToCss(captionStyle),
+                                captionVerticalPositionToCss(
+                                    captionVerticalPositionPercent,
+                                ),
+                            ]"
                         >
                             {{ activeCue.text }}
                         </p>
@@ -436,35 +450,42 @@ const updateCaptionBackgroundOpacity = (event: Event): void => {
                             </div>
                         </div>
 
-                        <fieldset>
-                            <legend
-                                class="text-sm font-medium text-stone-700 dark:text-stone-200"
-                            >
-                                Placement
-                            </legend>
+                        <div>
                             <div
-                                class="mt-2 grid grid-cols-3 rounded-lg border border-stone-300 p-1 dark:border-stone-700"
+                                class="flex items-center justify-between gap-3"
                             >
                                 <label
-                                    v-for="placementOption in CAPTION_PLACEMENT_OPTIONS"
-                                    :key="placementOption.value"
-                                    class="cursor-pointer"
+                                    for="caption-vertical-position"
+                                    class="text-sm font-medium text-stone-700 dark:text-stone-200"
                                 >
-                                    <input
-                                        v-model="captionPlacement"
-                                        type="radio"
-                                        name="caption-placement"
-                                        :value="placementOption.value"
-                                        class="peer sr-only"
-                                    />
-                                    <span
-                                        class="block rounded-md px-3 py-2 text-center text-sm font-semibold text-stone-600 peer-checked:bg-red-700 peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-red-600 peer-focus-visible:ring-offset-2 dark:text-stone-300 dark:peer-checked:bg-red-600 dark:peer-focus-visible:ring-red-400 dark:peer-focus-visible:ring-offset-stone-900"
-                                    >
-                                        {{ placementOption.label }}
-                                    </span>
+                                    Vertical position
                                 </label>
+                                <output
+                                    for="caption-vertical-position"
+                                    class="font-mono text-sm tabular-nums"
+                                >
+                                    {{ captionVerticalPositionPercent }}%
+                                </output>
                             </div>
-                        </fieldset>
+                            <input
+                                id="caption-vertical-position"
+                                v-model.number="captionVerticalPositionPercent"
+                                type="range"
+                                min="0"
+                                max="100"
+                                step="1"
+                                class="mt-2 w-full accent-red-700 dark:accent-red-500"
+                                @change="updateCaptionVerticalPosition"
+                            />
+                            <div
+                                class="flex justify-between text-xs font-medium text-stone-500 dark:text-stone-400"
+                                aria-hidden="true"
+                            >
+                                <span>Top</span>
+                                <span>Middle</span>
+                                <span>Bottom</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -799,9 +820,9 @@ const updateCaptionBackgroundOpacity = (event: Event): void => {
                                         </template>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 text-right align-top">
+                                <td class="w-20 px-6 py-4 text-right align-top">
                                     <details
-                                        class="group inline-block text-left"
+                                        class="group relative inline-block w-9 text-left"
                                     >
                                         <summary
                                             class="inline-flex size-9 cursor-pointer list-none items-center justify-center rounded-lg border border-stone-300 text-xl leading-none text-stone-600 hover:bg-stone-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 dark:border-stone-700 dark:text-stone-300 dark:hover:bg-stone-800 dark:focus-visible:ring-red-400 [&::-webkit-details-marker]:hidden"
@@ -811,7 +832,7 @@ const updateCaptionBackgroundOpacity = (event: Event): void => {
                                             ⋮
                                         </summary>
                                         <div
-                                            class="mt-2 grid w-48 gap-2 rounded-lg border border-stone-200 bg-white p-2 shadow-lg dark:border-stone-700 dark:bg-stone-950"
+                                            class="absolute top-full right-0 z-20 mt-2 grid w-48 gap-2 rounded-lg border border-stone-200 bg-white p-2 shadow-lg dark:border-stone-700 dark:bg-stone-950"
                                         >
                                             <Form
                                                 v-if="cue.id !== null"

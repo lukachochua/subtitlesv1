@@ -2,28 +2,41 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
-    captionPlacementToCss,
     captionStyleToCss,
+    captionVerticalPositionToCss,
     CAPTION_FONT_OPTIONS,
-    DEFAULT_CAPTION_PLACEMENT,
     DEFAULT_CAPTION_STYLE,
     normalizeCaptionBackgroundOpacityPercent,
     normalizeCaptionFontSize,
+    normalizeCaptionVerticalPositionPercent,
 } from './caption-style.ts';
 
-test('maps top, middle, and bottom caption placement to overlay CSS', () => {
-    assert.equal(DEFAULT_CAPTION_PLACEMENT, 'bottom');
-    assert.deepEqual(captionPlacementToCss('top'), {
-        alignItems: 'flex-start',
-        paddingTop: '1rem',
+test('maps vertical caption percentages to overlay CSS', () => {
+    assert.deepEqual(captionVerticalPositionToCss(0), {
+        position: 'absolute',
+        left: '50%',
+        top: 'calc(1rem + (100% - 4.5rem) * 0)',
+        transform: 'translate(-50%, -0%)',
     });
-    assert.deepEqual(captionPlacementToCss('middle'), {
-        alignItems: 'center',
+    assert.deepEqual(captionVerticalPositionToCss(50), {
+        position: 'absolute',
+        left: '50%',
+        top: 'calc(1rem + (100% - 4.5rem) * 0.5)',
+        transform: 'translate(-50%, -50%)',
     });
-    assert.deepEqual(captionPlacementToCss('bottom'), {
-        alignItems: 'flex-end',
-        paddingBottom: '3.5rem',
+    assert.deepEqual(captionVerticalPositionToCss(100), {
+        position: 'absolute',
+        left: '50%',
+        top: 'calc(1rem + (100% - 4.5rem) * 1)',
+        transform: 'translate(-50%, -100%)',
     });
+});
+
+test('normalizes caption vertical position percentages', () => {
+    assert.equal(normalizeCaptionVerticalPositionPercent(Number.NaN), 100);
+    assert.equal(normalizeCaptionVerticalPositionPercent(-1), 0);
+    assert.equal(normalizeCaptionVerticalPositionPercent(49.6), 50);
+    assert.equal(normalizeCaptionVerticalPositionPercent(101), 100);
 });
 
 test('defines one coherent default caption style', () => {

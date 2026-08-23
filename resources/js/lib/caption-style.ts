@@ -13,18 +13,7 @@ export interface CaptionStyle {
     textShadow: string;
 }
 
-export type CaptionPlacement = 'top' | 'middle' | 'bottom';
-
-export const CAPTION_PLACEMENT_OPTIONS: ReadonlyArray<{
-    label: string;
-    value: CaptionPlacement;
-}> = Object.freeze([
-    { label: 'Top', value: 'top' },
-    { label: 'Middle', value: 'middle' },
-    { label: 'Bottom', value: 'bottom' },
-]);
-
-export const DEFAULT_CAPTION_PLACEMENT: CaptionPlacement = 'bottom';
+export const CAPTION_VERTICAL_POSITION_DEFAULT_PERCENT = 100;
 
 export const CAPTION_FONT_OPTIONS = Object.freeze([
     {
@@ -60,6 +49,13 @@ export const normalizeCaptionBackgroundOpacityPercent = (
     Number.isFinite(opacityPercent)
         ? Math.min(100, Math.max(0, Math.round(opacityPercent)))
         : CAPTION_BACKGROUND_OPACITY_DEFAULT_PERCENT;
+
+export const normalizeCaptionVerticalPositionPercent = (
+    positionPercent: number,
+): number =>
+    Number.isFinite(positionPercent)
+        ? Math.min(100, Math.max(0, Math.round(positionPercent)))
+        : CAPTION_VERTICAL_POSITION_DEFAULT_PERCENT;
 
 const colorWithOpacity = (hexColor: string, opacity: number): string => {
     const match = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(hexColor);
@@ -102,16 +98,16 @@ export const captionStyleToCss = (style: CaptionStyle): CSSProperties => ({
     textShadow: style.textShadow,
 });
 
-export const captionPlacementToCss = (
-    placement: CaptionPlacement,
+export const captionVerticalPositionToCss = (
+    positionPercent: number,
 ): CSSProperties => {
-    if (placement === 'top') {
-        return { alignItems: 'flex-start', paddingTop: '1rem' };
-    }
+    const normalizedPosition =
+        normalizeCaptionVerticalPositionPercent(positionPercent);
 
-    if (placement === 'middle') {
-        return { alignItems: 'center' };
-    }
-
-    return { alignItems: 'flex-end', paddingBottom: '3.5rem' };
+    return {
+        position: 'absolute',
+        left: '50%',
+        top: `calc(1rem + (100% - 4.5rem) * ${normalizedPosition / 100})`,
+        transform: `translate(-50%, -${normalizedPosition}%)`,
+    };
 };

@@ -1,10 +1,9 @@
 # Current
 
-- Manually verify caption placement and the reorganized caption editor on project 5.
+- Manually verify smooth vertical caption positioning and the anchored actions menu on project 5.
 
 # Next
 
-- Add a live vertical-offset control after basic placement is verified.
 - Add outline and shadow controls only after confirming which settings can map cleanly to final rendering.
 
 # Later
@@ -106,6 +105,7 @@
 - Phase 10.6: Added browser-local live caption background-color control.
 - Phase 10.7: Added browser-local live caption background-opacity control.
 - Phase 10.8: Added browser-local top, middle, and bottom caption placement.
+- Phase 10.9: Replaced coarse placement buttons with continuous browser-local vertical positioning.
 - Caption editor UI: Grouped start/end timing and moved split/merge into a compact per-cue actions menu.
 
 # Rejected / Out of Scope

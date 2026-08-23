@@ -3594,3 +3594,37 @@ The application now contains the complete browser-facing personal V1 path from u
 ### Next
 
 Upload a new Georgian MP4 and manually verify the complete personal V1 workflow from Generate captions through downloaded export.
+
+## 2026-08-24 — NeMo child-process environment fix
+
+### Goal
+
+Fix the first browser-driven transcription failure without requiring shell activation.
+
+### Changes
+
+- Diagnosed project 6's failure as NeMo dependency `lhotse` receiving no `PATH` from the Laravel child process.
+- Added a configurable conservative `NEMO_PROCESS_PATH` and passed it explicitly through Laravel Process.
+- Included conventional system and CUDA binary directories in the default.
+- Documented the optional per-machine override.
+- Added regression coverage asserting the exact child-process environment.
+
+### Decisions
+
+- Keep direct absolute Python invocation and supply only the missing safe process environment instead of invoking a login shell or sourcing activation scripts.
+
+### Verification
+
+- Project 6 media inspection and WAV extraction had succeeded before the failure; NeMo stopped during import before model loading.
+- The focused NeMo and orchestration suites pass: 6 tests with 26 assertions.
+- Focused PHPStan reports zero errors and Laravel Pint passes.
+- A direct NeMo ASR import succeeds with the same explicit process `PATH` while the inherited `PATH` is removed.
+- Browser retry of project 6 has not yet been manually verified.
+
+### Result
+
+Laravel can now start NeMo with the environment required by its native dependencies without the user activating the virtual environment.
+
+### Next
+
+Retry Generate captions on project 6 and continue the personal V1 acceptance test.

@@ -10,7 +10,10 @@ use Illuminate\Support\Facades\Storage;
 test('runs configured NeMo Python and finalizes valid timestamp output', function () {
     Storage::fake('local');
     Process::preventStrayProcesses();
-    config(['services.nemo_asr.python' => '/usr/bin/php']);
+    config([
+        'services.nemo_asr.python' => '/usr/bin/php',
+        'services.nemo_asr.process_path' => '/usr/local/bin:/usr/bin:/bin',
+    ]);
     $project = nemoProject();
     $audio = "video-projects/{$project->id}/audio.wav";
     $pending = "video-projects/{$project->id}/transcription.nemo-fastconformer.processing.json";
@@ -25,9 +28,11 @@ test('runs configured NeMo Python and finalizes valid timestamp output', functio
     expect(app(TranscribeVideoProjectAudioWithNemo::class)->handle($project, $audio))->toBe($completed);
     Storage::disk('local')->assertExists($completed);
     Storage::disk('local')->assertMissing($pending);
-    Process::assertRan(fn (PendingProcess $process, ProcessResult $result): bool => $process->timeout === 3_600 && $process->command === [
-        '/usr/bin/php', base_path('transcribe_nemo.py'), Storage::disk('local')->path($audio), Storage::disk('local')->path($pending),
-    ]);
+    Process::assertRan(fn (PendingProcess $process, ProcessResult $result): bool => $process->timeout === 3_600
+        && $process->environment === ['PATH' => '/usr/local/bin:/usr/bin:/bin']
+        && $process->command === [
+            '/usr/bin/php', base_path('transcribe_nemo.py'), Storage::disk('local')->path($audio), Storage::disk('local')->path($pending),
+        ]);
 });
 
 test('fails before processing when configured Python is unavailable', function () {

@@ -37,6 +37,10 @@ return [
 
     'nemo_asr' => [
         'python' => env('NEMO_PYTHON_PATH'),
+        'process_path' => env(
+            'NEMO_PROCESS_PATH',
+            '/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
+        ),
     ],
 
 ];

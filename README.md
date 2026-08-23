@@ -44,6 +44,11 @@ Python executable path in `.env`:
 NEMO_PYTHON_PATH=/home/your-user/.virtualenvs/georgian-captioner-nemo/bin/python
 ```
 
+Laravel also supplies a conservative executable `PATH` to the NeMo child
+process so native dependencies do not depend on an activated shell. Override
+`NEMO_PROCESS_PATH` only when a machine keeps CUDA or other required tools in a
+different location.
+
 Each processing machine needs its own NeMo environment. The model downloads to
 that machine's local cache on its first run. After configuration, upload an MP4
 and use **Generate captions** on its project page. The application inspects the

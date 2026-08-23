@@ -20,6 +20,12 @@ class TranscribeVideoProjectAudioWithNemo
             throw new RuntimeException('The configured NeMo Python executable is unavailable.');
         }
 
+        $processPath = config('services.nemo_asr.process_path');
+
+        if (! is_string($processPath) || $processPath === '') {
+            throw new RuntimeException('The configured NeMo process PATH is unavailable.');
+        }
+
         $scriptPath = base_path('transcribe_nemo.py');
 
         if (! is_file($scriptPath)) {
@@ -39,12 +45,14 @@ class TranscribeVideoProjectAudioWithNemo
         $disk->delete($pendingPath);
 
         try {
-            $result = Process::timeout(3_600)->run([
-                $pythonPath,
-                $scriptPath,
-                $disk->path($audioPath),
-                $disk->path($pendingPath),
-            ]);
+            $result = Process::env(['PATH' => $processPath])
+                ->timeout(3_600)
+                ->run([
+                    $pythonPath,
+                    $scriptPath,
+                    $disk->path($audioPath),
+                    $disk->path($pendingPath),
+                ]);
 
             $result->throw();
 

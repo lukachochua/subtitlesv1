@@ -194,6 +194,7 @@ Direct executable invocation removes shell activation from the user workflow whi
 ### Consequences
 
 - Each machine must install its own compatible NeMo environment and model cache.
+- Laravel supplies an explicit conservative process `PATH`, including the conventional CUDA binary directory, so NeMo dependencies do not rely on an activated shell environment.
 - Safe lifecycle fields record status while raw process details remain server-side.
 - Saved or edited cues are never overwritten automatically.
 - Processing remains synchronous until representative server timing justifies the existing database queue.

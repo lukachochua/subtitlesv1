@@ -1,11 +1,11 @@
 # Current
 
-- Phase 1.1: Propose the minimum domain representation for one uploaded video. Do not change the database before approval.
+- Phase 1.3: Create the minimal `VideoProject` model.
 
 # Next
 
-- After schema approval, create only the video-project migration.
-- Create the corresponding minimal model in a separate step.
+- Verify the model against the approved database representation.
+- After Phase 1 is complete, add a deliberately simple upload interface without storage behavior.
 
 # Later
 
@@ -28,6 +28,8 @@
 - Phase 0.3: Evaluated the starter scaffold and retained dormant infrastructure deliberately.
 - Phase 0.4: Replaced the promotional Laravel screen with the minimal Georgian Captioner shell.
 - Phase 0: Established a documented, deliberately minimal Laravel/Inertia/Vue foundation.
+- Phase 1.1: Approved the minimum `VideoProject` domain and schema representation.
+- Phase 1.2: Added and reversibly verified the `video_projects` migration.
 
 # Rejected / Out of Scope
 

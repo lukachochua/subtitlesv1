@@ -138,3 +138,72 @@ The root page now presents the Georgian Captioner product direction and accurate
 ### Next
 
 Propose the minimum domain model for representing one uploaded video. Do not change the database before approval.
+
+## 2026-08-23 — Step 1.1
+
+### Goal
+
+Propose the minimum domain representation for one uploaded video before changing the database.
+
+### Changes
+
+No files or database structures were changed during the proposal.
+
+### Decisions
+
+- Use `VideoProject` as the domain name because the record will represent the editing workspace, not only the source media asset.
+- Store only the original filename, filesystem disk, generated path, MIME type, byte size, and Laravel timestamps initially.
+- Defer ownership, processing status, duration, transcription, captions, styles, and export fields until their workflows exist.
+
+### Verification
+
+- Compared the proposal with the current SQLite schema and Laravel filesystem model.
+- Confirmed the proposed fields are sufficient to identify and locate one stored upload without storing media in the database.
+
+### Result
+
+The minimum `video_projects` schema was approved.
+
+### Problems / Notes
+
+- Upload validation and storage behavior are not implemented yet.
+
+### Next
+
+Create only the approved `video_projects` migration.
+
+## 2026-08-23 — Step 1.2
+
+### Goal
+
+Create the approved migration for one video project without introducing the model or upload behavior.
+
+### Changes
+
+- Added the `video_projects` table migration.
+- Added required columns for `original_filename`, `disk`, `path`, `mime_type`, and `size_bytes`.
+- Added a unique index to the generated storage path.
+
+### Decisions
+
+- Keep all media columns required and avoid defaults so the future upload flow must persist complete storage metadata explicitly.
+
+### Verification
+
+- Laravel Pint passed for the migration.
+- The migration ran successfully against the configured SQLite database.
+- Schema inspection confirmed all expected non-null columns and the unique path index.
+- A one-step rollback removed the table successfully.
+- The migration ran successfully again, leaving the approved table present.
+
+### Result
+
+The database can now represent the storage identity and basic metadata of a video project. It contains no video-project records yet.
+
+### Problems / Notes
+
+- No model exists yet, so application code does not interact with the table.
+
+### Next
+
+Create the minimal `VideoProject` model in a separate step.

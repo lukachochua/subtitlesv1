@@ -97,3 +97,23 @@ Removing the user infrastructure would require coordinated changes across a comb
 - Personal V1 remains unauthenticated even though dormant authentication foundations exist.
 - Existing database session, cache, and queue configuration stays intact.
 - These files may be reconsidered if they create a concrete maintenance problem or when productization begins.
+
+## Decision: Represent the editing workspace as a VideoProject
+
+### Context
+
+The application needs to persist one uploaded source video before transcription, captions, editing, or rendering exist. A source video will eventually belong to a broader editing workflow.
+
+### Decision
+
+Use a `VideoProject` domain record backed by `video_projects`. Initially store only `original_filename`, `disk`, `path`, `mime_type`, `size_bytes`, and Laravel timestamps. The filesystem address is the combination of disk and generated relative path.
+
+### Reason
+
+The name leaves room for the record to own captions and exports later, while the initial fields capture only metadata required to identify and locate the stored source video.
+
+### Consequences
+
+- Original filenames are display metadata and must never determine storage paths.
+- Video bytes stay in filesystem storage rather than the database.
+- Ownership, status, duration, ASR data, captions, styles, and export fields remain deferred until their corresponding workflows are designed.

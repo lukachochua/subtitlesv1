@@ -395,6 +395,41 @@ Half-open intervals avoid displaying two adjacent cues at the same instant and g
 - Empty timeline regions render no caption.
 - Editing and persistence validation must preserve this interpretation when they are introduced.
 - Final rendering behavior should be compared with this browser rule when export work begins.
+
+## Decision: Keep persisted caption cues ordered and non-overlapping
+
+### Context
+
+Caption timing edits can otherwise create overlapping intervals where browser preview and final rendering must choose between multiple active captions. The application already uses integer milliseconds, ordered cues, and half-open active intervals.
+
+### Decision
+
+Persisted cue timing follows these invariants:
+
+```text
+start_ms >= 0
+end_ms > start_ms
+end_ms <= video duration
+previous end_ms <= current start_ms
+current end_ms <= next start_ms
+```
+
+Video duration must be known before timing can be edited. Cue `order` identifies the previous and next cue. Adjacent cues may touch at one exact millisecond, and gaps between cues are allowed, but cues may not overlap.
+
+Continue interpreting intervals as half-open: `start_ms <= current_ms < end_ms`.
+
+### Reason
+
+A no-overlap policy gives browser preview, editing, splitting, merging, and eventual subtitle rendering one deterministic timeline. Allowing touching boundaries supports immediate transitions, while allowing gaps preserves intentional silent sections.
+
+### Consequences
+
+- Start edits are constrained by the previous cue's end and the current cue's end.
+- End edits are constrained by the current cue's start and the next cue's start.
+- Browser number controls expose the same neighboring limits enforced by the backend.
+- Future split, merge, generation, import, and regeneration operations must preserve these invariants.
+- Existing rows are not rewritten or repaired automatically; malformed imported data will need explicit validation at its mutation boundary.
+
 ## Decision: Persist editable caption cues separately from raw ASR output
 
 ### Context

@@ -53,6 +53,18 @@ class UpdateCaptionCueEndTimeRequest extends FormRequest
                 $validator->errors()->add('end_ms', 'The cue end must be after its start.');
             }
 
+            $nextCue = $videoProject->captionCues()
+                ->reorder('order')
+                ->where('order', '>', $captionCue->order)
+                ->first();
+
+            if ($nextCue !== null && $endMs > $nextCue->start_ms) {
+                $validator->errors()->add(
+                    'end_ms',
+                    'The cue end must not overlap the next cue.',
+                );
+            }
+
             if ($videoProject->duration_ms === null) {
                 $validator->errors()->add(
                     'end_ms',

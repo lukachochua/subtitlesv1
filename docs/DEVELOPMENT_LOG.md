@@ -2355,3 +2355,50 @@ Persisted cues can now have either timing boundary corrected in integer millisec
 ### Next
 
 Manually verify project 5 end-time edits, then establish complete timestamp invariants and cue-overlap policy in Phase 9.5.
+
+## 2026-08-23 — Step 9.5
+
+### Goal
+
+Establish one deterministic timestamp and overlap policy before cue splitting and merging add more timing mutations.
+
+### Changes
+
+- Prevented start-time edits from moving a cue before the previous cue's end.
+- Prevented end-time edits from moving a cue after the next cue's start.
+- Kept exact touching boundaries valid and kept intentional gaps valid.
+- Matched browser input limits to the neighboring cue constraints enforced by the backend.
+- Added focused tests for accepted touching boundaries and rejected overlaps on both sides.
+- Recorded the complete persisted-cue timing policy in `DECISIONS.md`.
+- Did not change existing cue data, cue order, generation, splitting, merging, or rendering.
+
+### Decisions
+
+- Use cue order to identify temporal neighbors.
+- Persist non-overlapping half-open intervals in integer milliseconds.
+- Permit gaps and exact boundary transitions.
+
+### Verification
+
+- Laravel Pint completed successfully.
+- The combined start/end timing suite passes: 25 tests and 117 assertions.
+- The complete Pest suite passes: 139 tests and 429 assertions.
+- The frontend active-cue suite passes: 8 tests.
+- Vue TypeScript checking completed with no errors.
+- ESLint completed with no errors.
+- The Vite production build completed successfully.
+- The existing optional `fontaine` optimization notice remains informational.
+- Browser validation against project 5 has not yet been manually verified.
+
+### Result
+
+Caption timing edits now preserve one ordered, non-overlapping timeline suitable for deterministic preview and future rendering.
+
+### Problems / Notes
+
+- HTML number-input limits improve immediate feedback, but the backend remains authoritative.
+- Existing malformed or externally imported rows are not repaired automatically.
+
+### Next
+
+Manually verify boundary and overlap behavior on project 5, then define the exact behavior for splitting one cue in Phase 9.6.

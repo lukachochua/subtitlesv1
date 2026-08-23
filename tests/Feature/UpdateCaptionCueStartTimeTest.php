@@ -91,6 +91,45 @@ test('requires the start time not to exceed video duration', function () {
     expect($captionCue->fresh()->start_ms)->toBe(480);
 });
 
+test('allows the cue start to touch the previous cue end', function () {
+    [$videoProject, $captionCue] = createCaptionCueForStartTimeUpdate();
+    $captionCue->update(['order' => 2]);
+    $videoProject->captionCues()->create([
+        'order' => 1,
+        'text' => 'წინა ტექსტი',
+        'start_ms' => 100,
+        'end_ms' => 400,
+    ]);
+
+    $this->patch(route('video-projects.caption-cues.start-time.update', [
+        $videoProject,
+        $captionCue,
+    ]), ['start_ms' => 400])->assertRedirectToRoute('video-projects.show', $videoProject);
+
+    expect($captionCue->fresh()->start_ms)->toBe(400);
+});
+
+test('rejects a cue start that overlaps the previous cue', function () {
+    [$videoProject, $captionCue] = createCaptionCueForStartTimeUpdate();
+    $captionCue->update(['order' => 2]);
+    $videoProject->captionCues()->create([
+        'order' => 1,
+        'text' => 'წინა ტექსტი',
+        'start_ms' => 100,
+        'end_ms' => 400,
+    ]);
+
+    $this->from(route('video-projects.show', $videoProject))
+        ->patch(route('video-projects.caption-cues.start-time.update', [
+            $videoProject,
+            $captionCue,
+        ]), ['start_ms' => 399])
+        ->assertRedirect(route('video-projects.show', $videoProject))
+        ->assertSessionHasErrors('start_ms');
+
+    expect($captionCue->fresh()->start_ms)->toBe(480);
+});
+
 test('does not update a cue belonging to another project', function () {
     [$videoProject] = createCaptionCueForStartTimeUpdate(
         path: 'video-projects/start-time-first/source.mp4',

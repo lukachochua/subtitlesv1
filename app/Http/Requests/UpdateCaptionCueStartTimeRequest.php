@@ -56,6 +56,18 @@ class UpdateCaptionCueStartTimeRequest extends FormRequest
                 );
             }
 
+            $previousCue = $videoProject->captionCues()
+                ->reorder('order', 'desc')
+                ->where('order', '<', $captionCue->order)
+                ->first();
+
+            if ($previousCue !== null && $startMs < $previousCue->end_ms) {
+                $validator->errors()->add(
+                    'start_ms',
+                    'The cue start must not overlap the previous cue.',
+                );
+            }
+
             if ($videoProject->duration_ms === null) {
                 $validator->errors()->add(
                     'start_ms',

@@ -1,11 +1,11 @@
 # Current
 
-- Manually verify saved text, cue seeking, and start/end-time editing against project 5 playback.
+- Manually verify project 5 timing validation, including touching boundaries, gaps, and rejected overlaps.
 
 # Next
 
-- Establish and document complete timestamp invariants and overlap policy.
 - Define and implement cue splitting behavior.
+- Define and implement adjacent cue merging behavior.
 
 # Later
 
@@ -92,6 +92,7 @@
 - Phase 9.2: Added accessible cue-number controls that seek native video to each cue's start.
 - Phase 9.3: Added validated start-time persistence and a per-cue millisecond editing control.
 - Phase 9.4: Added validated end-time persistence and a per-cue millisecond editing control.
+- Phase 9.5: Established, documented, and enforced timestamp invariants and a no-overlap cue policy.
 
 # Rejected / Out of Scope
 

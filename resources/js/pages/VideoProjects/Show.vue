@@ -37,6 +37,14 @@ const formattedDuration =
 const formatCueTime = (milliseconds: number): string =>
     `${(milliseconds / 1_000).toFixed(3)} s`;
 
+const getCueStartMinimum = (cueIndex: number): number =>
+    props.cues?.[cueIndex - 1]?.end_ms ?? 0;
+
+const getCueEndMaximum = (cueIndex: number): number | undefined =>
+    props.cues?.[cueIndex + 1]?.start_ms ??
+    props.videoProject.duration_ms ??
+    undefined;
+
 const videoElement = ref<HTMLVideoElement | null>(null);
 const currentTimeSeconds = ref(0);
 const currentTimeMilliseconds = computed(() =>
@@ -231,7 +239,10 @@ const seekToCue = (cue: CaptionCue): void => {
                         <tbody
                             class="divide-y divide-stone-200 dark:divide-stone-800"
                         >
-                            <tr v-for="cue in cues" :key="cue.id ?? cue.order">
+                            <tr
+                                v-for="(cue, cueIndex) in cues"
+                                :key="cue.id ?? cue.order"
+                            >
                                 <td
                                     class="px-6 py-4 font-medium whitespace-nowrap text-stone-500 dark:text-stone-400"
                                 >
@@ -342,7 +353,9 @@ const seekToCue = (cue: CaptionCue): void => {
                                                 name="start_ms"
                                                 type="number"
                                                 :value="cue.start_ms"
-                                                min="0"
+                                                :min="
+                                                    getCueStartMinimum(cueIndex)
+                                                "
                                                 :max="cue.end_ms - 1"
                                                 step="1"
                                                 inputmode="numeric"
@@ -419,8 +432,7 @@ const seekToCue = (cue: CaptionCue): void => {
                                                 :value="cue.end_ms"
                                                 :min="cue.start_ms + 1"
                                                 :max="
-                                                    videoProject.duration_ms ??
-                                                    undefined
+                                                    getCueEndMaximum(cueIndex)
                                                 "
                                                 step="1"
                                                 inputmode="numeric"

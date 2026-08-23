@@ -74,6 +74,43 @@ test('requires the end time not to exceed video duration', function () {
     expect($captionCue->fresh()->end_ms)->toBe(2_160);
 });
 
+test('allows the cue end to touch the next cue start', function () {
+    [$videoProject, $captionCue] = createCaptionCueForEndTimeUpdate();
+    $videoProject->captionCues()->create([
+        'order' => 2,
+        'text' => 'შემდეგი ტექსტი',
+        'start_ms' => 2_500,
+        'end_ms' => 3_000,
+    ]);
+
+    $this->patch(route('video-projects.caption-cues.end-time.update', [
+        $videoProject,
+        $captionCue,
+    ]), ['end_ms' => 2_500])->assertRedirectToRoute('video-projects.show', $videoProject);
+
+    expect($captionCue->fresh()->end_ms)->toBe(2_500);
+});
+
+test('rejects a cue end that overlaps the next cue', function () {
+    [$videoProject, $captionCue] = createCaptionCueForEndTimeUpdate();
+    $videoProject->captionCues()->create([
+        'order' => 2,
+        'text' => 'შემდეგი ტექსტი',
+        'start_ms' => 2_500,
+        'end_ms' => 3_000,
+    ]);
+
+    $this->from(route('video-projects.show', $videoProject))
+        ->patch(route('video-projects.caption-cues.end-time.update', [
+            $videoProject,
+            $captionCue,
+        ]), ['end_ms' => 2_501])
+        ->assertRedirect(route('video-projects.show', $videoProject))
+        ->assertSessionHasErrors('end_ms');
+
+    expect($captionCue->fresh()->end_ms)->toBe(2_160);
+});
+
 test('does not update a cue belonging to another project', function () {
     [$videoProject] = createCaptionCueForEndTimeUpdate(path: 'video-projects/end-time-first/source.mp4');
     [, $otherCaptionCue] = createCaptionCueForEndTimeUpdate(path: 'video-projects/end-time-second/source.mp4');

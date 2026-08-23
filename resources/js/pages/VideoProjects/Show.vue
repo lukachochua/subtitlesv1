@@ -7,6 +7,7 @@ import { home } from '@/routes';
 import { media as videoProjectMedia } from '@/routes/video-projects';
 import { update as updateCaptionCue } from '@/routes/video-projects/caption-cues';
 import { update as updateCaptionCueEndTime } from '@/routes/video-projects/caption-cues/end-time';
+import { store as splitCaptionCue } from '@/routes/video-projects/caption-cues/split';
 import { update as updateCaptionCueStartTime } from '@/routes/video-projects/caption-cues/start-time';
 
 interface VideoProject {
@@ -44,6 +45,11 @@ const getCueEndMaximum = (cueIndex: number): number | undefined =>
     props.cues?.[cueIndex + 1]?.start_ms ??
     props.videoProject.duration_ms ??
     undefined;
+
+const canSplitCueAtPlayhead = (cue: CaptionCue): boolean =>
+    currentTimeMilliseconds.value > cue.start_ms &&
+    currentTimeMilliseconds.value < cue.end_ms &&
+    cue.text.trim().split(/\s+/u).length >= 2;
 
 const videoElement = ref<HTMLVideoElement | null>(null);
 const currentTimeSeconds = ref(0);
@@ -233,6 +239,9 @@ const seekToCue = (cue: CaptionCue): void => {
                                 </th>
                                 <th scope="col" class="px-6 py-3 font-semibold">
                                     End
+                                </th>
+                                <th scope="col" class="px-6 py-3 font-semibold">
+                                    Actions
                                 </th>
                             </tr>
                         </thead>
@@ -472,6 +481,52 @@ const seekToCue = (cue: CaptionCue): void => {
                                     <template v-else>
                                         {{ formatCueTime(cue.end_ms) }}
                                     </template>
+                                </td>
+                                <td class="px-6 py-4 align-top">
+                                    <Form
+                                        v-if="cue.id !== null"
+                                        v-bind="
+                                            splitCaptionCue.form({
+                                                videoProject: videoProject.id,
+                                                captionCue: cue.id,
+                                            })
+                                        "
+                                        :error-bag="`caption-cue-split-${cue.id}`"
+                                        :options="{ preserveScroll: true }"
+                                        class="grid min-w-44 gap-2"
+                                        #default="{ errors, processing }"
+                                    >
+                                        <input
+                                            type="hidden"
+                                            name="split_ms"
+                                            :value="currentTimeMilliseconds"
+                                        />
+                                        <button
+                                            type="submit"
+                                            :disabled="
+                                                processing ||
+                                                !canSplitCueAtPlayhead(cue)
+                                            "
+                                            class="rounded-md border border-stone-300 px-3 py-1.5 text-xs font-semibold whitespace-nowrap text-stone-700 hover:bg-stone-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 disabled:cursor-not-allowed disabled:opacity-40 dark:border-stone-700 dark:text-stone-200 dark:hover:bg-stone-800 dark:focus-visible:ring-red-400"
+                                        >
+                                            {{
+                                                processing
+                                                    ? 'Splitting…'
+                                                    : 'Split at playhead'
+                                            }}
+                                        </button>
+                                        <p
+                                            class="text-xs text-stone-500 dark:text-stone-400"
+                                        >
+                                            {{ currentTimeMilliseconds }} ms
+                                        </p>
+                                        <p
+                                            v-if="errors.split_ms"
+                                            class="max-w-52 text-xs whitespace-normal text-red-700 dark:text-red-400"
+                                        >
+                                            {{ errors.split_ms }}
+                                        </p>
+                                    </Form>
                                 </td>
                             </tr>
                         </tbody>

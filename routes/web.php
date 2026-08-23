@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ShowVideoProjectController;
 use App\Http\Controllers\ShowVideoProjectMediaController;
+use App\Http\Controllers\SplitCaptionCueController;
 use App\Http\Controllers\StoreVideoProjectController;
 use App\Http\Controllers\UpdateCaptionCueEndTimeController;
 use App\Http\Controllers\UpdateCaptionCueStartTimeController;
@@ -25,6 +26,13 @@ Route::patch(
 )
     ->scopeBindings()
     ->name('video-projects.caption-cues.update');
+
+Route::post(
+    '/video-projects/{videoProject}/caption-cues/{captionCue}/split',
+    SplitCaptionCueController::class,
+)
+    ->scopeBindings()
+    ->name('video-projects.caption-cues.split.store');
 
 Route::patch(
     '/video-projects/{videoProject}/caption-cues/{captionCue}/end-time',

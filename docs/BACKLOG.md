@@ -1,11 +1,11 @@
 # Current
 
-- Manually verify project 5 timing validation, including touching boundaries, gaps, and rejected overlaps.
+- Manually verify playhead-based cue splitting against project 5 playback.
 
 # Next
 
-- Define and implement cue splitting behavior.
 - Define and implement adjacent cue merging behavior.
+- Begin incremental caption styling with one coherent default style.
 
 # Later
 
@@ -93,6 +93,7 @@
 - Phase 9.3: Added validated start-time persistence and a per-cue millisecond editing control.
 - Phase 9.4: Added validated end-time persistence and a per-cue millisecond editing control.
 - Phase 9.5: Established, documented, and enforced timestamp invariants and a no-overlap cue policy.
+- Phase 9.6: Added transactional playhead-based cue splitting with deterministic text distribution.
 
 # Rejected / Out of Scope
 

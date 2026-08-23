@@ -2402,3 +2402,55 @@ Caption timing edits now preserve one ordered, non-overlapping timeline suitable
 ### Next
 
 Manually verify boundary and overlap behavior on project 5, then define the exact behavior for splitting one cue in Phase 9.6.
+
+## 2026-08-23 — Step 9.6
+
+### Goal
+
+Split one saved cue at a speech-relevant timestamp without losing text or violating timeline invariants.
+
+### Changes
+
+- Added a project-scoped POST endpoint for splitting a saved cue.
+- Added validation requiring an integer playhead strictly inside the cue and at least two cue words.
+- Added a transactional action that divides text at the central word boundary.
+- Kept the original row as the first cue, created the second row at the next order, and shifted later orders safely from last to first.
+- Preserved the original time range as two touching, non-overlapping intervals.
+- Added a Wayfinder-backed “Split at playhead” control that activates only inside a splittable cue.
+- Added focused tests covering the resulting text, timing, later ordering, malformed and boundary timestamps, one-word cues, and project scoping.
+- Did not add manual text-boundary selection, merge behavior, styling, or export.
+
+### Decisions
+
+- Use browser playhead milliseconds for the timing boundary.
+- Use a central whitespace-delimited word boundary as the initial text split.
+- Give the first half the extra word for odd word counts.
+- Keep the operation atomic because it updates multiple ordered rows.
+
+### Verification
+
+- Wayfinder regenerated typed action, route, and form definitions successfully.
+- Laravel Pint completed successfully.
+- The focused split suite passes: 11 tests and 81 assertions.
+- The complete Pest suite passes: 150 tests and 510 assertions.
+- The frontend active-cue suite passes: 8 tests.
+- Vue TypeScript checking completed with no errors.
+- ESLint completed with no errors.
+- The Vite production build completed successfully.
+- The split route is registered with the expected project-scoped name.
+- The existing optional `fontaine` optimization notice remains informational.
+- Actual browser splitting against project 5 has not yet been manually verified.
+
+### Result
+
+A multi-word saved cue can now become two ordered, editable cues at the current video playhead without creating overlap or losing words.
+
+### Problems / Notes
+
+- The automatic text division is intentionally simple and may need immediate manual correction.
+- Splitting normalizes whitespace between words.
+- The control uses current playback time, so pausing at the intended speech boundary is recommended.
+
+### Next
+
+Manually verify splitting on project 5, then define and implement merging adjacent cues in Phase 9.7.

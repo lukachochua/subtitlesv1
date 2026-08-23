@@ -430,6 +430,30 @@ A no-overlap policy gives browser preview, editing, splitting, merging, and even
 - Future split, merge, generation, import, and regeneration operations must preserve these invariants.
 - Existing rows are not rewritten or repaired automatically; malformed imported data will need explicit validation at its mutation boundary.
 
+## Decision: Split cues at the current playhead and a central word boundary
+
+### Context
+
+A split operation must choose both a timestamp boundary and how to distribute the original caption text. Requiring several manual inputs would make a common correction slow, while duplicating or dropping text would make the result unsafe.
+
+### Decision
+
+Allow a saved cue to be split only when the browser playhead is strictly inside its interval and the cue contains at least two whitespace-delimited words.
+
+Use the playhead's integer millisecond value as the new touching boundary. Keep the original cue as the first half and create a new immediately following cue as the second half. Divide text at the central word boundary, giving the first cue the extra word when the count is odd. Shift all later cue orders upward by one inside the same database transaction.
+
+### Reason
+
+The playhead provides a timing choice grounded in actual speech, while a deterministic word split produces an immediately editable starting point without losing any words. A transaction prevents partial order or interval changes.
+
+### Consequences
+
+- Splitting preserves the original cue's full time range as two non-overlapping half-open intervals.
+- All original words remain in order, although whitespace is normalized to single spaces.
+- The user may correct the two resulting texts with the existing text editor.
+- One-word cues cannot be split until their text contains at least two words.
+- Later cue orders change, while their text and timestamps remain unchanged.
+
 ## Decision: Persist editable caption cues separately from raw ASR output
 
 ### Context

@@ -156,3 +156,22 @@ Resolve the project with route-model binding, verify its stored file exists, and
 - Native video playback and seeking can use a normal URL while the source remains outside the public web root.
 - The current personal-V1 route has no user authorization because the application has no accounts.
 - This local-file response assumes the current local disk; a future remote-storage choice will require a different delivery mechanism.
+## Decision: Store video duration as integer milliseconds
+
+### Context
+
+The first real ffprobe inspection returned the container duration as `7.966667` decimal seconds. Caption timing will require reliable comparisons against overall video duration, while existing and newly uploaded projects may remain uninspected temporarily.
+
+### Decision
+
+Store overall video duration in a nullable unsigned big integer column named `duration_ms`. Convert ffprobe's container-level decimal seconds by multiplying by 1,000 and rounding to the nearest integer; the observed sample therefore becomes `7,967` milliseconds.
+
+### Reason
+
+Integer milliseconds avoid floating-point comparison behavior, retain sufficient precision for caption boundaries, and align naturally with future browser and cue timing. Null explicitly represents “not inspected yet.”
+
+### Consequences
+
+- Existing projects remain valid with `duration_ms = null` until inspected.
+- Downstream duration comparisons can use integer arithmetic.
+- This decision covers overall video duration only; detailed ASR timestamp and cue-boundary rules remain deferred until real ASR output is available.

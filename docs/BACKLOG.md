@@ -1,10 +1,10 @@
 # Current
 
-- Phase 3.4: Decide the minimum duration storage representation using observed ffprobe output.
+- Phase 3.4: Persist an inspected video's rounded ffprobe duration through the application.
 
 # Next
 
-- Persist the inspected video's duration using the approved representation.
+- Confirm the application can distinguish an uninspected video from one with persisted duration.
 
 # Later
 
@@ -40,6 +40,7 @@
 - Phase 2: Verified upload, private storage, metadata persistence, project display, native playback, and seeking with a real MP4.
 - Phase 3.1: Confirmed FFmpeg and ffprobe 6.1.1 are already installed; Phase 3.2 installation is unnecessary.
 - Phase 3.3: Inspected a real uploaded MP4 and confirmed duration plus H.264 video and AAC audio streams.
+- Phase 3.4a: Added nullable integer-millisecond duration storage and model support without altering existing rows.
 
 # Rejected / Out of Scope
 

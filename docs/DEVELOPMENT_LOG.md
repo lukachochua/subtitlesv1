@@ -541,3 +541,42 @@ The inspected upload contains both a usable video stream and a usable audio stre
 ### Next
 
 Decide the minimum internal representation for video duration, then persist it in a separate approved step.
+
+## 2026-08-23 — Step 3.4a
+
+### Goal
+
+Add the approved integer-millisecond duration representation without inventing duration values for existing uninspected projects.
+
+### Changes
+
+- Added a reversible migration with nullable unsigned-big-integer `duration_ms` storage.
+- Added `duration_ms` to the `VideoProject` fillable attributes, property documentation, and integer casts.
+- Extended model tests to cover a persisted `7,967` millisecond duration and an unknown null duration.
+- Applied the migration to the development SQLite database.
+
+### Decisions
+
+- Convert ffprobe container seconds with `round(seconds × 1000)` when application inspection is implemented.
+- Keep the column nullable so `null` unambiguously means media inspection has not populated duration.
+- Do not backfill existing rows from guessed or stale information.
+
+### Verification
+
+- The focused model tests pass with four assertions.
+- Migration preview showed one `duration_ms` integer column addition.
+- The development migration completed successfully in 35.04 ms.
+- Schema inspection confirms `duration_ms` is a nullable integer.
+- All three existing development records remain present with `duration_ms = null`.
+
+### Result
+
+`VideoProject` can now persist an overall duration as integer milliseconds while retaining an explicit unknown state before inspection.
+
+### Problems / Notes
+
+- No application code invokes ffprobe or writes `duration_ms` yet, so Phase 3.4 is not complete.
+
+### Next
+
+Introduce the smallest application operation that inspects one project, converts the container duration to milliseconds, and persists it.

@@ -8,6 +8,7 @@ use App\Http\Controllers\StoreVideoProjectController;
 use App\Http\Controllers\UpdateCaptionCueEndTimeController;
 use App\Http\Controllers\UpdateCaptionCueStartTimeController;
 use App\Http\Controllers\UpdateCaptionCueTextController;
+use App\Http\Controllers\UpdateVideoProjectCaptionStyleController;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'Welcome')->name('home');
@@ -20,6 +21,11 @@ Route::get('/video-projects/{videoProject}/media', ShowVideoProjectMediaControll
 
 Route::post('/video-projects', StoreVideoProjectController::class)
     ->name('video-projects.store');
+
+Route::patch(
+    '/video-projects/{videoProject}/caption-style',
+    UpdateVideoProjectCaptionStyleController::class,
+)->name('video-projects.caption-style.update');
 
 Route::patch(
     '/video-projects/{videoProject}/caption-cues/{captionCue}',

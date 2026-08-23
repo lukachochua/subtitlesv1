@@ -3035,3 +3035,50 @@ Every preview control now starts from the project's resolved backend configurati
 ### Next
 
 Add a strictly validated, project-scoped endpoint that replaces the complete caption-style configuration.
+
+## 2026-08-23 — Caption style write path and Save action
+
+### Goal
+
+Persist the complete live caption style on explicit user request and restore it through the established project read path.
+
+### Changes
+
+- Added a project-scoped PATCH route and invokable caption-style update controller.
+- Added a dedicated Form Request validating every required style field, supported key, numeric range, color format, boolean, and outline half-pixel step.
+- Replaced the complete project style with validated values only; unexpected input is ignored.
+- Added a typed Wayfinder route for the Vue write request.
+- Added an explicit Save style button with processing, success, and validation-error feedback.
+- Kept preview updates immediate without sending requests as controls move.
+- Added reverse browser-font-family-to-product-key mapping for persistence.
+- Added exhaustive endpoint datasets plus focused frontend mapping coverage.
+
+### Decisions
+
+- Save the complete configuration atomically rather than supporting partial per-control writes.
+- Require an explicit save to avoid a request for every slider movement.
+- Keep personal V1 authorization open consistently with the current single-user application; authentication and policies remain Stage B concerns.
+
+### Verification
+
+- Caption-style endpoint tests pass: 20 tests and 94 assertions.
+- Combined caption-style endpoint and project-page tests pass: 27 tests and 148 assertions.
+- The active-cue frontend suite passes: 8 tests.
+- The caption-style frontend suite passes: 14 tests.
+- Laravel Pint completed successfully.
+- Vue TypeScript checking completed with no errors.
+- ESLint completed with no errors.
+- Manual browser save and full-reload persistence have not yet been verified.
+
+### Result
+
+The application now has a complete caption-style persistence loop: load, live preview, explicit validated save, and reload from project storage.
+
+### Problems / Notes
+
+- The UI intentionally shows one general validation message because its controls already constrain normal browser input to accepted values.
+- Presets and final-render mapping are not implemented.
+
+### Next
+
+Manually save a distinctive style on project 5, fully reload the page, and confirm every setting is restored before adding the first small style preset.

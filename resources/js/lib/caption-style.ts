@@ -175,6 +175,18 @@ export const captionStyleConfigurationToBrowserStyle = (
     };
 };
 
+export const captionFontKeyFromFamily = (fontFamily: string): CaptionFont => {
+    const font = CAPTION_FONT_OPTIONS.find(
+        (option) => option.value === fontFamily,
+    );
+
+    if (font === undefined) {
+        throw new Error(`Unsupported caption font family: ${fontFamily}`);
+    }
+
+    return font.key;
+};
+
 export const captionVerticalPositionToCss = (
     positionPercent: number,
 ): CSSProperties => {

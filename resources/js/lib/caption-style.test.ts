@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    captionFontKeyFromFamily,
     captionStyleToCss,
     captionStyleConfigurationToBrowserStyle,
     captionVerticalPositionToCss,
@@ -13,6 +14,12 @@ import {
     normalizeCaptionOutlineWidth,
     normalizeCaptionVerticalPositionPercent,
 } from './caption-style.ts';
+
+test('maps browser font families back to persisted font keys', () => {
+    for (const font of CAPTION_FONT_OPTIONS) {
+        assert.equal(captionFontKeyFromFamily(font.value), font.key);
+    }
+});
 
 test('maps persisted product settings to the browser style', () => {
     assert.deepEqual(

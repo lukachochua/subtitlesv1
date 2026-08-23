@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { Form, Head, Link } from '@inertiajs/vue3';
+import { Form, Head, Link, useForm } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import type { CaptionCue } from '@/lib/caption-cues';
 import { findActiveCaptionCue } from '@/lib/caption-cues';
 import {
+    captionFontKeyFromFamily,
     captionStyleConfigurationToBrowserStyle,
     captionStyleToCss,
     captionVerticalPositionToCss,
@@ -26,6 +27,7 @@ import { update as updateCaptionCueEndTime } from '@/routes/video-projects/capti
 import { store as mergeCaptionCueWithNext } from '@/routes/video-projects/caption-cues/merge-next';
 import { store as splitCaptionCue } from '@/routes/video-projects/caption-cues/split';
 import { update as updateCaptionCueStartTime } from '@/routes/video-projects/caption-cues/start-time';
+import { update as updateCaptionStyle } from '@/routes/video-projects/caption-style';
 
 interface VideoProject {
     id: number;
@@ -125,6 +127,7 @@ const captionPreviewStyle = computed(() => ({
         : 'none',
     textAlign: captionTextAlignment.value,
 }));
+const captionStyleForm = useForm<CaptionStyleConfiguration>(props.captionStyle);
 const activeCue = computed(() =>
     props.cues === null
         ? null
@@ -178,6 +181,32 @@ const updateCaptionOutlineWidth = (event: Event): void => {
         input.valueAsNumber,
     );
     input.value = captionOutlineWidthPx.value.toString();
+};
+
+const currentCaptionStyleConfiguration = (): CaptionStyleConfiguration => ({
+    font: captionFontKeyFromFamily(captionFontFamily.value),
+    font_size_px: captionFontSizePx.value,
+    bold: captionIsBold.value,
+    italic: captionIsItalic.value,
+    text_color: captionTextColor.value,
+    background_color: captionBackgroundColor.value,
+    background_opacity_percent: captionBackgroundOpacityPercent.value,
+    text_alignment: captionTextAlignment.value,
+    vertical_position_percent: captionVerticalPositionPercent.value,
+    outline_color: captionOutlineColor.value,
+    outline_width_px: captionOutlineWidthPx.value,
+    shadow: captionHasShadow.value,
+});
+
+const saveCaptionStyle = (): void => {
+    captionStyleForm
+        .transform(() => currentCaptionStyleConfiguration())
+        .patch(
+            updateCaptionStyle.url({ videoProject: props.videoProject.id }),
+            {
+                preserveScroll: true,
+            },
+        );
 };
 </script>
 
@@ -328,15 +357,36 @@ const updateCaptionOutlineWidth = (event: Event): void => {
                                 reloaded.
                             </p>
                         </div>
-                        <output
-                            for="caption-font-size"
-                            class="font-mono text-sm font-semibold tabular-nums"
-                        >
-                            {{ captionFontSizePx }} px
-                        </output>
+                        <div class="flex items-center gap-3">
+                            <span
+                                v-if="captionStyleForm.recentlySuccessful"
+                                class="text-xs font-medium text-emerald-700 dark:text-emerald-400"
+                            >
+                                Saved
+                            </span>
+                            <button
+                                type="button"
+                                :disabled="captionStyleForm.processing"
+                                class="rounded-lg bg-red-700 px-4 py-2 text-sm font-semibold text-white hover:bg-red-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-60 dark:bg-red-600 dark:hover:bg-red-500 dark:focus-visible:ring-red-400 dark:focus-visible:ring-offset-stone-900"
+                                @click="saveCaptionStyle"
+                            >
+                                {{
+                                    captionStyleForm.processing
+                                        ? 'Saving…'
+                                        : 'Save style'
+                                }}
+                            </button>
+                        </div>
                     </div>
 
                     <div class="mt-4 grid gap-4">
+                        <p
+                            v-if="captionStyleForm.hasErrors"
+                            class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950 dark:text-red-300"
+                        >
+                            Style could not be saved. Review the selected values
+                            and try again.
+                        </p>
                         <div>
                             <label
                                 for="caption-font-family"

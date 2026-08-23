@@ -1,11 +1,11 @@
 # Current
 
-- Add the first cue-text editing control to the table.
+- Verify corrected text updates the table and overlay and survives a page reload.
 
 # Next
 
-- Verify corrected text updates the overlay and survives a page reload.
 - Add click-to-seek behavior from a cue row.
+- Add validated start-time editing.
 
 # Later
 
@@ -88,6 +88,7 @@
 - Phase 9.1d: Added and used a protected command to persist project 5's eight generated cues.
 - Phase 9.1e: Made ordered saved cues the project page's source of truth with transient NeMo fallback.
 - Phase 9.1f: Added a validated, project-scoped endpoint that updates only saved cue text.
+- Phase 9.1g: Added per-cue text forms wired through Wayfinder to saved caption rows.
 
 # Rejected / Out of Scope
 

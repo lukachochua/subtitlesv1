@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { Head, Link } from '@inertiajs/vue3';
+import { Form, Head, Link } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import type { CaptionCue } from '@/lib/caption-cues';
 import { findActiveCaptionCue } from '@/lib/caption-cues';
 import { home } from '@/routes';
 import { media as videoProjectMedia } from '@/routes/video-projects';
+import { update as updateCaptionCue } from '@/routes/video-projects/caption-cues';
 
 interface VideoProject {
     id: number;
@@ -215,14 +216,75 @@ const updateCurrentTime = (event: Event): void => {
                         <tbody
                             class="divide-y divide-stone-200 dark:divide-stone-800"
                         >
-                            <tr v-for="cue in cues" :key="cue.order">
+                            <tr v-for="cue in cues" :key="cue.id ?? cue.order">
                                 <td
                                     class="px-6 py-4 font-medium whitespace-nowrap text-stone-500 dark:text-stone-400"
                                 >
                                     {{ cue.order }}
                                 </td>
-                                <td class="px-6 py-4 leading-6">
-                                    {{ cue.text }}
+                                <td class="min-w-80 px-6 py-4 leading-6">
+                                    <Form
+                                        v-if="cue.id !== null"
+                                        v-bind="
+                                            updateCaptionCue.form({
+                                                videoProject: videoProject.id,
+                                                captionCue: cue.id,
+                                            })
+                                        "
+                                        :error-bag="`caption-cue-${cue.id}`"
+                                        :options="{ preserveScroll: true }"
+                                        set-defaults-on-success
+                                        class="grid gap-2"
+                                        #default="{
+                                            errors,
+                                            processing,
+                                            recentlySuccessful,
+                                        }"
+                                    >
+                                        <label
+                                            :for="`caption-cue-${cue.id}-text`"
+                                            class="sr-only"
+                                        >
+                                            Caption cue {{ cue.order }} text
+                                        </label>
+                                        <textarea
+                                            :id="`caption-cue-${cue.id}-text`"
+                                            name="text"
+                                            :value="cue.text"
+                                            rows="2"
+                                            maxlength="500"
+                                            :disabled="processing"
+                                            class="w-full resize-y rounded-lg border border-stone-300 bg-white px-3 py-2 leading-6 text-stone-950 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 disabled:cursor-wait disabled:opacity-60 dark:border-stone-700 dark:bg-stone-950 dark:text-stone-50 dark:focus-visible:ring-red-400"
+                                        />
+                                        <div class="flex items-center gap-3">
+                                            <button
+                                                type="submit"
+                                                :disabled="processing"
+                                                class="rounded-md bg-red-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-60 dark:bg-red-600 dark:hover:bg-red-500 dark:focus-visible:ring-red-400 dark:focus-visible:ring-offset-stone-900"
+                                            >
+                                                {{
+                                                    processing
+                                                        ? 'Saving…'
+                                                        : 'Save text'
+                                                }}
+                                            </button>
+                                            <span
+                                                v-if="recentlySuccessful"
+                                                class="text-xs font-medium text-emerald-700 dark:text-emerald-400"
+                                            >
+                                                Saved
+                                            </span>
+                                        </div>
+                                        <p
+                                            v-if="errors.text"
+                                            class="text-xs text-red-700 dark:text-red-400"
+                                        >
+                                            {{ errors.text }}
+                                        </p>
+                                    </Form>
+                                    <template v-else>
+                                        {{ cue.text }}
+                                    </template>
                                 </td>
                                 <td
                                     class="px-6 py-4 font-mono whitespace-nowrap"

@@ -55,6 +55,7 @@ test('exposes transient generated cues when a NeMo result exists', function () {
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->where('cues', [[
+                'id' => null,
                 'order' => 1,
                 'text' => 'ერთი ორი, გამარჯობა.',
                 'start_ms' => 160,
@@ -72,7 +73,7 @@ test('prefers saved cues over the NeMo transcription result', function () {
         'size_bytes' => 48_392_017,
         'duration_ms' => 2_886,
     ]);
-    $videoProject->captionCues()->create([
+    $savedCue = $videoProject->captionCues()->create([
         'order' => 1,
         'text' => 'ხელით შესწორებული ტექსტი',
         'start_ms' => 200,
@@ -87,6 +88,7 @@ test('prefers saved cues over the NeMo transcription result', function () {
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->where('cues', [[
+                'id' => $savedCue->id,
                 'order' => 1,
                 'text' => 'ხელით შესწორებული ტექსტი',
                 'start_ms' => 200,

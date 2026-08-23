@@ -31,7 +31,7 @@ class ShowVideoProjectController extends Controller
     }
 
     /**
-     * @return list<array{order: int, text: string, start_ms: int, end_ms: int}>|null
+     * @return list<array{id: int|null, order: int, text: string, start_ms: int, end_ms: int}>|null
      */
     private function captionCues(
         VideoProject $videoProject,
@@ -42,6 +42,7 @@ class ShowVideoProjectController extends Controller
         if ($savedCues->isNotEmpty()) {
             return $savedCues
                 ->map(fn (PersistedCaptionCue $cue): array => [
+                    'id' => $cue->id,
                     'order' => $cue->order,
                     'text' => $cue->text,
                     'start_ms' => $cue->start_ms,
@@ -58,6 +59,7 @@ class ShowVideoProjectController extends Controller
 
         return array_map(
             fn (GeneratedCaptionCue $cue): array => [
+                'id' => null,
                 'order' => $cue->order,
                 'text' => $cue->text,
                 'start_ms' => $cue->startMs,

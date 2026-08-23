@@ -1,4 +1,5 @@
 export interface CaptionCue {
+    id: number | null;
     order: number;
     text: string;
     start_ms: number;

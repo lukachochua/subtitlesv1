@@ -2158,3 +2158,51 @@ The backend can now safely persist one caption text correction without exposing 
 ### Next
 
 Expose saved cue IDs and add the first small cue-text editing control using the generated Wayfinder route.
+
+## 2026-08-23 — Step 9.1g
+
+### Goal
+
+Allow one saved caption cue's text to be corrected from the project-page cue table.
+
+### Changes
+
+- Added nullable cue identity to the shared frontend cue contract.
+- Exposed database IDs for saved cues and explicit `null` IDs for transient fallback cues.
+- Added one Inertia `Form` per saved cue using the generated nested Wayfinder route.
+- Added an accessible textarea, Save state, success feedback, isolated validation errors, and preserved scroll.
+- Kept transient NeMo fallback cues read-only because they do not have durable database identity.
+- Updated frontend selector fixtures and project-page prop tests for cue identity.
+- No optimistic editing, autosave, timing edit, seeking, split, merge, or styling control was added.
+
+### Decisions
+
+- Submit explicit saves rather than autosaving each keystroke in the first correction workflow.
+- Reload saved project props after success so the database remains authoritative for both table and overlay text.
+- Isolate validation errors per cue form to prevent one invalid row from marking every row.
+
+### Verification
+
+- Wayfinder regenerated typed action, route, and form definitions successfully.
+- The combined page and update endpoint suites pass: 12 tests and 71 assertions.
+- The complete Pest suite passes: 114 tests and 312 assertions.
+- The frontend active-cue suite passes: 8 tests.
+- Vue TypeScript checking completed with no errors.
+- ESLint completed with no errors after correcting import order.
+- The Vite production build completed successfully.
+- The existing optional `fontaine` optimization notice remains informational.
+- `git diff --check` completed with no errors.
+- Browser editing, overlay refresh, and reload persistence have not yet been manually verified.
+
+### Result
+
+Every persisted project 5 cue now has a small text correction form whose successful save refreshes the table and video-overlay source from SQLite.
+
+### Problems / Notes
+
+- Changes appear in the overlay after Save, not on every keystroke.
+- The table is horizontally scrollable on narrow screens because timing columns remain alongside the editor.
+
+### Next
+
+Manually correct one project 5 cue, play its interval, reload the page, and verify the corrected text remains in both the table and overlay.

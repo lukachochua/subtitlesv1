@@ -6,12 +6,14 @@ import type { CaptionCue } from './caption-cues.ts';
 
 const cues: CaptionCue[] = [
     {
+        id: null,
         order: 1,
         text: 'ერთი ორი',
         start_ms: 1000,
         end_ms: 2000,
     },
     {
+        id: null,
         order: 2,
         text: 'სამი ოთხი',
         start_ms: 2500,
@@ -49,8 +51,8 @@ test('selects the next cue at its start boundary', () => {
 
 test('transitions directly when one cue starts as the previous cue ends', () => {
     const adjacentCues: CaptionCue[] = [
-        { order: 1, text: 'ერთი', start_ms: 0, end_ms: 1000 },
-        { order: 2, text: 'ორი', start_ms: 1000, end_ms: 2000 },
+        { id: null, order: 1, text: 'ერთი', start_ms: 0, end_ms: 1000 },
+        { id: null, order: 2, text: 'ორი', start_ms: 1000, end_ms: 2000 },
     ];
 
     assert.equal(findActiveCaptionCue(adjacentCues, 1000), adjacentCues[1]);

@@ -1,10 +1,10 @@
 # Current
 
-- Phase 2.6: Serve and play the stored MP4 with the native browser video element.
+- Manually verify native playback and seeking with a real Georgian MP4.
 
 # Next
 
-- Manually verify native playback with a real Georgian MP4.
+- Phase 3.1: Check whether FFmpeg and ffprobe are installed; do not install them automatically.
 
 # Later
 
@@ -36,6 +36,7 @@
 - Phase 2.3: Stored validated MP4 uploads privately using generated paths.
 - Phase 2.4: Persisted uploaded-video metadata and added orphan-file cleanup when persistence fails.
 - Phase 2.5: Redirected successful uploads to a page displaying safe video-project metadata.
+- Phase 2.6: Added controlled, range-capable private MP4 delivery and native browser playback; real-video manual verification remains.
 
 # Rejected / Out of Scope
 

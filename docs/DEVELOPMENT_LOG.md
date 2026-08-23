@@ -430,3 +430,42 @@ After a successful upload, the application redirects to a dedicated project page
 ### Next
 
 Serve the stored MP4 safely and play it with the native browser video element.
+
+## 2026-08-23 — Step 2.6
+
+### Goal
+
+Play a project's private MP4 with the native browser video element while supporting efficient seeking.
+
+### Changes
+
+- Added a named media route with implicit `VideoProject` binding.
+- Added an invokable media controller that verifies the referenced file exists and returns a private `BinaryFileResponse` with the recorded MIME type.
+- Added the native HTML `<video controls>` element to the project page using a Wayfinder-generated media URL and metadata-only preloading.
+- Added feature tests for successful media delivery, HTTP byte-range handling, and missing-file 404 behavior.
+
+### Decisions
+
+- Keep uploaded source videos outside the public web root and deliver them through a project-scoped application route.
+- Use `BinaryFileResponse` so browsers can request byte ranges without PHP loading the entire MP4 into memory.
+- Use the browser's native video controls; do not add a video-player dependency.
+
+### Verification
+
+- The focused media and project-page tests pass with 22 assertions.
+- A range request for bytes 0–3 returns `206 Partial Content` and `Content-Range: bytes 0-3/10`.
+- The complete automated verification results are recorded in the checkpoint for this step.
+- Playback, audio, duration display, and seeking have not yet been manually verified with a real MP4.
+
+### Result
+
+The project page now contains a native player whose source is served from private local storage through a range-capable application route.
+
+### Problems / Notes
+
+- The current personal-V1 application has no accounts, so the media route has no per-user authorization policy yet.
+- Remote object storage would require a different delivery mechanism; this implementation intentionally targets the current local disk.
+
+### Next
+
+Manually verify playback and seeking with a real Georgian MP4, then check whether FFmpeg and ffprobe are installed.

@@ -137,3 +137,22 @@ MP4 is the first supported product format, and 500 MB is a bounded but useful de
 - Other video containers are rejected initially.
 - The browser `accept` attribute remains only a convenience hint.
 - PHP and any future web server or proxy must allow requests at least as large as the application policy before Laravel can validate them.
+## Decision: Serve personal-V1 source video through a range-capable application route
+
+### Context
+
+Uploaded source videos live on the private local disk and must be playable by the native browser video element. Browser seeking requires HTTP byte-range support, while exposing storage paths or creating a public storage symlink would bypass the application's project boundary.
+
+### Decision
+
+Resolve the project with route-model binding, verify its stored file exists, and return the local file through Laravel's `BinaryFileResponse` with its recorded MIME type and private, no-store cache directives. Generate the media URL in Vue through Wayfinder.
+
+### Reason
+
+`BinaryFileResponse` provides byte-range handling without reading the entire MP4 into PHP memory. The application route keeps the private filesystem path out of frontend data and gives us a natural place to add authorization if accounts are introduced later.
+
+### Consequences
+
+- Native video playback and seeking can use a normal URL while the source remains outside the public web root.
+- The current personal-V1 route has no user authorization because the application has no accounts.
+- This local-file response assumes the current local disk; a future remote-storage choice will require a different delivery mechanism.

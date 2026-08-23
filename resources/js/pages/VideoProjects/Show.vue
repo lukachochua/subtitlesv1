@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
 import { home } from '@/routes';
+import { media as videoProjectMedia } from '@/routes/video-projects';
 
 interface VideoProject {
     id: number;
@@ -48,6 +49,15 @@ const formattedSize = new Intl.NumberFormat('en', {
                     Uploaded video
                 </h2>
 
+                <video
+                    controls
+                    preload="metadata"
+                    :src="videoProjectMedia.url(videoProject.id)"
+                    class="mt-6 aspect-video w-full rounded-xl bg-black"
+                >
+                    Your browser does not support HTML video playback.
+                </video>
+
                 <dl class="mt-6 grid gap-5 sm:grid-cols-2">
                     <div class="flex flex-col gap-1">
                         <dt
@@ -67,10 +77,6 @@ const formattedSize = new Intl.NumberFormat('en', {
                         <dd>{{ formattedSize }}</dd>
                     </div>
                 </dl>
-
-                <p class="mt-6 text-sm text-stone-500 dark:text-stone-400">
-                    Video playback is the next development step.
-                </p>
             </section>
 
             <Link

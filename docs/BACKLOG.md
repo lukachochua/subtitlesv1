@@ -1,10 +1,10 @@
 # Current
 
-- Manually compare project 5's application-rendered `captioned.mp4` against the browser preview.
+- Manually trigger Export MP4 and download the result from project 5 in the browser.
 
 # Next
 
-- Document concrete preview-versus-render timing and style differences from project 5.
+- Propose the minimum persistent render-status fields before adding pending, processing, completed, and failed states.
 - Manually compare Clean, Social, News, and Minimal on project 5 and verify selected-state, Custom-state, save, and reload behavior.
 
 # Later
@@ -122,6 +122,9 @@
 - Phase 12.1: Confirmed the installed FFmpeg/libass stack renders shaped Georgian text and documented style mappings and fidelity limits.
 - Phase 12.2: Added tested, dimension-aware ASS generation for real saved cues and complete persisted styles.
 - Phase 12.3: Added safe application rendering and produced a verified captioned project 5 MP4.
+- Phase 12.4: Compared project 5 preview/render mappings and documented the bounded fidelity differences.
+- Phase 12.5: Completed persisted-style-to-ASS mapping through the Phase 12.2 conversion boundary.
+- Phase 12.6: Added a project-page Export action, inline feedback, export availability, and private MP4 download.
 - Caption position UI: Moved the vertical slider directly below the video preview.
 - Caption editor UI: Grouped start/end timing and moved split/merge into a compact per-cue actions menu.
 

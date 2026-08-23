@@ -127,7 +127,7 @@ H.264 MP4 has broad playback compatibility. CRF 18 provides a high-quality V1 ou
 
 - Video rendering may take substantial time and currently runs synchronously from the Artisan command.
 - The current one-hour process timeout is a development guard, not a final job-processing design.
-- A later application-facing render action may require processing status and a queue if real media proves too slow for a request lifecycle.
+- The first application-facing render action runs synchronously and exposes request-local processing feedback. Persistent processing status and a queue remain justified only when the next measured workflow step requires them.
 - Re-rendering replaces the previous completed `captioned.mp4` only after a new usable temporary output exists.
 - The source upload is never modified.
 

@@ -6,6 +6,7 @@ use App\Actions\LoadVideoProjectCaptionData;
 use App\Models\CaptionCue as PersistedCaptionCue;
 use App\Models\VideoProject;
 use App\ValueObjects\CaptionCue as GeneratedCaptionCue;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -28,6 +29,8 @@ class ShowVideoProjectController extends Controller
                 $loadVideoProjectCaptionData,
             ),
             'captionStyle' => $videoProject->resolvedCaptionStyle(),
+            'hasCaptionedVideo' => Storage::disk($videoProject->disk)
+                ->exists("video-projects/{$videoProject->id}/captioned.mp4"),
         ]);
     }
 
@@ -41,7 +44,7 @@ class ShowVideoProjectController extends Controller
         $savedCues = $videoProject->captionCues()->get();
 
         if ($savedCues->isNotEmpty()) {
-            return $savedCues
+            return array_values($savedCues
                 ->map(fn (PersistedCaptionCue $cue): array => [
                     'id' => $cue->id,
                     'order' => $cue->order,
@@ -49,7 +52,7 @@ class ShowVideoProjectController extends Controller
                     'start_ms' => $cue->start_ms,
                     'end_ms' => $cue->end_ms,
                 ])
-                ->all();
+                ->all());
         }
 
         if (! $loadVideoProjectCaptionData->hasTranscriptionResult($videoProject)) {

@@ -27,8 +27,29 @@ test('displays safe uploaded video metadata', function () {
             ])
             ->where('cues', null)
             ->where('captionStyle', VideoProject::DEFAULT_CAPTION_STYLE)
+            ->where('hasCaptionedVideo', false)
             ->missing('videoProject.disk')
             ->missing('videoProject.path'));
+});
+
+test('reports when a completed captioned video is available', function () {
+    Storage::fake('local');
+    $videoProject = VideoProject::create([
+        'original_filename' => 'exported.mp4',
+        'disk' => 'local',
+        'path' => 'video-projects/exported.mp4',
+        'mime_type' => 'video/mp4',
+        'size_bytes' => 2_048,
+    ]);
+    Storage::disk('local')->put(
+        "video-projects/{$videoProject->id}/captioned.mp4",
+        'captioned-video',
+    );
+
+    $this->get(route('video-projects.show', $videoProject))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('hasCaptionedVideo', true));
 });
 
 test('exposes a stored caption style instead of the default', function () {

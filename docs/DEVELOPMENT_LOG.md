@@ -3358,3 +3358,59 @@ The backend can now regenerate current ASS subtitles and safely render a complet
 ### Next
 
 Compare project 5's browser preview and rendered MP4 for timing, line breaks, position, font, and size before exposing rendering through the application UI.
+
+## 2026-08-23 — Phase 12.4–12.6: Compare output and expose browser export
+
+### Goal
+
+Record concrete project 5 preview/render fidelity and make the verified renderer usable from the project page with private download access.
+
+### Changes
+
+- Compared the project 5 persisted style and browser coordinate formulas with the generated ASS and real rendered frame.
+- Added a project-scoped POST controller invoking the existing safe render action.
+- Converted render failures into an inline Inertia form error while still reporting the underlying exception.
+- Added a project-scoped private download controller with a generated filename and no-store caching.
+- Added `hasCaptionedVideo` to the project page without exposing storage paths.
+- Added an Export captioned video panel below playback diagnostics.
+- Added synchronous processing feedback, disabled export for transient unsaved cues, completed feedback, Export again behavior, and Download MP4 access.
+- Used typed Wayfinder controller actions for both render submission and download URL generation.
+- Added route, render-controller, download, and page-prop coverage.
+- Made the saved-cue page prop explicitly return a list while touching its static-analysis boundary.
+
+### Decisions
+
+- Keep browser rendering synchronous for this first application-facing proof because the short real sample completes quickly and no queue problem has yet been demonstrated.
+- Expose completed media only through a project-bound private download route, never through a raw storage path.
+- Require saved cues before export; transient transcription output is not an editable or renderable source of truth.
+- Keep the existing completed export available until another render succeeds.
+
+### Verification
+
+- All 210 Laravel tests pass with 750 assertions.
+- The active-cue frontend suite passes: 8 tests.
+- The caption-style frontend suite passes: 18 tests.
+- Focused PHPStan analysis passes with zero errors for the three touched page/export controllers.
+- Vue TypeScript checking and ESLint complete with no errors.
+- The production frontend build completes successfully.
+- Laravel Pint and diff checks pass.
+- Project 5 cue boundaries differ from browser millisecond timing by at most five milliseconds after deterministic ASS rounding.
+- Project 5's 88% browser position and ASS mapping both resolve to normalized y=516 on its 368×640 frame.
+- The real render carries the saved 19px bold Georgian-aware font, white text, 28% blue background, centered alignment, and shadow.
+- The rendered Georgian text is readable and audio/video duration remains aligned.
+- Browser clicking, processing feedback, and download have not yet been manually verified.
+
+### Result
+
+The personal V1 editor can now render its current saved Georgian captions and style from the browser, then expose the completed private MP4 for download.
+
+### Problems / Notes
+
+- ASS background corners remain square and padding differs slightly from the rounded browser overlay.
+- Browser fallback and explicit Noto rendering can produce small glyph-metric and line-wrap differences.
+- Long videos block the current HTTP request; persistent status or a queue should be introduced only after measuring this behavior with representative media.
+- An older completed download can remain available after edits until the user exports again; the UI explicitly presents Export again.
+
+### Next
+
+Manually exercise Export MP4 and Download MP4 on project 5, then propose the minimum Phase 12.7 persistent render-status representation.

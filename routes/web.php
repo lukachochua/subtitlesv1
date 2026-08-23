@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\DownloadVideoProjectCaptionedVideoController;
 use App\Http\Controllers\MergeCaptionCueWithNextController;
+use App\Http\Controllers\RenderVideoProjectCaptionedVideoController;
 use App\Http\Controllers\ShowVideoProjectController;
 use App\Http\Controllers\ShowVideoProjectMediaController;
 use App\Http\Controllers\SplitCaptionCueController;
@@ -18,6 +20,16 @@ Route::get('/video-projects/{videoProject}', ShowVideoProjectController::class)
 
 Route::get('/video-projects/{videoProject}/media', ShowVideoProjectMediaController::class)
     ->name('video-projects.media');
+
+Route::get(
+    '/video-projects/{videoProject}/export',
+    DownloadVideoProjectCaptionedVideoController::class,
+)->name('video-projects.export.show');
+
+Route::post(
+    '/video-projects/{videoProject}/render',
+    RenderVideoProjectCaptionedVideoController::class,
+)->name('video-projects.render.store');
 
 Route::post('/video-projects', StoreVideoProjectController::class)
     ->name('video-projects.store');

@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { Form, Head, Link, useForm } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
+import DownloadVideoProjectCaptionedVideoController from '@/actions/App/Http/Controllers/DownloadVideoProjectCaptionedVideoController';
+import RenderVideoProjectCaptionedVideoController from '@/actions/App/Http/Controllers/RenderVideoProjectCaptionedVideoController';
 import type { CaptionCue } from '@/lib/caption-cues';
 import { findActiveCaptionCue } from '@/lib/caption-cues';
 import {
@@ -43,6 +45,7 @@ const props = defineProps<{
     videoProject: VideoProject;
     cues: CaptionCue[] | null;
     captionStyle: CaptionStyleConfiguration;
+    hasCaptionedVideo: boolean;
 }>();
 
 const initialCaptionStyle = captionStyleConfigurationToBrowserStyle(
@@ -134,6 +137,9 @@ const activeCue = computed(() =>
     props.cues === null
         ? null
         : findActiveCaptionCue(props.cues, currentTimeMilliseconds.value),
+);
+const hasSavedCaptionCues = computed(
+    () => props.cues?.some((cue) => cue.id !== null) ?? false,
 );
 
 const updateCurrentTime = (event: Event): void => {
@@ -365,6 +371,78 @@ const saveCaptionStyle = (): void => {
                         </output>
                     </div>
                 </div>
+
+                <Form
+                    v-bind="
+                        RenderVideoProjectCaptionedVideoController.form(
+                            videoProject.id,
+                        )
+                    "
+                    :options="{ preserveScroll: true }"
+                    class="mt-4 rounded-lg border border-stone-200 p-4 dark:border-stone-700"
+                    #default="{ errors, processing, recentlySuccessful }"
+                >
+                    <div
+                        class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+                    >
+                        <div>
+                            <h3 class="font-semibold">
+                                Export captioned video
+                            </h3>
+                            <p
+                                class="mt-1 text-xs text-stone-500 dark:text-stone-400"
+                            >
+                                Save caption and style changes first. Exporting
+                                may take a while and replaces the previous
+                                completed export only after success.
+                            </p>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-3">
+                            <a
+                                v-if="hasCaptionedVideo"
+                                :href="
+                                    DownloadVideoProjectCaptionedVideoController.url(
+                                        videoProject.id,
+                                    )
+                                "
+                                class="rounded-lg border border-stone-300 bg-white px-4 py-2 text-sm font-semibold text-stone-800 hover:bg-stone-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 dark:border-stone-700 dark:bg-stone-950 dark:text-stone-100 dark:hover:bg-stone-800 dark:focus-visible:ring-red-400"
+                            >
+                                Download MP4
+                            </a>
+                            <button
+                                type="submit"
+                                :disabled="processing || !hasSavedCaptionCues"
+                                class="rounded-lg bg-red-700 px-4 py-2 text-sm font-semibold text-white hover:bg-red-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-red-600 dark:hover:bg-red-500 dark:focus-visible:ring-red-400 dark:focus-visible:ring-offset-stone-900"
+                            >
+                                {{
+                                    processing
+                                        ? 'Exporting…'
+                                        : hasCaptionedVideo
+                                          ? 'Export again'
+                                          : 'Export MP4'
+                                }}
+                            </button>
+                        </div>
+                    </div>
+                    <p
+                        v-if="!hasSavedCaptionCues"
+                        class="mt-3 text-sm text-amber-700 dark:text-amber-400"
+                    >
+                        Save generated captions before exporting.
+                    </p>
+                    <p
+                        v-if="errors.render"
+                        class="mt-3 text-sm text-red-700 dark:text-red-400"
+                    >
+                        {{ errors.render }}
+                    </p>
+                    <p
+                        v-else-if="recentlySuccessful"
+                        class="mt-3 text-sm text-emerald-700 dark:text-emerald-400"
+                    >
+                        Export completed. The MP4 is ready to download.
+                    </p>
+                </Form>
 
                 <div
                     class="mt-4 rounded-lg border border-stone-200 p-4 dark:border-stone-700"

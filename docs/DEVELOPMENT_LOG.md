@@ -1764,3 +1764,47 @@ Active caption selection now has a tested, framework-independent boundary contra
 ### Next
 
 Connect the selector to the page's local playback state, converting browser seconds to rounded integer milliseconds, without rendering the caption overlay yet.
+
+## 2026-08-23 — Step 8.2b
+
+### Goal
+
+Connect the tested active-cue selector to native video playback state and expose its result without rendering a caption overlay.
+
+### Changes
+
+- Reused the shared `CaptionCue` type on the Vue project page instead of maintaining a duplicate interface.
+- Converted native playback seconds to rounded integer milliseconds in a computed value.
+- Derived the active cue with the tested `findActiveCaptionCue` function.
+- Extended the development readout to show the active cue, `None` during uncovered time, or `Not available` when no transcription exists.
+- No backend behavior, persistence, overlay styling, cue-table highlighting, or dependency changed.
+
+### Decisions
+
+- Keep playback milliseconds and the active cue as derived Vue state rather than independently mutable values.
+- Round browser seconds to the nearest millisecond at the boundary where frontend playback time meets internal cue timestamps.
+- Distinguish an absent transcription from a valid transcription with no cue at the current time in the development readout.
+
+### Verification
+
+- Prettier formatted the changed Vue page successfully.
+- The frontend selector suite passes: 8 tests.
+- Vue TypeScript checking completed with no errors.
+- ESLint completed with no errors.
+- The Vite production build completed successfully.
+- The project-page feature suite passes: 5 tests and 34 assertions.
+- The existing optional `fontaine` optimization notice remains informational.
+- Actual active-cue transitions have not yet been manually verified against browser playback.
+
+### Result
+
+Playing a project video now drives a computed active cue that is visible in the development readout beneath the video.
+
+### Problems / Notes
+
+- Caption text is not yet positioned over the video.
+- The readout remains temporary development UI.
+
+### Next
+
+Manually verify active-cue transitions, then render the active cue directly over the video with one fixed default style.

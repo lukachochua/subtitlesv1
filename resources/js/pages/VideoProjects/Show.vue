@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
+import type { CaptionCue } from '@/lib/caption-cues';
+import { findActiveCaptionCue } from '@/lib/caption-cues';
 import { home } from '@/routes';
 import { media as videoProjectMedia } from '@/routes/video-projects';
 
@@ -10,13 +12,6 @@ interface VideoProject {
     mime_type: string;
     size_bytes: number;
     duration_ms: number | null;
-}
-
-interface CaptionCue {
-    order: number;
-    text: string;
-    start_ms: number;
-    end_ms: number;
 }
 
 const props = defineProps<{
@@ -40,6 +35,14 @@ const formatCueTime = (milliseconds: number): string =>
     `${(milliseconds / 1_000).toFixed(3)} s`;
 
 const currentTimeSeconds = ref(0);
+const currentTimeMilliseconds = computed(() =>
+    Math.round(currentTimeSeconds.value * 1_000),
+);
+const activeCue = computed(() =>
+    props.cues === null
+        ? null
+        : findActiveCaptionCue(props.cues, currentTimeMilliseconds.value),
+);
 
 const updateCurrentTime = (event: Event): void => {
     currentTimeSeconds.value = (
@@ -86,16 +89,35 @@ const updateCurrentTime = (event: Event): void => {
                 </video>
 
                 <div
-                    class="mt-3 flex items-center justify-between gap-4 rounded-lg bg-stone-100 px-3 py-2 text-sm dark:bg-stone-950"
+                    class="mt-3 grid gap-2 rounded-lg bg-stone-100 px-3 py-2 text-sm dark:bg-stone-950"
                 >
-                    <span
-                        class="font-medium text-stone-600 dark:text-stone-300"
-                    >
-                        Playback time
-                    </span>
-                    <output class="font-mono tabular-nums">
-                        {{ currentTimeSeconds.toFixed(3) }} s
-                    </output>
+                    <div class="flex items-center justify-between gap-4">
+                        <span
+                            class="font-medium text-stone-600 dark:text-stone-300"
+                        >
+                            Playback time
+                        </span>
+                        <output class="font-mono tabular-nums">
+                            {{ currentTimeSeconds.toFixed(3) }} s
+                        </output>
+                    </div>
+
+                    <div class="flex items-start justify-between gap-4">
+                        <span
+                            class="shrink-0 font-medium text-stone-600 dark:text-stone-300"
+                        >
+                            Active cue
+                        </span>
+                        <output class="text-right leading-5">
+                            <template v-if="cues === null">
+                                Not available
+                            </template>
+                            <template v-else-if="activeCue">
+                                #{{ activeCue.order }} {{ activeCue.text }}
+                            </template>
+                            <template v-else>None</template>
+                        </output>
+                    </div>
                 </div>
 
                 <dl class="mt-6 grid gap-5 sm:grid-cols-3">

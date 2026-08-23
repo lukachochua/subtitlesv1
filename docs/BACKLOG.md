@@ -1,11 +1,10 @@
 # Current
 
-- Connect the tested active-cue selector to local Vue playback state without rendering an overlay yet.
+- Manually verify active-cue transitions against real project playback.
 
 # Next
 
-- Connect the tested active-cue selector to Vue playback state.
-- Expose the active cue in development UI and verify boundary transitions manually.
+- Render the active cue directly over the video with one fixed default style.
 
 # Later
 
@@ -78,6 +77,7 @@
 - Phase 7: Converted real timestamped Georgian words into inspectable deterministic caption cues.
 - Phase 8.1: Read and displayed native video playback time in local Vue state.
 - Phase 8.2a: Implemented and unit-tested half-open active-cue selection in pure TypeScript.
+- Phase 8.2b: Connected active-cue selection to local Vue playback state and exposed the result in development UI.
 
 # Rejected / Out of Scope
 

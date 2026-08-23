@@ -2635,3 +2635,51 @@ The project page now exposes caption styling directly below the video, beginning
 ### Next
 
 Manually verify the useful size range on project 5, then add Phase 10.3 live text-color control.
+
+## 2026-08-23 — Steps 10.3–10.5 and 10.11a
+
+### Goal
+
+Complete the browser-preview controls that directly affect caption text presentation.
+
+### Changes
+
+- Added live text-color selection with the current hexadecimal value displayed.
+- Added live bold and italic controls.
+- Added Georgian-aware sans, system sans, and serif font-stack choices.
+- Extended the typed style representation and CSS mapping with normal/italic font style.
+- Kept the existing 12–72 pixel font-size controls in the same compact panel.
+- Normalized direct font-size input to whole pixels within the supported range.
+- Added focused coverage for font family, weight, italic style, and text-color mapping.
+- Did not add background, position, outline, shadow, persistence, bundled fonts, or render mapping.
+
+### Decisions
+
+- Treat font family, size, bold, italic, and text color as the complete text-presentation group.
+- Use system font stacks now instead of adding font packages before real Georgian browser and libass QA.
+- Keep every control in immediate local Vue state until the style data shape is validated in practice.
+
+### Verification
+
+- The active-cue frontend suite passes: 8 tests.
+- The caption-style frontend suite passes: 5 tests.
+- The complete Pest suite passes: 153 tests and 531 assertions.
+- Vue TypeScript checking completed with no errors.
+- ESLint completed with no errors.
+- The Vite production build completed successfully.
+- The existing optional `fontaine` optimization notice remains informational.
+- Georgian glyph appearance for every font choice has not yet been manually verified.
+
+### Result
+
+The live browser overlay now supports font family, font size, bold, italic, and text color from one Caption style panel.
+
+### Problems / Notes
+
+- All text style choices reset on reload.
+- The selected stack may resolve to different installed fonts on different machines.
+- Bundled font selection and final-render equivalence remain unproven until Georgian font and ASS/libass QA.
+
+### Next
+
+Manually test every font choice with Georgian Mkhedruli text, then begin container styling with background color and opacity.

@@ -492,6 +492,7 @@ Use one typed `DEFAULT_CAPTION_STYLE` for the initial browser preview:
 font family: Arial, Noto Sans Georgian, sans-serif
 font size: 28 px
 font weight: 700
+font style: normal
 line height: 1.25
 text: white
 background: black at 75% opacity
@@ -508,7 +509,7 @@ Named values create the smallest usable style boundary for live controls without
 ### Consequences
 
 - Browser preview has one inspectable and testable default.
-- Phase 10 controls can change local style state incrementally from this baseline.
+- Phase 10 controls can change font family, size, weight, style, and text color in local state from this baseline.
 - Persistence remains undecided until useful controls exist and their data shape is proven.
 - Final ASS/libass mapping must be validated separately; CSS values are not assumed to render identically.
 

@@ -3,7 +3,14 @@ import { Form, Head, Link } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import type { CaptionCue } from '@/lib/caption-cues';
 import { findActiveCaptionCue } from '@/lib/caption-cues';
-import { captionStyleToCss, DEFAULT_CAPTION_STYLE } from '@/lib/caption-style';
+import {
+    captionStyleToCss,
+    CAPTION_FONT_OPTIONS,
+    CAPTION_FONT_SIZE_MAX_PX,
+    CAPTION_FONT_SIZE_MIN_PX,
+    DEFAULT_CAPTION_STYLE,
+    normalizeCaptionFontSize,
+} from '@/lib/caption-style';
 import { home } from '@/routes';
 import { media as videoProjectMedia } from '@/routes/video-projects';
 import { update as updateCaptionCue } from '@/routes/video-projects/caption-cues';
@@ -72,9 +79,19 @@ const currentTimeMilliseconds = computed(() =>
     Math.round(currentTimeSeconds.value * 1_000),
 );
 const captionFontSizePx = ref(DEFAULT_CAPTION_STYLE.fontSizePx);
+const captionFontFamily = ref(DEFAULT_CAPTION_STYLE.fontFamily);
+const captionTextColor = ref(DEFAULT_CAPTION_STYLE.textColor);
+const captionIsBold = ref(DEFAULT_CAPTION_STYLE.fontWeight >= 700);
+const captionIsItalic = ref(DEFAULT_CAPTION_STYLE.fontStyle === 'italic');
 const captionStyle = computed(() => ({
     ...DEFAULT_CAPTION_STYLE,
+    fontFamily: captionFontFamily.value,
     fontSizePx: captionFontSizePx.value,
+    fontWeight: captionIsBold.value ? 700 : 400,
+    fontStyle: captionIsItalic.value
+        ? ('italic' as const)
+        : ('normal' as const),
+    textColor: captionTextColor.value,
 }));
 const activeCue = computed(() =>
     props.cues === null
@@ -97,6 +114,13 @@ const seekToCue = (cue: CaptionCue): void => {
 
     videoElement.value.currentTime = cueStartSeconds;
     currentTimeSeconds.value = cueStartSeconds;
+};
+
+const updateCaptionFontSize = (event: Event): void => {
+    const input = event.currentTarget as HTMLInputElement;
+
+    captionFontSizePx.value = normalizeCaptionFontSize(input.valueAsNumber);
+    input.value = captionFontSizePx.value.toString();
 };
 </script>
 
@@ -213,33 +237,115 @@ const seekToCue = (cue: CaptionCue): void => {
                         </output>
                     </div>
 
-                    <label
-                        for="caption-font-size"
-                        class="mt-4 block text-sm font-medium text-stone-700 dark:text-stone-200"
-                    >
-                        Font size
-                    </label>
-                    <div
-                        class="mt-2 grid grid-cols-[minmax(0,1fr)_5rem] items-center gap-3"
-                    >
-                        <input
-                            id="caption-font-size"
-                            v-model.number="captionFontSizePx"
-                            type="range"
-                            min="12"
-                            max="72"
-                            step="1"
-                            class="w-full accent-red-700 dark:accent-red-500"
-                        />
-                        <input
-                            v-model.number="captionFontSizePx"
-                            type="number"
-                            min="12"
-                            max="72"
-                            step="1"
-                            aria-label="Caption font size in pixels"
-                            class="w-full rounded-lg border border-stone-300 bg-white px-2 py-1.5 font-mono text-sm text-stone-950 tabular-nums focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 dark:border-stone-700 dark:bg-stone-950 dark:text-stone-50 dark:focus-visible:ring-red-400"
-                        />
+                    <div class="mt-4 grid gap-4">
+                        <div>
+                            <label
+                                for="caption-font-family"
+                                class="block text-sm font-medium text-stone-700 dark:text-stone-200"
+                            >
+                                Font
+                            </label>
+                            <select
+                                id="caption-font-family"
+                                v-model="captionFontFamily"
+                                class="mt-2 w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-950 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 dark:border-stone-700 dark:bg-stone-950 dark:text-stone-50 dark:focus-visible:ring-red-400"
+                            >
+                                <option
+                                    v-for="font in CAPTION_FONT_OPTIONS"
+                                    :key="font.value"
+                                    :value="font.value"
+                                >
+                                    {{ font.label }}
+                                </option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label
+                                for="caption-font-size"
+                                class="block text-sm font-medium text-stone-700 dark:text-stone-200"
+                            >
+                                Font size
+                            </label>
+                            <div
+                                class="mt-2 grid grid-cols-[minmax(0,1fr)_5rem] items-center gap-3"
+                            >
+                                <input
+                                    id="caption-font-size"
+                                    v-model.number="captionFontSizePx"
+                                    type="range"
+                                    :min="CAPTION_FONT_SIZE_MIN_PX"
+                                    :max="CAPTION_FONT_SIZE_MAX_PX"
+                                    step="1"
+                                    class="w-full accent-red-700 dark:accent-red-500"
+                                />
+                                <input
+                                    :value="captionFontSizePx"
+                                    type="number"
+                                    :min="CAPTION_FONT_SIZE_MIN_PX"
+                                    :max="CAPTION_FONT_SIZE_MAX_PX"
+                                    step="1"
+                                    aria-label="Caption font size in pixels"
+                                    class="w-full rounded-lg border border-stone-300 bg-white px-2 py-1.5 font-mono text-sm text-stone-950 tabular-nums focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 dark:border-stone-700 dark:bg-stone-950 dark:text-stone-50 dark:focus-visible:ring-red-400"
+                                    @change="updateCaptionFontSize"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="grid gap-4 sm:grid-cols-2">
+                            <div>
+                                <label
+                                    for="caption-text-color"
+                                    class="block text-sm font-medium text-stone-700 dark:text-stone-200"
+                                >
+                                    Text color
+                                </label>
+                                <div class="mt-2 flex items-center gap-3">
+                                    <input
+                                        id="caption-text-color"
+                                        v-model="captionTextColor"
+                                        type="color"
+                                        class="h-10 w-14 cursor-pointer rounded-lg border border-stone-300 bg-white p-1 dark:border-stone-700 dark:bg-stone-950"
+                                    />
+                                    <output
+                                        for="caption-text-color"
+                                        class="font-mono text-sm uppercase"
+                                    >
+                                        {{ captionTextColor }}
+                                    </output>
+                                </div>
+                            </div>
+
+                            <fieldset>
+                                <legend
+                                    class="text-sm font-medium text-stone-700 dark:text-stone-200"
+                                >
+                                    Emphasis
+                                </legend>
+                                <div class="mt-3 flex flex-wrap gap-4">
+                                    <label
+                                        class="flex cursor-pointer items-center gap-2 text-sm"
+                                    >
+                                        <input
+                                            v-model="captionIsBold"
+                                            type="checkbox"
+                                            class="size-4 accent-red-700 dark:accent-red-500"
+                                        />
+                                        <span class="font-bold">Bold</span>
+                                    </label>
+                                    <label
+                                        class="flex cursor-pointer items-center gap-2 text-sm"
+                                    >
+                                        <input
+                                            v-model="captionIsItalic"
+                                            type="checkbox"
+                                            class="size-4 accent-red-700 dark:accent-red-500"
+                                        />
+                                        <span class="italic">Italic</span>
+                                    </label>
+                                </div>
+                            </fieldset>
+                        </div>
                     </div>
                 </div>
 

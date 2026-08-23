@@ -1,11 +1,11 @@
 # Current
 
-- Manually verify the split tooltip and live font-size control against project 5.
+- Manually verify all browser text-style controls with real Georgian captions on project 5.
 
 # Next
 
-- Add live text-color control after font size.
-- Add live bold control after text color.
+- Add live caption background color control.
+- Add live caption background opacity control.
 
 # Later
 
@@ -99,6 +99,10 @@
 - Phase 9.6b: Explained disabled split controls directly beside each cue.
 - Phase 10.1: Established and tested one typed default browser caption style.
 - Phase 10.2: Added a browser-local live caption font-size control.
+- Phase 10.3: Added browser-local live caption text-color control.
+- Phase 10.4: Added browser-local live bold control.
+- Phase 10.5: Added browser-local live italic control.
+- Phase 10.11a: Added Georgian-aware browser font-stack choices pending real-machine font QA.
 
 # Rejected / Out of Scope
 

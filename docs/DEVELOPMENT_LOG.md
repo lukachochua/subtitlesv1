@@ -1983,3 +1983,46 @@ Laravel can now create, retrieve, order, and associate saved caption cues throug
 ### Next
 
 Add one tested application action that persists generated cues only when the project has no saved cues.
+
+## 2026-08-23 — Step 9.1c
+
+### Goal
+
+Persist one generated cue set atomically while protecting any existing saved captions from replacement.
+
+### Changes
+
+- Added `PersistGeneratedCaptionCues` as a single-purpose application action.
+- Mapped generated `App\ValueObjects\CaptionCue` instances into saved `App\Models\CaptionCue` records.
+- Wrapped the existence check and all inserts in one database transaction with a locked project lookup.
+- Rejected empty generated sets instead of treating them as successful initialization.
+- Refused to run when any saved cue already exists for the project.
+- Added focused tests for successful mapping, empty-input rejection, and preservation of manually corrected text.
+- Did not call the action from HTTP, console, page loading, or project 5.
+
+### Decisions
+
+- Fail explicitly on an existing saved cue set instead of returning it or silently overwriting it.
+- Keep the persistence action separate from ASR loading so each boundary remains independently testable.
+- Require a non-empty generated cue list because the current schema has no separate initialized-empty state.
+
+### Verification
+
+- Laravel Pint completed successfully.
+- The focused persistence suite passes: 3 tests and 7 assertions.
+- The complete Pest suite passes: 102 tests and 263 assertions.
+- `git diff --check` completed with no errors.
+- Project 5 still has no database cue rows because invoking the action is a separate step.
+
+### Result
+
+Application code can now save a generated cue set exactly once without risking silent replacement of later human corrections.
+
+### Problems / Notes
+
+- No application entry point invokes the action yet.
+- The project page still reads transient cues from NeMo JSON.
+
+### Next
+
+Add a small development command that loads and persists generated cues for one explicitly selected video project.

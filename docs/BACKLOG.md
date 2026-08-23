@@ -1,6 +1,6 @@
 # Current
 
-- Persist generated cues only when a project has no saved cues.
+- Add a development command that loads and persists generated cues for one project.
 
 # Next
 
@@ -84,6 +84,7 @@
 - Phase 8.3b: Removed the forced 16:9 preview and preserved each source video's intrinsic aspect ratio.
 - Phase 9.1a: Approved persisted cues as the editable source of truth and added the reversible `caption_cues` migration.
 - Phase 9.1b: Added the tested `CaptionCue` Eloquent model and ordered project relationships.
+- Phase 9.1c: Added a transactional generated-cue persistence action that refuses to overwrite saved cues.
 
 # Rejected / Out of Scope
 

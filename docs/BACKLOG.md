@@ -1,10 +1,10 @@
 # Current
 
-- Manually verify native playback and seeking with a real Georgian MP4.
+- Phase 3.4: Decide the minimum duration storage representation using observed ffprobe output.
 
 # Next
 
-- Phase 3.1: Check whether FFmpeg and ffprobe are installed; do not install them automatically.
+- Persist the inspected video's duration using the approved representation.
 
 # Later
 
@@ -36,7 +36,10 @@
 - Phase 2.3: Stored validated MP4 uploads privately using generated paths.
 - Phase 2.4: Persisted uploaded-video metadata and added orphan-file cleanup when persistence fails.
 - Phase 2.5: Redirected successful uploads to a page displaying safe video-project metadata.
-- Phase 2.6: Added controlled, range-capable private MP4 delivery and native browser playback; real-video manual verification remains.
+- Phase 2.6: Added controlled, range-capable private MP4 delivery and native browser playback.
+- Phase 2: Verified upload, private storage, metadata persistence, project display, native playback, and seeking with a real MP4.
+- Phase 3.1: Confirmed FFmpeg and ffprobe 6.1.1 are already installed; Phase 3.2 installation is unnecessary.
+- Phase 3.3: Inspected a real uploaded MP4 and confirmed duration plus H.264 video and AAC audio streams.
 
 # Rejected / Out of Scope
 

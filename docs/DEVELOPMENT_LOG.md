@@ -469,3 +469,75 @@ The project page now contains a native player whose source is served from privat
 ### Next
 
 Manually verify playback and seeking with a real Georgian MP4, then check whether FFmpeg and ffprobe are installed.
+
+## 2026-08-23 — Step 3.1
+
+### Goal
+
+Determine whether FFmpeg and ffprobe are available before introducing any media-inspection code or installation work.
+
+### Changes
+
+- Confirmed `ffmpeg` and `ffprobe` are available at `/usr/bin/ffmpeg` and `/usr/bin/ffprobe`.
+- Recorded the installed Ubuntu package build and relevant capabilities in the project baseline.
+- Marked Phase 3.2 installation as unnecessary.
+
+### Decisions
+
+- Use the already installed system binaries for the next media-inspection experiment.
+- Do not install an FFmpeg wrapper or change system configuration before a concrete application boundary is proposed.
+
+### Verification
+
+- `ffmpeg -version` reports `6.1.1-3ubuntu5` and exits successfully.
+- `ffprobe -version` reports `6.1.1-3ubuntu5` and exits successfully.
+- The installed build includes libass, x264, x265, Opus, and common media libraries; these capabilities were observed only and are not yet used by the application.
+
+### Result
+
+The machine is ready for a small ffprobe experiment without dependency installation or environment changes.
+
+### Problems / Notes
+
+- Availability is currently a development-machine fact, not an application startup requirement or deployment guarantee.
+
+### Next
+
+Inspect one uploaded MP4 with ffprobe and extract only duration plus video/audio stream presence.
+
+## 2026-08-23 — Step 3.3
+
+### Goal
+
+Inspect one real uploaded MP4 with ffprobe and establish whether it contains usable video and audio streams.
+
+### Changes
+
+- Selected the latest existing `VideoProject` record without modifying it.
+- Resolved and verified its generated path under the private local disk.
+- Ran ffprobe with a deliberately narrow JSON output containing format duration and stream index, type, codec, and duration.
+
+### Decisions
+
+- Use the container-level format duration as the candidate overall video duration rather than assuming an individual stream duration represents the complete file.
+- Do not decide or persist an internal duration unit until this observed decimal-seconds output is reviewed as part of Phase 3.4.
+
+### Verification
+
+- Project 3 (`test.mp4`) resolves to an existing private file of 1,374,550 bytes.
+- ffprobe exits successfully and reports an overall duration of `7.966667` seconds.
+- Stream 0 is H.264 video with a reported duration of `7.966667` seconds.
+- Stream 1 is AAC audio with a reported duration of `7.802993` seconds.
+
+### Result
+
+The inspected upload contains both a usable video stream and a usable audio stream. Its container duration is available as decimal seconds suitable for explicit conversion in the next step.
+
+### Problems / Notes
+
+- The audio stream is shorter than the overall container/video duration by approximately 0.164 seconds; this is normal evidence that stream duration should not be substituted blindly for container duration.
+- No application code currently executes ffprobe, and no media metadata was persisted.
+
+### Next
+
+Decide the minimum internal representation for video duration, then persist it in a separate approved step.

@@ -27,6 +27,7 @@ class ShowVideoProjectController extends Controller
                 $videoProject,
                 $loadVideoProjectCaptionData,
             ),
+            'captionStyle' => $videoProject->resolvedCaptionStyle(),
         ]);
     }
 

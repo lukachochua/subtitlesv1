@@ -2990,3 +2990,48 @@ Laravel now reads saved caption-style JSON as an array and provides a complete d
 ### Next
 
 Pass the resolved caption style to the Vue project page and initialize every local preview control from that prop.
+
+## 2026-08-23 — Caption style read path
+
+### Goal
+
+Initialize the browser preview from Laravel's resolved project style instead of independent hardcoded frontend control defaults.
+
+### Changes
+
+- Added the resolved `captionStyle` prop to the video-project Inertia response.
+- Defined the normalized persisted-style TypeScript shape, including constrained font and alignment keys.
+- Added one pure mapping from product settings to browser style values and font stacks.
+- Initialized font, size, emphasis, colors, opacity, alignment, position, outline, and shadow controls from the server prop.
+- Added endpoint coverage for both default and stored style props.
+- Added frontend coverage for the complete product-settings-to-browser-style mapping.
+- Did not add validation, a write endpoint, or a Save style button.
+
+### Decisions
+
+- Keep persisted product settings separate from browser CSS strings.
+- Resolve the font key to an existing Georgian-aware browser stack at the frontend mapping boundary.
+- Treat numeric zero as `0` across the JSON boundary rather than preserving a PHP-only `0.0` distinction.
+
+### Verification
+
+- Focused model and project-page tests pass: 11 tests and 62 assertions.
+- The active-cue frontend suite passes: 8 tests.
+- The caption-style frontend suite passes: 13 tests.
+- Laravel Pint completed successfully.
+- Vue TypeScript checking completed with no errors.
+- ESLint completed with no errors.
+- A real stored non-default style has not yet been manually loaded because no write UI exists.
+
+### Result
+
+Every preview control now starts from the project's resolved backend configuration, so the read side of style persistence is complete.
+
+### Problems / Notes
+
+- Existing projects still resolve to defaults because no style write path exists yet.
+- Browser controls can change local state but cannot save it.
+
+### Next
+
+Add a strictly validated, project-scoped endpoint that replaces the complete caption-style configuration.

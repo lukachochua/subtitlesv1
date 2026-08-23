@@ -1,11 +1,11 @@
 # Current
 
-- Pass the resolved project caption style to the Vue project page.
+- Add a validated project-scoped caption-style update endpoint.
 
 # Next
 
-- Add a validated project-scoped style update endpoint after the model boundary is established.
 - Add one explicit Save style action after the read path and update endpoint exist.
+- Verify a saved style survives reload after the write path is complete.
 
 # Later
 
@@ -112,6 +112,7 @@
 - Caption style persistence: Approved one nullable project-level JSON configuration.
 - Caption style persistence migration: Added the nullable `video_projects.caption_style` JSON column.
 - Caption style model boundary: Added array casting and complete null-to-default resolution.
+- Caption style read path: Passed resolved settings to Vue and initialized every preview control from them.
 - Caption position UI: Moved the vertical slider directly below the video preview.
 - Caption editor UI: Grouped start/end timing and moved split/merge into a compact per-cue actions menu.
 

@@ -26,8 +26,32 @@ test('displays safe uploaded video metadata', function () {
                 'duration_ms' => 7_967,
             ])
             ->where('cues', null)
+            ->where('captionStyle', VideoProject::DEFAULT_CAPTION_STYLE)
             ->missing('videoProject.disk')
             ->missing('videoProject.path'));
+});
+
+test('exposes a stored caption style instead of the default', function () {
+    $captionStyle = [
+        ...VideoProject::DEFAULT_CAPTION_STYLE,
+        'font' => 'georgian_serif',
+        'font_size_px' => 42,
+        'vertical_position_percent' => 35,
+        'shadow' => false,
+    ];
+    $videoProject = VideoProject::create([
+        'original_filename' => 'styled.mp4',
+        'disk' => 'local',
+        'path' => 'video-projects/styled.mp4',
+        'mime_type' => 'video/mp4',
+        'size_bytes' => 2_048,
+        'caption_style' => $captionStyle,
+    ]);
+
+    $this->get(route('video-projects.show', $videoProject))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('captionStyle', $captionStyle));
 });
 
 test('exposes transient generated cues when a NeMo result exists', function () {

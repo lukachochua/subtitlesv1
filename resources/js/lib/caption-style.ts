@@ -1,6 +1,22 @@
 import type { CSSProperties } from 'vue';
 
 export type CaptionTextAlignment = 'left' | 'center' | 'right';
+export type CaptionFont = 'georgian_sans' | 'system_sans' | 'georgian_serif';
+
+export interface CaptionStyleConfiguration {
+    font: CaptionFont;
+    font_size_px: number;
+    bold: boolean;
+    italic: boolean;
+    text_color: string;
+    background_color: string;
+    background_opacity_percent: number;
+    text_alignment: CaptionTextAlignment;
+    vertical_position_percent: number;
+    outline_color: string;
+    outline_width_px: number;
+    shadow: boolean;
+}
 
 export interface CaptionStyle {
     fontFamily: string;
@@ -28,16 +44,23 @@ export const CAPTION_TEXT_ALIGNMENT_OPTIONS: ReadonlyArray<{
     { label: 'Right', value: 'right' },
 ]);
 
-export const CAPTION_FONT_OPTIONS = Object.freeze([
+export const CAPTION_FONT_OPTIONS: ReadonlyArray<{
+    key: CaptionFont;
+    label: string;
+    value: string;
+}> = Object.freeze([
     {
+        key: 'georgian_sans',
         label: 'Georgian sans',
         value: 'Arial, "Noto Sans Georgian", sans-serif',
     },
     {
+        key: 'system_sans',
         label: 'System sans',
         value: 'system-ui, "Noto Sans Georgian", sans-serif',
     },
     {
+        key: 'georgian_serif',
         label: 'Georgian serif',
         value: '"Noto Serif Georgian", Georgia, serif',
     },
@@ -122,6 +145,35 @@ export const captionStyleToCss = (style: CaptionStyle): CSSProperties => ({
     textAlign: style.textAlign,
     textShadow: style.textShadow,
 });
+
+export const captionStyleConfigurationToBrowserStyle = (
+    configuration: CaptionStyleConfiguration,
+): CaptionStyle => {
+    const font = CAPTION_FONT_OPTIONS.find(
+        (option) => option.key === configuration.font,
+    );
+
+    if (font === undefined) {
+        throw new Error(`Unsupported caption font: ${configuration.font}`);
+    }
+
+    return {
+        ...DEFAULT_CAPTION_STYLE,
+        fontFamily: font.value,
+        fontSizePx: configuration.font_size_px,
+        fontWeight: configuration.bold ? 700 : 400,
+        fontStyle: configuration.italic ? 'italic' : 'normal',
+        textColor: configuration.text_color,
+        backgroundColor: configuration.background_color,
+        backgroundOpacity: configuration.background_opacity_percent / 100,
+        outlineColor: configuration.outline_color,
+        outlineWidthPx: configuration.outline_width_px,
+        textAlign: configuration.text_alignment,
+        textShadow: configuration.shadow
+            ? DEFAULT_CAPTION_STYLE.textShadow
+            : 'none',
+    };
+};
 
 export const captionVerticalPositionToCss = (
     positionPercent: number,

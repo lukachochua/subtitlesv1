@@ -3,6 +3,7 @@ import test from 'node:test';
 
 import {
     captionStyleToCss,
+    captionStyleConfigurationToBrowserStyle,
     captionVerticalPositionToCss,
     CAPTION_FONT_OPTIONS,
     CAPTION_TEXT_ALIGNMENT_OPTIONS,
@@ -12,6 +13,39 @@ import {
     normalizeCaptionOutlineWidth,
     normalizeCaptionVerticalPositionPercent,
 } from './caption-style.ts';
+
+test('maps persisted product settings to the browser style', () => {
+    assert.deepEqual(
+        captionStyleConfigurationToBrowserStyle({
+            font: 'georgian_serif',
+            font_size_px: 42,
+            bold: false,
+            italic: true,
+            text_color: '#facc15',
+            background_color: '#1d4ed8',
+            background_opacity_percent: 60,
+            text_alignment: 'left',
+            vertical_position_percent: 35,
+            outline_color: '#ef4444',
+            outline_width_px: 1.5,
+            shadow: false,
+        }),
+        {
+            ...DEFAULT_CAPTION_STYLE,
+            fontFamily: '"Noto Serif Georgian", Georgia, serif',
+            fontSizePx: 42,
+            fontWeight: 400,
+            fontStyle: 'italic',
+            textColor: '#facc15',
+            backgroundColor: '#1d4ed8',
+            backgroundOpacity: 0.6,
+            outlineColor: '#ef4444',
+            outlineWidthPx: 1.5,
+            textAlign: 'left',
+            textShadow: 'none',
+        },
+    );
+});
 
 test('maps vertical caption percentages to overlay CSS', () => {
     assert.deepEqual(captionVerticalPositionToCss(0), {

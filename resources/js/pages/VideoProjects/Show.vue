@@ -4,9 +4,9 @@ import { computed, ref } from 'vue';
 import type { CaptionCue } from '@/lib/caption-cues';
 import { findActiveCaptionCue } from '@/lib/caption-cues';
 import {
+    captionStyleConfigurationToBrowserStyle,
     captionStyleToCss,
     captionVerticalPositionToCss,
-    CAPTION_VERTICAL_POSITION_DEFAULT_PERCENT,
     CAPTION_FONT_OPTIONS,
     CAPTION_FONT_SIZE_MAX_PX,
     CAPTION_FONT_SIZE_MIN_PX,
@@ -18,6 +18,7 @@ import {
     normalizeCaptionOutlineWidth,
     normalizeCaptionVerticalPositionPercent,
 } from '@/lib/caption-style';
+import type { CaptionStyleConfiguration } from '@/lib/caption-style';
 import { home } from '@/routes';
 import { media as videoProjectMedia } from '@/routes/video-projects';
 import { update as updateCaptionCue } from '@/routes/video-projects/caption-cues';
@@ -37,7 +38,12 @@ interface VideoProject {
 const props = defineProps<{
     videoProject: VideoProject;
     cues: CaptionCue[] | null;
+    captionStyle: CaptionStyleConfiguration;
 }>();
+
+const initialCaptionStyle = captionStyleConfigurationToBrowserStyle(
+    props.captionStyle,
+);
 
 const formattedSize = new Intl.NumberFormat('en', {
     style: 'unit',
@@ -85,23 +91,23 @@ const currentTimeSeconds = ref(0);
 const currentTimeMilliseconds = computed(() =>
     Math.round(currentTimeSeconds.value * 1_000),
 );
-const captionFontSizePx = ref(DEFAULT_CAPTION_STYLE.fontSizePx);
-const captionFontFamily = ref(DEFAULT_CAPTION_STYLE.fontFamily);
-const captionTextColor = ref(DEFAULT_CAPTION_STYLE.textColor);
-const captionBackgroundColor = ref(DEFAULT_CAPTION_STYLE.backgroundColor);
+const captionFontSizePx = ref(initialCaptionStyle.fontSizePx);
+const captionFontFamily = ref(initialCaptionStyle.fontFamily);
+const captionTextColor = ref(initialCaptionStyle.textColor);
+const captionBackgroundColor = ref(initialCaptionStyle.backgroundColor);
 const captionBackgroundOpacityPercent = ref(
-    Math.round(DEFAULT_CAPTION_STYLE.backgroundOpacity * 100),
+    Math.round(initialCaptionStyle.backgroundOpacity * 100),
 );
-const captionOutlineColor = ref(DEFAULT_CAPTION_STYLE.outlineColor);
-const captionOutlineWidthPx = ref(DEFAULT_CAPTION_STYLE.outlineWidthPx);
-const captionHasShadow = ref(DEFAULT_CAPTION_STYLE.textShadow !== 'none');
-const captionTextAlignment = ref(DEFAULT_CAPTION_STYLE.textAlign);
+const captionOutlineColor = ref(initialCaptionStyle.outlineColor);
+const captionOutlineWidthPx = ref(initialCaptionStyle.outlineWidthPx);
+const captionHasShadow = ref(props.captionStyle.shadow);
+const captionTextAlignment = ref(initialCaptionStyle.textAlign);
 const captionVerticalPositionPercent = ref(
-    CAPTION_VERTICAL_POSITION_DEFAULT_PERCENT,
+    props.captionStyle.vertical_position_percent,
 );
-const captionIsBold = ref(DEFAULT_CAPTION_STYLE.fontWeight >= 700);
-const captionIsItalic = ref(DEFAULT_CAPTION_STYLE.fontStyle === 'italic');
-const captionStyle = computed(() => ({
+const captionIsBold = ref(props.captionStyle.bold);
+const captionIsItalic = ref(props.captionStyle.italic);
+const captionPreviewStyle = computed(() => ({
     ...DEFAULT_CAPTION_STYLE,
     fontFamily: captionFontFamily.value,
     fontSizePx: captionFontSizePx.value,
@@ -223,7 +229,7 @@ const updateCaptionOutlineWidth = (event: Event): void => {
                         <p
                             class="w-max max-w-[90%] rounded-md px-3 py-1.5 wrap-break-word whitespace-pre-wrap"
                             :style="[
-                                captionStyleToCss(captionStyle),
+                                captionStyleToCss(captionPreviewStyle),
                                 captionVerticalPositionToCss(
                                     captionVerticalPositionPercent,
                                 ),

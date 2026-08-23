@@ -539,6 +539,7 @@ Personal V1 has one shared caption style per project. A separate one-to-one tabl
 - The `VideoProject` model owns the canonical normalized default and exposes `resolvedCaptionStyle()` without replacing the stored null value.
 - Style updates must validate the complete supported shape because SQLite does not enforce individual JSON fields.
 - Vue preview CSS and future ASS/libass values must be derived from normalized product settings.
+- The Inertia page receives normalized product settings and performs one explicit mapping from font keys, booleans, percentages, and sizes to browser CSS-facing state.
 - Per-cue styling, reusable presets, and style versioning remain postponed until evidence requires them.
 
 ## Decision: Persist editable caption cues separately from raw ASR output

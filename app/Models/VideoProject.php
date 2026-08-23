@@ -34,7 +34,7 @@ class VideoProject extends Model
      *     text_alignment: string,
      *     vertical_position_percent: int,
      *     outline_color: string,
-     *     outline_width_px: float,
+     *     outline_width_px: int|float,
      *     shadow: bool
      * }
      */
@@ -49,7 +49,7 @@ class VideoProject extends Model
         'text_alignment' => 'center',
         'vertical_position_percent' => 100,
         'outline_color' => '#000000',
-        'outline_width_px' => 0.0,
+        'outline_width_px' => 0,
         'shadow' => true,
     ];
 

@@ -1,10 +1,11 @@
 # Current
 
-- Manually verify active-cue transitions against real project playback.
+- Manually verify the caption overlay and cue transitions against real project playback.
 
 # Next
 
-- Render the active cue directly over the video with one fixed default style.
+- Complete Phase 8.4 by recording real browser verification of overlay timing and empty sections.
+- Propose the minimum persistence needed for Phase 9.1 cue text editing.
 
 # Later
 
@@ -78,6 +79,7 @@
 - Phase 8.1: Read and displayed native video playback time in local Vue state.
 - Phase 8.2a: Implemented and unit-tested half-open active-cue selection in pure TypeScript.
 - Phase 8.2b: Connected active-cue selection to local Vue playback state and exposed the result in development UI.
+- Phase 8.3: Rendered the active cue directly over native video playback with one fixed browser-preview style.
 
 # Rejected / Out of Scope
 

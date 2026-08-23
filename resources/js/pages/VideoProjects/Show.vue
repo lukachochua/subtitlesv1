@@ -78,15 +78,28 @@ const updateCurrentTime = (event: Event): void => {
                     Uploaded video
                 </h2>
 
-                <video
-                    controls
-                    preload="metadata"
-                    :src="videoProjectMedia.url(videoProject.id)"
-                    class="mt-6 aspect-video w-full rounded-xl bg-black"
-                    @timeupdate="updateCurrentTime"
-                >
-                    Your browser does not support HTML video playback.
-                </video>
+                <div class="relative mt-6 overflow-hidden rounded-xl bg-black">
+                    <video
+                        controls
+                        preload="metadata"
+                        :src="videoProjectMedia.url(videoProject.id)"
+                        class="block aspect-video w-full bg-black"
+                        @timeupdate="updateCurrentTime"
+                    >
+                        Your browser does not support HTML video playback.
+                    </video>
+
+                    <div
+                        v-if="activeCue"
+                        class="pointer-events-none absolute inset-x-4 bottom-14 flex justify-center"
+                    >
+                        <p
+                            class="max-w-[90%] rounded-md bg-black/75 px-3 py-1.5 text-center text-base leading-snug font-semibold wrap-break-word whitespace-pre-wrap text-white [text-shadow:0_1px_2px_rgb(0_0_0_/_0.9)] sm:text-xl"
+                        >
+                            {{ activeCue.text }}
+                        </p>
+                    </div>
+                </div>
 
                 <div
                     class="mt-3 grid gap-2 rounded-lg bg-stone-100 px-3 py-2 text-sm dark:bg-stone-950"

@@ -1808,3 +1808,47 @@ Playing a project video now drives a computed active cue that is visible in the 
 ### Next
 
 Manually verify active-cue transitions, then render the active cue directly over the video with one fixed default style.
+
+## 2026-08-23 — Step 8.3
+
+### Goal
+
+Render the selected caption cue directly over native video playback using one fixed browser-preview style.
+
+### Changes
+
+- Wrapped the native video in a positioned, clipped container.
+- Rendered the active cue as an HTML layer near the bottom of the video frame.
+- Added one fixed readable treatment: centered white text, a translucent black background, modest text shadow, and responsive font sizing.
+- Made the overlay ignore pointer events so it does not interfere with native video controls.
+- No style controls, persistence, cue editing, custom player, rendering pipeline, or dependency was added.
+
+### Decisions
+
+- Keep live preview as native HTML video plus an HTML/CSS overlay.
+- Place the initial caption above the native control area rather than attempting browser-specific control detection.
+- Keep the fixed preview style intentionally simple until cue timing is manually validated.
+
+### Verification
+
+- Prettier formatted the changed Vue page successfully.
+- The frontend active-cue selector suite passes: 8 tests.
+- Vue TypeScript checking completed with no errors.
+- ESLint completed with no errors.
+- The Vite production build completed successfully.
+- The project-page feature suite passes: 5 tests and 34 assertions.
+- The existing optional `fontaine` optimization notice remains informational.
+- Actual overlay appearance, Georgian text rendering, and cue transitions have not yet been manually verified in a browser.
+
+### Result
+
+The currently active Georgian caption cue is now rendered directly over the playing video in the browser.
+
+### Problems / Notes
+
+- Native controls vary between browsers, so the fixed bottom offset must be checked manually.
+- The style is a temporary coherent default and is not yet configurable or mapped to final video rendering.
+
+### Next
+
+Complete Phase 8.4 by manually verifying cue starts, cue ends, adjacent transitions, gaps, seeking, Georgian rendering, and control usability.

@@ -199,6 +199,47 @@ Direct executable invocation removes shell activation from the user workflow whi
 - Saved or edited cues are never overwritten automatically.
 - Processing remains synchronous until representative server timing justifies the existing database queue.
 
+## Decision: Group caption styling behind a single category toolbar
+
+### Context
+
+Displaying every position, typography, background, outline, shadow, and preset control simultaneously overloaded the project page and made the video-editing workflow harder to scan.
+
+### Decision
+
+Keep one compact icon-and-label toolbar for Position, Text, Background, Effects, and Presets. Show at most one category panel at a time, allow the active category to close, and keep one persistent Save style action with an unsaved-state indicator.
+
+### Reason
+
+The categories match the user's editing intent while preserving immediate preview and reducing visual density. Visible labels keep the controls discoverable; tooltips supplement rather than replace them.
+
+### Consequences
+
+- Style values and persistence remain unchanged; this is an information-architecture refactor.
+- Generate captions, cue correction, and export remain distinct workflow actions rather than style categories.
+- A future desktop side panel or mobile bottom sheet can reuse the same category model if evidence justifies it.
+
+## Decision: Organize the editor into three goal-oriented workspaces
+
+### Context
+
+Automatic generation, cue correction, styling, playback diagnostics, and exporting were all visible in one long project page. Even after styling was grouped internally, unrelated workflow stages still competed for attention.
+
+### Decision
+
+Keep the video visible and place three main workspace buttons beneath it: Captions, Style, and Export. Select Captions by default. Captions contains generation and cue editing, Style contains the existing five appearance categories, and Export contains quality, rendering, status, and download controls.
+
+### Reason
+
+The sequence matches the user's product journey—create and correct, style, then export—and avoids a vague Technical category that would combine unrelated beginning and ending operations.
+
+### Consequences
+
+- Only the active workspace controls are visible while the video preview remains stable.
+- Caption count, unsaved-style state, and export availability appear as compact workspace indicators.
+- Local style state survives workspace switching.
+- File metadata remains visible as project context; development playback details appear only in Captions.
+
 ## Decision: Retain dormant starter infrastructure during personal V1
 
 ### Context

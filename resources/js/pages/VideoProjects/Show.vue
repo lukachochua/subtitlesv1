@@ -45,6 +45,9 @@ interface VideoProject {
 type VideoRenderStatus = 'pending' | 'processing' | 'completed' | 'failed';
 type VideoRenderQuality = 'high' | 'balanced' | 'smaller';
 type TranscriptionStatus = 'pending' | 'processing' | 'completed' | 'failed';
+type CaptionStyleCategory =
+    'position' | 'text' | 'background' | 'effects' | 'presets';
+type ProjectWorkspace = 'captions' | 'style' | 'export';
 
 interface VideoRenderState {
     status: VideoRenderStatus | null;
@@ -195,6 +198,8 @@ const captionPreviewStyle = computed(() => ({
     textAlign: captionTextAlignment.value,
 }));
 const captionStyleForm = useForm<CaptionStyleConfiguration>(props.captionStyle);
+const activeCaptionStyleCategory = ref<CaptionStyleCategory | null>(null);
+const activeProjectWorkspace = ref<ProjectWorkspace>('captions');
 const selectedRenderQuality = ref<VideoRenderQuality>(props.renderQuality);
 const activeCue = computed(() =>
     props.cues === null
@@ -336,6 +341,16 @@ const applyCaptionStyleConfiguration = (
 const selectedCaptionStylePresetKey = computed(() =>
     findCaptionStylePresetKey(currentCaptionStyleConfiguration()),
 );
+const captionStyleIsDirty = computed(
+    () =>
+        JSON.stringify(currentCaptionStyleConfiguration()) !==
+        JSON.stringify(props.captionStyle),
+);
+
+const toggleCaptionStyleCategory = (category: CaptionStyleCategory): void => {
+    activeCaptionStyleCategory.value =
+        activeCaptionStyleCategory.value === category ? null : category;
+};
 
 const saveCaptionStyle = (): void => {
     captionStyleForm
@@ -408,44 +423,92 @@ const saveCaptionStyle = (): void => {
                     </div>
                 </div>
 
-                <div
-                    class="mt-3 rounded-lg border border-stone-200 bg-white px-3 py-3 dark:border-stone-700 dark:bg-stone-900"
+                <nav
+                    class="mt-4 grid grid-cols-3 gap-2"
+                    aria-label="Video project workspace"
                 >
-                    <div class="flex items-center justify-between gap-3">
-                        <label
-                            for="caption-vertical-position"
-                            class="text-sm font-medium text-stone-700 dark:text-stone-200"
-                        >
-                            Vertical position
-                        </label>
-                        <output
-                            for="caption-vertical-position"
-                            class="font-mono text-sm tabular-nums"
-                        >
-                            {{ captionVerticalPositionPercent }}%
-                        </output>
-                    </div>
-                    <input
-                        id="caption-vertical-position"
-                        v-model.number="captionVerticalPositionPercent"
-                        type="range"
-                        min="0"
-                        max="100"
-                        step="1"
-                        class="mt-2 w-full accent-red-700 dark:accent-red-500"
-                        @change="updateCaptionVerticalPosition"
-                    />
-                    <div
-                        class="flex justify-between text-xs font-medium text-stone-500 dark:text-stone-400"
-                        aria-hidden="true"
+                    <button
+                        v-for="workspace in [
+                            { key: 'captions', label: 'Captions' },
+                            { key: 'style', label: 'Style' },
+                            { key: 'export', label: 'Export' },
+                        ] as const"
+                        :key="workspace.key"
+                        type="button"
+                        class="flex min-h-16 flex-col items-center justify-center gap-1 rounded-xl border px-2 py-2 text-sm font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 sm:flex-row sm:gap-2 dark:focus-visible:ring-red-400"
+                        :class="
+                            activeProjectWorkspace === workspace.key
+                                ? 'border-red-700 bg-red-700 text-white dark:border-red-500 dark:bg-red-600'
+                                : 'border-stone-300 bg-white text-stone-700 hover:bg-stone-100 dark:border-stone-700 dark:bg-stone-950 dark:text-stone-200 dark:hover:bg-stone-800'
+                        "
+                        :aria-pressed="activeProjectWorkspace === workspace.key"
+                        @click="activeProjectWorkspace = workspace.key"
                     >
-                        <span>Top</span>
-                        <span>Middle</span>
-                        <span>Bottom</span>
-                    </div>
-                </div>
+                        <svg
+                            v-if="workspace.key === 'captions'"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.8"
+                            class="size-5"
+                            aria-hidden="true"
+                        >
+                            <rect x="3" y="5" width="18" height="14" rx="2" />
+                            <path d="M7 10h4M13 10h4M7 14h3M12 14h5" />
+                        </svg>
+                        <svg
+                            v-else-if="workspace.key === 'style'"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.8"
+                            class="size-5"
+                            aria-hidden="true"
+                        >
+                            <path
+                                d="M12 3a9 9 0 1 0 0 18h1.3a1.7 1.7 0 0 0 0-3.4h-.8a1.5 1.5 0 0 1 0-3H15a6 6 0 0 0 6-6c0-3.1-4-5.6-9-5.6Z"
+                            />
+                            <path
+                                d="M7.5 9h.01M9.5 6.5h.01M14 6h.01M17 8h.01"
+                            />
+                        </svg>
+                        <svg
+                            v-else
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.8"
+                            class="size-5"
+                            aria-hidden="true"
+                        >
+                            <path d="M12 3v12M7 10l5 5 5-5M5 19h14" />
+                        </svg>
+                        <span>{{ workspace.label }}</span>
+                        <span
+                            v-if="workspace.key === 'captions' && cues?.length"
+                            class="rounded-full bg-white/20 px-1.5 py-0.5 text-[0.65rem]"
+                        >
+                            {{ cues.length }}
+                        </span>
+                        <span
+                            v-else-if="
+                                workspace.key === 'style' && captionStyleIsDirty
+                            "
+                            class="size-2 rounded-full bg-amber-300"
+                            aria-label="Unsaved style changes"
+                        ></span>
+                        <span
+                            v-else-if="
+                                workspace.key === 'export' && hasCaptionedVideo
+                            "
+                            class="size-2 rounded-full bg-emerald-300"
+                            aria-label="Export available"
+                        ></span>
+                    </button>
+                </nav>
 
                 <div
+                    v-show="activeProjectWorkspace === 'captions'"
                     class="mt-3 grid gap-2 rounded-lg bg-stone-100 px-3 py-2 text-sm dark:bg-stone-950"
                 >
                     <div class="flex items-center justify-between gap-4">
@@ -478,6 +541,7 @@ const saveCaptionStyle = (): void => {
                 </div>
 
                 <Form
+                    v-show="activeProjectWorkspace === 'captions'"
                     v-bind="
                         GenerateVideoProjectCaptionsController.form(
                             videoProject.id,
@@ -557,6 +621,7 @@ const saveCaptionStyle = (): void => {
                 </Form>
 
                 <Form
+                    v-show="activeProjectWorkspace === 'export'"
                     v-bind="
                         RenderVideoProjectCaptionedVideoController.form(
                             videoProject.id,
@@ -681,6 +746,7 @@ const saveCaptionStyle = (): void => {
                 </Form>
 
                 <div
+                    v-show="activeProjectWorkspace === 'style'"
                     class="mt-4 rounded-lg border border-stone-200 p-4 dark:border-stone-700"
                     aria-labelledby="caption-style-heading"
                 >
@@ -701,7 +767,13 @@ const saveCaptionStyle = (): void => {
                         </div>
                         <div class="flex items-center gap-3">
                             <span
-                                v-if="captionStyleForm.recentlySuccessful"
+                                v-if="captionStyleIsDirty"
+                                class="text-xs font-medium text-amber-700 dark:text-amber-400"
+                            >
+                                Unsaved changes
+                            </span>
+                            <span
+                                v-else-if="captionStyleForm.recentlySuccessful"
                                 class="text-xs font-medium text-emerald-700 dark:text-emerald-400"
                             >
                                 Saved
@@ -721,7 +793,165 @@ const saveCaptionStyle = (): void => {
                         </div>
                     </div>
 
-                    <div class="mt-4 grid gap-4">
+                    <div
+                        class="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-5"
+                        role="toolbar"
+                        aria-label="Caption style categories"
+                    >
+                        <button
+                            type="button"
+                            title="Move and align captions"
+                            :aria-expanded="
+                                activeCaptionStyleCategory === 'position'
+                            "
+                            aria-controls="caption-style-category-panel"
+                            class="flex min-h-16 items-center justify-center gap-2 rounded-lg border px-3 py-2 text-sm font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 dark:focus-visible:ring-red-400"
+                            :class="
+                                activeCaptionStyleCategory === 'position'
+                                    ? 'border-red-700 bg-red-700 text-white dark:border-red-500 dark:bg-red-600'
+                                    : 'border-stone-300 bg-white text-stone-700 hover:bg-stone-100 dark:border-stone-700 dark:bg-stone-950 dark:text-stone-200 dark:hover:bg-stone-800'
+                            "
+                            @click="toggleCaptionStyleCategory('position')"
+                        >
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.8"
+                                class="size-5"
+                                aria-hidden="true"
+                            >
+                                <path d="M12 3v18M8 7l4-4 4 4M8 17l4 4 4-4" />
+                            </svg>
+                            Position
+                        </button>
+                        <button
+                            type="button"
+                            title="Change caption typography"
+                            :aria-expanded="
+                                activeCaptionStyleCategory === 'text'
+                            "
+                            aria-controls="caption-style-category-panel"
+                            class="flex min-h-16 items-center justify-center gap-2 rounded-lg border px-3 py-2 text-sm font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 dark:focus-visible:ring-red-400"
+                            :class="
+                                activeCaptionStyleCategory === 'text'
+                                    ? 'border-red-700 bg-red-700 text-white dark:border-red-500 dark:bg-red-600'
+                                    : 'border-stone-300 bg-white text-stone-700 hover:bg-stone-100 dark:border-stone-700 dark:bg-stone-950 dark:text-stone-200 dark:hover:bg-stone-800'
+                            "
+                            @click="toggleCaptionStyleCategory('text')"
+                        >
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.8"
+                                class="size-5"
+                                aria-hidden="true"
+                            >
+                                <path d="M5 5h14M12 5v14M8 19h8" />
+                            </svg>
+                            Text
+                        </button>
+                        <button
+                            type="button"
+                            title="Change caption background"
+                            :aria-expanded="
+                                activeCaptionStyleCategory === 'background'
+                            "
+                            aria-controls="caption-style-category-panel"
+                            class="flex min-h-16 items-center justify-center gap-2 rounded-lg border px-3 py-2 text-sm font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 dark:focus-visible:ring-red-400"
+                            :class="
+                                activeCaptionStyleCategory === 'background'
+                                    ? 'border-red-700 bg-red-700 text-white dark:border-red-500 dark:bg-red-600'
+                                    : 'border-stone-300 bg-white text-stone-700 hover:bg-stone-100 dark:border-stone-700 dark:bg-stone-950 dark:text-stone-200 dark:hover:bg-stone-800'
+                            "
+                            @click="toggleCaptionStyleCategory('background')"
+                        >
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.8"
+                                class="size-5"
+                                aria-hidden="true"
+                            >
+                                <rect
+                                    x="3"
+                                    y="6"
+                                    width="18"
+                                    height="12"
+                                    rx="2"
+                                />
+                                <path d="M7 10h10M7 14h7" />
+                            </svg>
+                            Background
+                        </button>
+                        <button
+                            type="button"
+                            title="Adjust outline and shadow"
+                            :aria-expanded="
+                                activeCaptionStyleCategory === 'effects'
+                            "
+                            aria-controls="caption-style-category-panel"
+                            class="flex min-h-16 items-center justify-center gap-2 rounded-lg border px-3 py-2 text-sm font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 dark:focus-visible:ring-red-400"
+                            :class="
+                                activeCaptionStyleCategory === 'effects'
+                                    ? 'border-red-700 bg-red-700 text-white dark:border-red-500 dark:bg-red-600'
+                                    : 'border-stone-300 bg-white text-stone-700 hover:bg-stone-100 dark:border-stone-700 dark:bg-stone-950 dark:text-stone-200 dark:hover:bg-stone-800'
+                            "
+                            @click="toggleCaptionStyleCategory('effects')"
+                        >
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.8"
+                                class="size-5"
+                                aria-hidden="true"
+                            >
+                                <path
+                                    d="m12 3 1.4 4.1L18 8.5l-4.6 1.4L12 14l-1.4-4.1L6 8.5l4.6-1.4L12 3Z"
+                                />
+                                <path
+                                    d="m18.5 14 .8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8.8-2.2Z"
+                                />
+                            </svg>
+                            Effects
+                        </button>
+                        <button
+                            type="button"
+                            title="Apply a complete style preset"
+                            :aria-expanded="
+                                activeCaptionStyleCategory === 'presets'
+                            "
+                            aria-controls="caption-style-category-panel"
+                            class="col-span-2 flex min-h-16 items-center justify-center gap-2 rounded-lg border px-3 py-2 text-sm font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 sm:col-span-1 dark:focus-visible:ring-red-400"
+                            :class="
+                                activeCaptionStyleCategory === 'presets'
+                                    ? 'border-red-700 bg-red-700 text-white dark:border-red-500 dark:bg-red-600'
+                                    : 'border-stone-300 bg-white text-stone-700 hover:bg-stone-100 dark:border-stone-700 dark:bg-stone-950 dark:text-stone-200 dark:hover:bg-stone-800'
+                            "
+                            @click="toggleCaptionStyleCategory('presets')"
+                        >
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.8"
+                                class="size-5"
+                                aria-hidden="true"
+                            >
+                                <path d="M4 5h16v14H4zM8 9h8M8 13h5" />
+                            </svg>
+                            Presets
+                        </button>
+                    </div>
+
+                    <div
+                        v-if="activeCaptionStyleCategory"
+                        id="caption-style-category-panel"
+                        class="mt-4 grid gap-4 rounded-xl bg-stone-50 p-4 dark:bg-stone-950"
+                    >
                         <p
                             v-if="captionStyleForm.hasErrors"
                             class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950 dark:text-red-300"
@@ -729,7 +959,7 @@ const saveCaptionStyle = (): void => {
                             Style could not be saved. Review the selected values
                             and try again.
                         </p>
-                        <div>
+                        <div v-if="activeCaptionStyleCategory === 'presets'">
                             <div
                                 class="flex items-center justify-between gap-3"
                             >
@@ -784,116 +1014,124 @@ const saveCaptionStyle = (): void => {
                                 it.
                             </p>
                         </div>
-                        <div>
-                            <label
-                                for="caption-font-family"
-                                class="block text-sm font-medium text-stone-700 dark:text-stone-200"
-                            >
-                                Font
-                            </label>
-                            <select
-                                id="caption-font-family"
-                                v-model="captionFontFamily"
-                                class="mt-2 w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-950 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 dark:border-stone-700 dark:bg-stone-950 dark:text-stone-50 dark:focus-visible:ring-red-400"
-                            >
-                                <option
-                                    v-for="font in CAPTION_FONT_OPTIONS"
-                                    :key="font.value"
-                                    :value="font.value"
-                                >
-                                    {{ font.label }}
-                                </option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label
-                                for="caption-font-size"
-                                class="block text-sm font-medium text-stone-700 dark:text-stone-200"
-                            >
-                                Font size
-                            </label>
-                            <div
-                                class="mt-2 grid grid-cols-[minmax(0,1fr)_5rem] items-center gap-3"
-                            >
-                                <input
-                                    id="caption-font-size"
-                                    v-model.number="captionFontSizePx"
-                                    type="range"
-                                    :min="CAPTION_FONT_SIZE_MIN_PX"
-                                    :max="CAPTION_FONT_SIZE_MAX_PX"
-                                    step="1"
-                                    class="w-full accent-red-700 dark:accent-red-500"
-                                />
-                                <input
-                                    :value="captionFontSizePx"
-                                    type="number"
-                                    :min="CAPTION_FONT_SIZE_MIN_PX"
-                                    :max="CAPTION_FONT_SIZE_MAX_PX"
-                                    step="1"
-                                    aria-label="Caption font size in pixels"
-                                    class="w-full rounded-lg border border-stone-300 bg-white px-2 py-1.5 font-mono text-sm text-stone-950 tabular-nums focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 dark:border-stone-700 dark:bg-stone-950 dark:text-stone-50 dark:focus-visible:ring-red-400"
-                                    @change="updateCaptionFontSize"
-                                />
-                            </div>
-                        </div>
-
-                        <div class="grid gap-4 sm:grid-cols-2">
+                        <div
+                            v-if="activeCaptionStyleCategory === 'text'"
+                            class="grid gap-4"
+                        >
                             <div>
                                 <label
-                                    for="caption-text-color"
+                                    for="caption-font-family"
                                     class="block text-sm font-medium text-stone-700 dark:text-stone-200"
                                 >
-                                    Text color
+                                    Font
                                 </label>
-                                <div class="mt-2 flex items-center gap-3">
-                                    <input
-                                        id="caption-text-color"
-                                        v-model="captionTextColor"
-                                        type="color"
-                                        class="h-10 w-14 cursor-pointer rounded-lg border border-stone-300 bg-white p-1 dark:border-stone-700 dark:bg-stone-950"
-                                    />
-                                    <output
-                                        for="caption-text-color"
-                                        class="font-mono text-sm uppercase"
+                                <select
+                                    id="caption-font-family"
+                                    v-model="captionFontFamily"
+                                    class="mt-2 w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-950 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 dark:border-stone-700 dark:bg-stone-950 dark:text-stone-50 dark:focus-visible:ring-red-400"
+                                >
+                                    <option
+                                        v-for="font in CAPTION_FONT_OPTIONS"
+                                        :key="font.value"
+                                        :value="font.value"
                                     >
-                                        {{ captionTextColor }}
-                                    </output>
+                                        {{ font.label }}
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label
+                                    for="caption-font-size"
+                                    class="block text-sm font-medium text-stone-700 dark:text-stone-200"
+                                >
+                                    Font size
+                                </label>
+                                <div
+                                    class="mt-2 grid grid-cols-[minmax(0,1fr)_5rem] items-center gap-3"
+                                >
+                                    <input
+                                        id="caption-font-size"
+                                        v-model.number="captionFontSizePx"
+                                        type="range"
+                                        :min="CAPTION_FONT_SIZE_MIN_PX"
+                                        :max="CAPTION_FONT_SIZE_MAX_PX"
+                                        step="1"
+                                        class="w-full accent-red-700 dark:accent-red-500"
+                                    />
+                                    <input
+                                        :value="captionFontSizePx"
+                                        type="number"
+                                        :min="CAPTION_FONT_SIZE_MIN_PX"
+                                        :max="CAPTION_FONT_SIZE_MAX_PX"
+                                        step="1"
+                                        aria-label="Caption font size in pixels"
+                                        class="w-full rounded-lg border border-stone-300 bg-white px-2 py-1.5 font-mono text-sm text-stone-950 tabular-nums focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 dark:border-stone-700 dark:bg-stone-950 dark:text-stone-50 dark:focus-visible:ring-red-400"
+                                        @change="updateCaptionFontSize"
+                                    />
                                 </div>
                             </div>
 
-                            <fieldset>
-                                <legend
-                                    class="text-sm font-medium text-stone-700 dark:text-stone-200"
-                                >
-                                    Emphasis
-                                </legend>
-                                <div class="mt-3 flex flex-wrap gap-4">
+                            <div class="grid gap-4 sm:grid-cols-2">
+                                <div>
                                     <label
-                                        class="flex cursor-pointer items-center gap-2 text-sm"
+                                        for="caption-text-color"
+                                        class="block text-sm font-medium text-stone-700 dark:text-stone-200"
                                     >
-                                        <input
-                                            v-model="captionIsBold"
-                                            type="checkbox"
-                                            class="size-4 accent-red-700 dark:accent-red-500"
-                                        />
-                                        <span class="font-bold">Bold</span>
+                                        Text color
                                     </label>
-                                    <label
-                                        class="flex cursor-pointer items-center gap-2 text-sm"
-                                    >
+                                    <div class="mt-2 flex items-center gap-3">
                                         <input
-                                            v-model="captionIsItalic"
-                                            type="checkbox"
-                                            class="size-4 accent-red-700 dark:accent-red-500"
+                                            id="caption-text-color"
+                                            v-model="captionTextColor"
+                                            type="color"
+                                            class="h-10 w-14 cursor-pointer rounded-lg border border-stone-300 bg-white p-1 dark:border-stone-700 dark:bg-stone-950"
                                         />
-                                        <span class="italic">Italic</span>
-                                    </label>
+                                        <output
+                                            for="caption-text-color"
+                                            class="font-mono text-sm uppercase"
+                                        >
+                                            {{ captionTextColor }}
+                                        </output>
+                                    </div>
                                 </div>
-                            </fieldset>
+
+                                <fieldset>
+                                    <legend
+                                        class="text-sm font-medium text-stone-700 dark:text-stone-200"
+                                    >
+                                        Emphasis
+                                    </legend>
+                                    <div class="mt-3 flex flex-wrap gap-4">
+                                        <label
+                                            class="flex cursor-pointer items-center gap-2 text-sm"
+                                        >
+                                            <input
+                                                v-model="captionIsBold"
+                                                type="checkbox"
+                                                class="size-4 accent-red-700 dark:accent-red-500"
+                                            />
+                                            <span class="font-bold">Bold</span>
+                                        </label>
+                                        <label
+                                            class="flex cursor-pointer items-center gap-2 text-sm"
+                                        >
+                                            <input
+                                                v-model="captionIsItalic"
+                                                type="checkbox"
+                                                class="size-4 accent-red-700 dark:accent-red-500"
+                                            />
+                                            <span class="italic">Italic</span>
+                                        </label>
+                                    </div>
+                                </fieldset>
+                            </div>
                         </div>
 
-                        <div class="grid gap-4 sm:grid-cols-2">
+                        <div
+                            v-if="activeCaptionStyleCategory === 'background'"
+                            class="grid gap-4 sm:grid-cols-2"
+                        >
                             <div>
                                 <label
                                     for="caption-background-color"
@@ -962,7 +1200,10 @@ const saveCaptionStyle = (): void => {
                             </div>
                         </div>
 
-                        <div class="grid gap-4 sm:grid-cols-2">
+                        <div
+                            v-if="activeCaptionStyleCategory === 'effects'"
+                            class="grid gap-4 sm:grid-cols-3"
+                        >
                             <div>
                                 <label
                                     for="caption-outline-color"
@@ -1014,9 +1255,61 @@ const saveCaptionStyle = (): void => {
                                     @change="updateCaptionOutlineWidth"
                                 />
                             </div>
+
+                            <label
+                                class="flex cursor-pointer items-center gap-2 self-end py-2 text-sm font-medium text-stone-700 dark:text-stone-200"
+                            >
+                                <input
+                                    v-model="captionHasShadow"
+                                    type="checkbox"
+                                    class="size-4 accent-red-700 dark:accent-red-500"
+                                />
+                                Shadow
+                            </label>
                         </div>
 
-                        <div class="grid gap-4 sm:grid-cols-2">
+                        <div
+                            v-if="activeCaptionStyleCategory === 'position'"
+                            class="grid gap-5 sm:grid-cols-2"
+                        >
+                            <div>
+                                <div
+                                    class="flex items-center justify-between gap-3"
+                                >
+                                    <label
+                                        for="caption-vertical-position"
+                                        class="text-sm font-medium text-stone-700 dark:text-stone-200"
+                                    >
+                                        Vertical position
+                                    </label>
+                                    <output
+                                        for="caption-vertical-position"
+                                        class="font-mono text-sm tabular-nums"
+                                    >
+                                        {{ captionVerticalPositionPercent }}%
+                                    </output>
+                                </div>
+                                <input
+                                    id="caption-vertical-position"
+                                    v-model.number="
+                                        captionVerticalPositionPercent
+                                    "
+                                    type="range"
+                                    min="0"
+                                    max="100"
+                                    step="1"
+                                    class="mt-3 w-full accent-red-700 dark:accent-red-500"
+                                    @change="updateCaptionVerticalPosition"
+                                />
+                                <div
+                                    class="flex justify-between text-xs font-medium text-stone-500 dark:text-stone-400"
+                                    aria-hidden="true"
+                                >
+                                    <span>Top</span>
+                                    <span>Middle</span>
+                                    <span>Bottom</span>
+                                </div>
+                            </div>
                             <fieldset>
                                 <legend
                                     class="text-sm font-medium text-stone-700 dark:text-stone-200"
@@ -1046,17 +1339,6 @@ const saveCaptionStyle = (): void => {
                                     </label>
                                 </div>
                             </fieldset>
-
-                            <label
-                                class="flex cursor-pointer items-center gap-2 self-end py-2 text-sm font-medium text-stone-700 dark:text-stone-200"
-                            >
-                                <input
-                                    v-model="captionHasShadow"
-                                    type="checkbox"
-                                    class="size-4 accent-red-700 dark:accent-red-500"
-                                />
-                                Shadow
-                            </label>
                         </div>
                     </div>
                 </div>
@@ -1092,6 +1374,7 @@ const saveCaptionStyle = (): void => {
             </section>
 
             <section
+                v-show="activeProjectWorkspace === 'captions'"
                 class="mt-6 rounded-2xl border border-stone-200 bg-white shadow-sm dark:border-stone-800 dark:bg-stone-900"
                 aria-labelledby="generated-captions"
             >

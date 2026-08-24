@@ -3628,3 +3628,76 @@ Laravel can now start NeMo with the environment required by its native dependenc
 ### Next
 
 Retry Generate captions on project 6 and continue the personal V1 acceptance test.
+
+## 2026-08-24 — Caption-style category toolbar
+
+### Goal
+
+Reduce project-page control overload without changing caption behavior or persistence.
+
+### Changes
+
+- Replaced the always-expanded style controls with Position, Text, Background, Effects, and Presets category buttons.
+- Added distinct inline icons, visible labels, native tooltips, pressed styling, and expanded-state accessibility attributes.
+- Limited the interface to one open category panel and made the active button close its panel.
+- Moved vertical position and alignment into Position; grouped typography, background, effects, and presets by editing intent.
+- Added a persistent unsaved-changes indicator beside Save style.
+- Preserved immediate video preview, presets, validation feedback, and the existing save endpoint.
+
+### Decisions
+
+- Keep labels visible because tooltips and icons alone are not sufficiently discoverable.
+- Keep Generate captions and Export outside the style categories because they represent workflow stages, not appearance settings.
+- Avoid a component or icon dependency for this small interface refactor.
+
+### Verification
+
+- Vue TypeScript checking and ESLint pass.
+- The production frontend build completes successfully.
+- Existing frontend caption logic tests remain unchanged because no style conversion behavior changed.
+- Browser interaction and responsive presentation have not yet been manually verified.
+
+### Result
+
+Caption styling now presents one focused control group at a time while retaining live preview and explicit persistence.
+
+### Next
+
+Manually verify category opening/closing, responsive wrapping, live preview, unsaved state, and Save style on the project page.
+
+## 2026-08-24 — Three project workspaces
+
+### Goal
+
+Replace the remaining long mixed-control page with three clear user-goal workspaces while keeping the video visible.
+
+### Changes
+
+- Added Captions, Style, and Export buttons directly beneath the video.
+- Made Captions active by default and grouped automatic generation plus the complete cue editor within it.
+- Kept the five-category appearance toolbar inside Style.
+- Isolated quality selection, render state, export, and download within Export.
+- Added icons, active styling, caption count, unsaved-style indicator, and export-available indicator.
+- Kept playback diagnostics visible only in the Captions workspace.
+- Preserved local forms and style values while switching workspaces.
+
+### Decisions
+
+- Group generation with cue correction because both operate on caption content.
+- Give export its own final-stage workspace instead of combining it with generation under a technical label.
+- Use three equal-width controls on small and large screens with icons plus visible labels.
+
+### Verification
+
+- All 26 frontend caption logic tests pass.
+- Vue TypeScript checking and ESLint pass.
+- The production frontend build completes successfully.
+- Browser workspace switching and responsive presentation have not yet been manually verified.
+
+### Result
+
+The project page now follows the primary V1 journey: Captions → Style → Export, while the video remains the stable visual reference.
+
+### Next
+
+Manually verify all three workspaces, caption editing, style-state preservation, and export controls in the browser.

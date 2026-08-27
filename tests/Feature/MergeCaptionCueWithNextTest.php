@@ -19,6 +19,13 @@ test('merges a cue with its immediate next cue and shifts later order', function
         ->and($cues[0]->text)->toBe('პირველი ტექსტი მეორე ტექსტი')
         ->and($cues[0]->start_ms)->toBe(1_000)
         ->and($cues[0]->end_ms)->toBe(4_000)
+        ->and($cues[0]->words()->pluck('text')->all())->toBe([
+            'პირველი',
+            'ტექსტი',
+            'მეორე',
+            'ტექსტი',
+        ])
+        ->and($cues[0]->words()->pluck('start_ms')->all())->toBe([1_000, 1_500, 2_500, 3_200])
         ->and($cues[1]->id)->toBe($laterCaptionCue->id)
         ->and($cues[1]->order)->toBe(2)
         ->and($cues[1]->text)->toBe('მესამე ტექსტი')
@@ -76,12 +83,20 @@ function createCaptionCuesForMerge(
         'start_ms' => 1_000,
         'end_ms' => 2_000,
     ]);
+    $captionCue->words()->createMany([
+        ['order' => 1, 'text' => 'პირველი', 'start_ms' => 1_000, 'end_ms' => 1_400],
+        ['order' => 2, 'text' => 'ტექსტი', 'start_ms' => 1_500, 'end_ms' => 2_000],
+    ]);
 
     $nextCaptionCue = $videoProject->captionCues()->create([
         'order' => 2,
         'text' => 'მეორე ტექსტი',
         'start_ms' => 2_500,
         'end_ms' => 4_000,
+    ]);
+    $nextCaptionCue->words()->createMany([
+        ['order' => 1, 'text' => 'მეორე', 'start_ms' => 2_500, 'end_ms' => 3_100],
+        ['order' => 2, 'text' => 'ტექსტი', 'start_ms' => 3_200, 'end_ms' => 4_000],
     ]);
 
     $laterCaptionCue = $videoProject->captionCues()->create([

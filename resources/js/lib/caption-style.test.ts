@@ -24,7 +24,7 @@ import {
 test('defines the complete Clean caption style preset', () => {
     assert.deepEqual(CLEAN_CAPTION_STYLE_PRESET, {
         font: 'georgian_sans',
-        font_size_px: 28,
+        font_size_px: 20,
         bold: true,
         italic: false,
         text_color: '#ffffff',
@@ -35,6 +35,9 @@ test('defines the complete Clean caption style preset', () => {
         outline_color: '#000000',
         outline_width_px: 0,
         shadow: true,
+        active_word_enabled: true,
+        active_word_color: '#fde047',
+        active_word_style: 'text',
     });
 
     assert.deepEqual(
@@ -57,6 +60,9 @@ test('defines a complete, distinct Social caption style preset', () => {
         outline_color: '#000000',
         outline_width_px: 2,
         shadow: true,
+        active_word_enabled: true,
+        active_word_color: '#fde047',
+        active_word_style: 'text',
     });
 
     assert.notDeepEqual(
@@ -120,6 +126,9 @@ test('maps persisted product settings to the browser style', () => {
             outline_color: '#ef4444',
             outline_width_px: 1.5,
             shadow: false,
+            active_word_enabled: false,
+            active_word_color: '#22c55e',
+            active_word_style: 'background',
         }),
         {
             ...DEFAULT_CAPTION_STYLE,
@@ -169,7 +178,7 @@ test('normalizes caption vertical position percentages', () => {
 test('defines one coherent default caption style', () => {
     assert.deepEqual(DEFAULT_CAPTION_STYLE, {
         fontFamily: 'Arial, "Noto Sans Georgian", sans-serif',
-        fontSizePx: 28,
+        fontSizePx: 20,
         fontWeight: 700,
         fontStyle: 'normal',
         lineHeight: 1.25,
@@ -186,7 +195,7 @@ test('defines one coherent default caption style', () => {
 test('maps the default caption style to browser CSS', () => {
     assert.deepEqual(captionStyleToCss(DEFAULT_CAPTION_STYLE), {
         fontFamily: 'Arial, "Noto Sans Georgian", sans-serif',
-        fontSize: '28px',
+        fontSize: '20px',
         fontWeight: 700,
         fontStyle: 'normal',
         lineHeight: 1.25,
@@ -205,7 +214,7 @@ test('maps a changed font size without changing the default', () => {
     });
 
     assert.equal(css.fontSize, '44px');
-    assert.equal(DEFAULT_CAPTION_STYLE.fontSizePx, 28);
+    assert.equal(DEFAULT_CAPTION_STYLE.fontSizePx, 20);
 });
 
 test('maps font family, weight, italic, and text color changes', () => {
@@ -224,7 +233,7 @@ test('maps font family, weight, italic, and text color changes', () => {
 });
 
 test('normalizes caption font sizes to supported whole pixels', () => {
-    assert.equal(normalizeCaptionFontSize(Number.NaN), 28);
+    assert.equal(normalizeCaptionFontSize(Number.NaN), 20);
     assert.equal(normalizeCaptionFontSize(11), 12);
     assert.equal(normalizeCaptionFontSize(28.6), 29);
     assert.equal(normalizeCaptionFontSize(73), 72);

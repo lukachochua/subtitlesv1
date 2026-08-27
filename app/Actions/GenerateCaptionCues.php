@@ -114,6 +114,7 @@ class GenerateCaptionCues
             )),
             startMs: $words[0]->startMs,
             endMs: $lastWord->endMs,
+            words: $words,
         );
     }
 }

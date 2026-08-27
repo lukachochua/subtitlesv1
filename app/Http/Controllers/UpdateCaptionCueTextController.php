@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\UpdateCaptionCueText;
 use App\Http\Requests\UpdateCaptionCueTextRequest;
 use App\Models\CaptionCue;
 use App\Models\VideoProject;
@@ -13,8 +14,9 @@ class UpdateCaptionCueTextController extends Controller
         UpdateCaptionCueTextRequest $request,
         VideoProject $videoProject,
         CaptionCue $captionCue,
+        UpdateCaptionCueText $updateCaptionCueText,
     ): RedirectResponse {
-        $captionCue->update($request->validated());
+        $updateCaptionCueText->handle($captionCue, $request->string('text')->toString());
 
         return to_route('video-projects.show', $videoProject);
     }

@@ -109,6 +109,9 @@ test('casts and resolves a stored caption style as an array', function () {
         'outline_color' => '#000000',
         'outline_width_px' => 1.5,
         'shadow' => false,
+        'active_word_enabled' => false,
+        'active_word_color' => '#22c55e',
+        'active_word_style' => 'background',
     ];
 
     $videoProject = VideoProject::create([

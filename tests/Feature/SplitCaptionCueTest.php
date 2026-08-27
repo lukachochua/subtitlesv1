@@ -24,6 +24,9 @@ test('splits a cue at the requested time and shifts later cue order', function (
         ->and($cues[1]->text)->toBe('ოთხი ხუთი')
         ->and($cues[1]->start_ms)->toBe(2_000)
         ->and($cues[1]->end_ms)->toBe(3_000)
+        ->and($cues[0]->words()->pluck('text')->all())->toBe(['ერთი', 'ორი', 'სამი'])
+        ->and($cues[1]->words()->pluck('text')->all())->toBe(['ოთხი', 'ხუთი'])
+        ->and($cues[1]->words()->pluck('start_ms')->all())->toBe([2_200, 2_600])
         ->and($cues[2]->id)->toBe($laterCaptionCue->id)
         ->and($cues[2]->order)->toBe(3)
         ->and($cues[2]->text)->toBe('შემდეგი ტექსტი');
@@ -106,6 +109,13 @@ function createCaptionCueForSplit(
         'text' => 'ერთი ორი სამი ოთხი ხუთი',
         'start_ms' => 1_000,
         'end_ms' => 3_000,
+    ]);
+    $captionCue->words()->createMany([
+        ['order' => 1, 'text' => 'ერთი', 'start_ms' => 1_000, 'end_ms' => 1_300],
+        ['order' => 2, 'text' => 'ორი', 'start_ms' => 1_350, 'end_ms' => 1_650],
+        ['order' => 3, 'text' => 'სამი', 'start_ms' => 1_700, 'end_ms' => 1_950],
+        ['order' => 4, 'text' => 'ოთხი', 'start_ms' => 2_200, 'end_ms' => 2_500],
+        ['order' => 5, 'text' => 'ხუთი', 'start_ms' => 2_600, 'end_ms' => 3_000],
     ]);
 
     $laterCaptionCue = $videoProject->captionCues()->create([

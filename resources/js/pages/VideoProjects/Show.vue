@@ -1,11 +1,15 @@
 <script setup lang="ts">
 import { Form, Head, Link, useForm } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
+import { computed, onBeforeUnmount, ref } from 'vue';
+import type { CSSProperties } from 'vue';
 import DownloadVideoProjectCaptionedVideoController from '@/actions/App/Http/Controllers/DownloadVideoProjectCaptionedVideoController';
 import GenerateVideoProjectCaptionsController from '@/actions/App/Http/Controllers/GenerateVideoProjectCaptionsController';
 import RenderVideoProjectCaptionedVideoController from '@/actions/App/Http/Controllers/RenderVideoProjectCaptionedVideoController';
 import type { CaptionCue } from '@/lib/caption-cues';
-import { findActiveCaptionCue } from '@/lib/caption-cues';
+import {
+    findActiveCaptionCue,
+    findActiveCaptionWord,
+} from '@/lib/caption-cues';
 import {
     captionFontKeyFromFamily,
     findCaptionStylePresetKey,
@@ -25,6 +29,7 @@ import {
     normalizeCaptionVerticalPositionPercent,
 } from '@/lib/caption-style';
 import type { CaptionStyleConfiguration } from '@/lib/caption-style';
+import type { CaptionActiveWordStyle } from '@/lib/caption-style';
 import { home } from '@/routes';
 import { media as videoProjectMedia } from '@/routes/video-projects';
 import { update as updateCaptionCue } from '@/routes/video-projects/caption-cues';
@@ -173,6 +178,11 @@ const captionBackgroundOpacityPercent = ref(
 const captionOutlineColor = ref(initialCaptionStyle.outlineColor);
 const captionOutlineWidthPx = ref(initialCaptionStyle.outlineWidthPx);
 const captionHasShadow = ref(props.captionStyle.shadow);
+const captionActiveWordIsEnabled = ref(props.captionStyle.active_word_enabled);
+const captionActiveWordColor = ref(props.captionStyle.active_word_color);
+const captionActiveWordStyle = ref<CaptionActiveWordStyle>(
+    props.captionStyle.active_word_style,
+);
 const captionTextAlignment = ref(initialCaptionStyle.textAlign);
 const captionVerticalPositionPercent = ref(
     props.captionStyle.vertical_position_percent,
@@ -206,6 +216,25 @@ const activeCue = computed(() =>
         ? null
         : findActiveCaptionCue(props.cues, currentTimeMilliseconds.value),
 );
+const activeWord = computed(() =>
+    findActiveCaptionWord(activeCue.value, currentTimeMilliseconds.value),
+);
+const activeWordPreviewStyle = computed<CSSProperties | undefined>(() => {
+    if (!captionActiveWordIsEnabled.value || activeWord.value === null) {
+        return undefined;
+    }
+
+    if (captionActiveWordStyle.value === 'background') {
+        return {
+            backgroundColor: captionActiveWordColor.value,
+            borderRadius: '0.15em',
+            boxDecorationBreak: 'clone',
+            WebkitBoxDecorationBreak: 'clone',
+        };
+    }
+
+    return { color: captionActiveWordColor.value };
+});
 const hasSavedCaptionCues = computed(
     () => props.cues?.some((cue) => cue.id !== null) ?? false,
 );
@@ -257,6 +286,41 @@ const updateCurrentTime = (event: Event): void => {
         event.currentTarget as HTMLVideoElement
     ).currentTime;
 };
+
+let playbackAnimationFrame: number | null = null;
+
+const updatePlaybackTime = (): void => {
+    if (videoElement.value === null) {
+        return;
+    }
+
+    currentTimeSeconds.value = videoElement.value.currentTime;
+
+    if (!videoElement.value.paused && !videoElement.value.ended) {
+        playbackAnimationFrame = requestAnimationFrame(updatePlaybackTime);
+    }
+};
+
+const startPlaybackClock = (): void => {
+    if (playbackAnimationFrame !== null) {
+        cancelAnimationFrame(playbackAnimationFrame);
+    }
+
+    playbackAnimationFrame = requestAnimationFrame(updatePlaybackTime);
+};
+
+const stopPlaybackClock = (): void => {
+    if (playbackAnimationFrame !== null) {
+        cancelAnimationFrame(playbackAnimationFrame);
+        playbackAnimationFrame = null;
+    }
+
+    if (videoElement.value !== null) {
+        currentTimeSeconds.value = videoElement.value.currentTime;
+    }
+};
+
+onBeforeUnmount(stopPlaybackClock);
 
 const seekToCue = (cue: CaptionCue): void => {
     if (videoElement.value === null) {
@@ -314,6 +378,9 @@ const currentCaptionStyleConfiguration = (): CaptionStyleConfiguration => ({
     outline_color: captionOutlineColor.value,
     outline_width_px: captionOutlineWidthPx.value,
     shadow: captionHasShadow.value,
+    active_word_enabled: captionActiveWordIsEnabled.value,
+    active_word_color: captionActiveWordColor.value,
+    active_word_style: captionActiveWordStyle.value,
 });
 
 const applyCaptionStyleConfiguration = (
@@ -335,6 +402,9 @@ const applyCaptionStyleConfiguration = (
     captionOutlineColor.value = browserStyle.outlineColor;
     captionOutlineWidthPx.value = browserStyle.outlineWidthPx;
     captionHasShadow.value = configuration.shadow;
+    captionActiveWordIsEnabled.value = configuration.active_word_enabled;
+    captionActiveWordColor.value = configuration.active_word_color;
+    captionActiveWordStyle.value = configuration.active_word_style;
     captionStyleForm.clearErrors();
 };
 
@@ -401,6 +471,10 @@ const saveCaptionStyle = (): void => {
                         :src="videoProjectMedia.url(videoProject.id)"
                         class="block max-h-[75vh] w-auto max-w-full bg-black"
                         @timeupdate="updateCurrentTime"
+                        @play="startPlaybackClock"
+                        @pause="stopPlaybackClock"
+                        @ended="stopPlaybackClock"
+                        @seeking="updateCurrentTime"
                     >
                         Your browser does not support HTML video playback.
                     </video>
@@ -418,7 +492,26 @@ const saveCaptionStyle = (): void => {
                                 ),
                             ]"
                         >
-                            {{ activeCue.text }}
+                            <template
+                                v-for="(word, wordIndex) in activeCue.words"
+                                :key="word.order"
+                            >
+                                <span
+                                    :style="
+                                        activeWord?.order === word.order
+                                            ? activeWordPreviewStyle
+                                            : undefined
+                                    "
+                                    >{{ word.text }}</span
+                                >{{
+                                    wordIndex < activeCue.words.length - 1
+                                        ? ' '
+                                        : ''
+                                }}
+                            </template>
+                            <template v-if="activeCue.words.length === 0">
+                                {{ activeCue.text }}
+                            </template>
                         </p>
                     </div>
                 </div>
@@ -1266,6 +1359,87 @@ const saveCaptionStyle = (): void => {
                                 />
                                 Shadow
                             </label>
+
+                            <fieldset
+                                class="grid gap-4 border-t border-stone-200 pt-4 sm:col-span-3 sm:grid-cols-3 dark:border-stone-700"
+                            >
+                                <legend class="font-semibold">
+                                    Active word
+                                </legend>
+
+                                <label
+                                    class="flex cursor-pointer items-center gap-2 text-sm font-medium text-stone-700 dark:text-stone-200"
+                                >
+                                    <input
+                                        v-model="captionActiveWordIsEnabled"
+                                        type="checkbox"
+                                        class="size-4 accent-red-700 dark:accent-red-500"
+                                    />
+                                    Highlight active word
+                                </label>
+
+                                <div>
+                                    <label
+                                        for="caption-active-word-color"
+                                        class="block text-sm font-medium text-stone-700 dark:text-stone-200"
+                                    >
+                                        Highlight color
+                                    </label>
+                                    <div class="mt-2 flex items-center gap-3">
+                                        <input
+                                            id="caption-active-word-color"
+                                            v-model="captionActiveWordColor"
+                                            type="color"
+                                            :disabled="
+                                                !captionActiveWordIsEnabled
+                                            "
+                                            class="h-10 w-14 cursor-pointer rounded-lg border border-stone-300 bg-white p-1 disabled:cursor-not-allowed disabled:opacity-50 dark:border-stone-700 dark:bg-stone-950"
+                                        />
+                                        <output
+                                            for="caption-active-word-color"
+                                            class="font-mono text-sm uppercase"
+                                        >
+                                            {{ captionActiveWordColor }}
+                                        </output>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <span
+                                        class="block text-sm font-medium text-stone-700 dark:text-stone-200"
+                                    >
+                                        Highlight style
+                                    </span>
+                                    <div class="mt-3 flex flex-wrap gap-4">
+                                        <label
+                                            v-for="option in [
+                                                {
+                                                    value: 'text',
+                                                    label: 'Text color',
+                                                },
+                                                {
+                                                    value: 'background',
+                                                    label: 'Background',
+                                                },
+                                            ] as const"
+                                            :key="option.value"
+                                            class="flex cursor-pointer items-center gap-2 text-sm text-stone-700 dark:text-stone-200"
+                                        >
+                                            <input
+                                                v-model="captionActiveWordStyle"
+                                                type="radio"
+                                                name="caption-active-word-style"
+                                                :value="option.value"
+                                                :disabled="
+                                                    !captionActiveWordIsEnabled
+                                                "
+                                                class="size-4 accent-red-700 disabled:cursor-not-allowed disabled:opacity-50 dark:accent-red-500"
+                                            />
+                                            {{ option.label }}
+                                        </label>
+                                    </div>
+                                </div>
+                            </fieldset>
                         </div>
 
                         <div

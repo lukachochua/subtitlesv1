@@ -19,7 +19,7 @@ class MergeCaptionCueWithNext
             $lockedCaptionCue = $videoProject->captionCues()
                 ->reorder()
                 ->lockForUpdate()
-                ->findOrFail($captionCue->getKey());
+                ->findOrFail($captionCue->id);
 
             $nextCaptionCue = $videoProject->captionCues()
                 ->reorder('order')
@@ -30,6 +30,15 @@ class MergeCaptionCueWithNext
             if ($nextCaptionCue === null) {
                 throw new LogicException('The last caption cue cannot be merged with a next cue.');
             }
+
+            $wordOrderOffset = $lockedCaptionCue->words()->count();
+            $nextCaptionCue->words()->reorder('order')->lockForUpdate()->get()
+                ->each(function ($word) use ($lockedCaptionCue, $wordOrderOffset): void {
+                    $word->forceFill([
+                        'caption_cue_id' => $lockedCaptionCue->id,
+                        'order' => $wordOrderOffset + $word->order,
+                    ])->save();
+                });
 
             $lockedCaptionCue->update([
                 'text' => trim($lockedCaptionCue->text).' '.trim($nextCaptionCue->text),

@@ -6,12 +6,16 @@ use Illuminate\Support\Str;
 
 test('updates only the text of a saved caption cue', function () {
     [$videoProject, $captionCue] = createCaptionCueForTextUpdate();
+    $captionCue->words()->createMany([
+        ['order' => 1, 'text' => 'არასწორი', 'start_ms' => 480, 'end_ms' => 1_200],
+        ['order' => 2, 'text' => 'ტექსტი', 'start_ms' => 1_160, 'end_ms' => 2_160],
+    ]);
 
     $this->patch(route('video-projects.caption-cues.update', [
         $videoProject,
         $captionCue,
     ]), [
-        'text' => 'ხელით შესწორებული ქართული ტექსტი',
+        'text' => 'სწორი ტექსტი',
         'order' => 99,
         'start_ms' => 0,
         'end_ms' => 8_000,
@@ -19,10 +23,32 @@ test('updates only the text of a saved caption cue', function () {
 
     $captionCue->refresh();
 
-    expect($captionCue->text)->toBe('ხელით შესწორებული ქართული ტექსტი')
+    expect($captionCue->text)->toBe('სწორი ტექსტი')
         ->and($captionCue->order)->toBe(1)
         ->and($captionCue->start_ms)->toBe(480)
-        ->and($captionCue->end_ms)->toBe(2_160);
+        ->and($captionCue->end_ms)->toBe(2_160)
+        ->and($captionCue->words()->get()->map->only(['text', 'start_ms', 'end_ms'])->all())->toBe([
+            ['text' => 'სწორი', 'start_ms' => 480, 'end_ms' => 1_160],
+            ['text' => 'ტექსტი', 'start_ms' => 1_160, 'end_ms' => 2_160],
+        ]);
+});
+
+test('rejects changing the word count when exact word timings exist', function () {
+    [$videoProject, $captionCue] = createCaptionCueForTextUpdate();
+    $captionCue->words()->createMany([
+        ['order' => 1, 'text' => 'არასწორი', 'start_ms' => 480, 'end_ms' => 1_000],
+        ['order' => 2, 'text' => 'ტექსტი', 'start_ms' => 1_100, 'end_ms' => 2_160],
+    ]);
+
+    $this->from(route('video-projects.show', $videoProject))
+        ->patch(route('video-projects.caption-cues.update', [$videoProject, $captionCue]), [
+            'text' => 'ახლა სამი სიტყვაა',
+        ])
+        ->assertRedirect(route('video-projects.show', $videoProject))
+        ->assertSessionHasErrors('text');
+
+    expect($captionCue->fresh()->text)->toBe('არასწორი ტექსტი')
+        ->and($captionCue->words()->pluck('text')->all())->toBe(['არასწორი', 'ტექსტი']);
 });
 
 test('rejects invalid caption cue text', function (mixed $text) {

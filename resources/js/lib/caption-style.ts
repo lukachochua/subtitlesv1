@@ -1,6 +1,7 @@
 import type { CSSProperties } from 'vue';
 
 export type CaptionTextAlignment = 'left' | 'center' | 'right';
+export type CaptionActiveWordStyle = 'text' | 'background';
 export type CaptionFont = 'georgian_sans' | 'system_sans' | 'georgian_serif';
 export type CaptionStylePresetKey = 'clean' | 'social' | 'news' | 'minimal';
 
@@ -17,6 +18,9 @@ export interface CaptionStyleConfiguration {
     outline_color: string;
     outline_width_px: number;
     shadow: boolean;
+    active_word_enabled: boolean;
+    active_word_color: string;
+    active_word_style: CaptionActiveWordStyle;
 }
 
 export interface CaptionStyle {
@@ -69,7 +73,8 @@ export const CAPTION_FONT_OPTIONS: ReadonlyArray<{
 
 export const CAPTION_FONT_SIZE_MIN_PX = 12;
 export const CAPTION_FONT_SIZE_MAX_PX = 72;
-export const CAPTION_FONT_SIZE_DEFAULT_PX = 28;
+export const CAPTION_FONT_SIZE_DEFAULT_PX = 20;
+export const CAPTION_ACTIVE_WORD_DEFAULT_COLOR = '#fde047';
 export const CAPTION_BACKGROUND_OPACITY_DEFAULT_PERCENT = 75;
 export const CAPTION_OUTLINE_WIDTH_MAX_PX = 4;
 
@@ -87,6 +92,9 @@ export const CLEAN_CAPTION_STYLE_PRESET: Readonly<CaptionStyleConfiguration> =
         outline_color: '#000000',
         outline_width_px: 0,
         shadow: true,
+        active_word_enabled: true,
+        active_word_color: CAPTION_ACTIVE_WORD_DEFAULT_COLOR,
+        active_word_style: 'text',
     });
 
 export const SOCIAL_CAPTION_STYLE_PRESET: Readonly<CaptionStyleConfiguration> =
@@ -103,6 +111,9 @@ export const SOCIAL_CAPTION_STYLE_PRESET: Readonly<CaptionStyleConfiguration> =
         outline_color: '#000000',
         outline_width_px: 2,
         shadow: true,
+        active_word_enabled: true,
+        active_word_color: CAPTION_ACTIVE_WORD_DEFAULT_COLOR,
+        active_word_style: 'text',
     });
 
 export const NEWS_CAPTION_STYLE_PRESET: Readonly<CaptionStyleConfiguration> =
@@ -119,6 +130,9 @@ export const NEWS_CAPTION_STYLE_PRESET: Readonly<CaptionStyleConfiguration> =
         outline_color: '#000000',
         outline_width_px: 0,
         shadow: false,
+        active_word_enabled: true,
+        active_word_color: CAPTION_ACTIVE_WORD_DEFAULT_COLOR,
+        active_word_style: 'text',
     });
 
 export const MINIMAL_CAPTION_STYLE_PRESET: Readonly<CaptionStyleConfiguration> =
@@ -135,6 +149,9 @@ export const MINIMAL_CAPTION_STYLE_PRESET: Readonly<CaptionStyleConfiguration> =
         outline_color: '#000000',
         outline_width_px: 1,
         shadow: true,
+        active_word_enabled: true,
+        active_word_color: CAPTION_ACTIVE_WORD_DEFAULT_COLOR,
+        active_word_style: 'text',
     });
 
 export const CAPTION_STYLE_PRESETS: ReadonlyArray<{

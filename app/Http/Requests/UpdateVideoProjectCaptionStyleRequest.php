@@ -36,6 +36,9 @@ class UpdateVideoProjectCaptionStyleRequest extends FormRequest
             'outline_color' => ['required', 'string', 'regex:/^#[0-9a-fA-F]{6}$/'],
             'outline_width_px' => ['required', 'numeric', 'between:0,4', 'multiple_of:0.5'],
             'shadow' => ['required', 'boolean'],
+            'active_word_enabled' => ['required', 'boolean'],
+            'active_word_color' => ['required', 'hex_color'],
+            'active_word_style' => ['required', Rule::in(['text', 'background'])],
         ];
     }
 }

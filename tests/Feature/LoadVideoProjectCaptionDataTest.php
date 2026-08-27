@@ -27,7 +27,7 @@ test('loads normalized words and generated cues for one video project', function
         new TranscriptionWord('ორი,', 640, 960),
         new TranscriptionWord('გამარჯობა.', 1600, 2886),
     ])->and($captionData['cues'])->toEqual([
-        new CaptionCue(1, 'ერთი ორი, გამარჯობა.', 160, 2886),
+        new CaptionCue(1, 'ერთი ორი, გამარჯობა.', 160, 2886, $captionData['words']),
     ]);
 });
 

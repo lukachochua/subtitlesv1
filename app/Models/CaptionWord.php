@@ -3,42 +3,31 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
- * @property int $video_project_id
+ * @property int $caption_cue_id
  * @property int $order
  * @property string $text
  * @property int $start_ms
  * @property int $end_ms
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read VideoProject $videoProject
- * @property-read Collection<int, CaptionWord> $words
+ * @property-read CaptionCue $captionCue
  */
 #[Fillable(['order', 'text', 'start_ms', 'end_ms'])]
-class CaptionCue extends Model
+class CaptionWord extends Model
 {
-    /** @return BelongsTo<VideoProject, $this> */
-    public function videoProject(): BelongsTo
+    /** @return BelongsTo<CaptionCue, $this> */
+    public function captionCue(): BelongsTo
     {
-        return $this->belongsTo(VideoProject::class);
+        return $this->belongsTo(CaptionCue::class);
     }
 
-    /** @return HasMany<CaptionWord, $this> */
-    public function words(): HasMany
-    {
-        return $this->hasMany(CaptionWord::class)->orderBy('order');
-    }
-
-    /**
-     * @return array<string, string>
-     */
+    /** @return array<string, string> */
     protected function casts(): array
     {
         return [

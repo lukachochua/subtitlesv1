@@ -12,6 +12,9 @@ test('replaces the complete project caption style', function () {
         'vertical_position_percent' => 35,
         'outline_width_px' => 1.5,
         'shadow' => false,
+        'active_word_enabled' => false,
+        'active_word_color' => '#22c55e',
+        'active_word_style' => 'background',
     ]);
 
     $this->patch(
@@ -53,6 +56,9 @@ test('rejects invalid caption style values', function (string $field, mixed $val
     'outline width maximum' => ['outline_width_px', 4.5],
     'outline width step' => ['outline_width_px', 1.25],
     'shadow must be boolean' => ['shadow', 'yes'],
+    'active word enabled must be boolean' => ['active_word_enabled', 'yes'],
+    'active word color format' => ['active_word_color', 'yellow'],
+    'active word style must be supported' => ['active_word_style', 'outline'],
 ]);
 
 test('returns not found for a missing video project', function () {

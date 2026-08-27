@@ -45,12 +45,15 @@ class VideoProject extends Model
      *     vertical_position_percent: int,
      *     outline_color: string,
      *     outline_width_px: int|float,
-     *     shadow: bool
+     *     shadow: bool,
+     *     active_word_enabled: bool,
+     *     active_word_color: string,
+     *     active_word_style: string
      * }
      */
     public const DEFAULT_CAPTION_STYLE = [
         'font' => 'georgian_sans',
-        'font_size_px' => 28,
+        'font_size_px' => 20,
         'bold' => true,
         'italic' => false,
         'text_color' => '#ffffff',
@@ -61,6 +64,9 @@ class VideoProject extends Model
         'outline_color' => '#000000',
         'outline_width_px' => 0,
         'shadow' => true,
+        'active_word_enabled' => true,
+        'active_word_color' => '#fde047',
+        'active_word_style' => 'text',
     ];
 
     /**
@@ -84,7 +90,10 @@ class VideoProject extends Model
      *     vertical_position_percent: int,
      *     outline_color: string,
      *     outline_width_px: int|float,
-     *     shadow: bool
+     *     shadow: bool,
+     *     active_word_enabled: bool,
+     *     active_word_color: string,
+     *     active_word_style: string
      * }
      */
     public function resolvedCaptionStyle(): array
@@ -108,6 +117,9 @@ class VideoProject extends Model
             'outline_color' => is_string($style['outline_color'] ?? null) ? $style['outline_color'] : self::DEFAULT_CAPTION_STYLE['outline_color'],
             'outline_width_px' => is_int($style['outline_width_px'] ?? null) || is_float($style['outline_width_px'] ?? null) ? $style['outline_width_px'] : self::DEFAULT_CAPTION_STYLE['outline_width_px'],
             'shadow' => is_bool($style['shadow'] ?? null) ? $style['shadow'] : self::DEFAULT_CAPTION_STYLE['shadow'],
+            'active_word_enabled' => is_bool($style['active_word_enabled'] ?? null) ? $style['active_word_enabled'] : self::DEFAULT_CAPTION_STYLE['active_word_enabled'],
+            'active_word_color' => is_string($style['active_word_color'] ?? null) ? $style['active_word_color'] : self::DEFAULT_CAPTION_STYLE['active_word_color'],
+            'active_word_style' => is_string($style['active_word_style'] ?? null) ? $style['active_word_style'] : self::DEFAULT_CAPTION_STYLE['active_word_style'],
         ];
     }
 

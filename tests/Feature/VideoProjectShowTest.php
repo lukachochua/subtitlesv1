@@ -152,6 +152,11 @@ test('exposes transient generated cues when a NeMo result exists', function () {
                 'text' => 'ერთი ორი, გამარჯობა.',
                 'start_ms' => 160,
                 'end_ms' => 2886,
+                'words' => [
+                    ['order' => 1, 'text' => 'ერთი', 'start_ms' => 160, 'end_ms' => 240],
+                    ['order' => 2, 'text' => 'ორი,', 'start_ms' => 640, 'end_ms' => 960],
+                    ['order' => 3, 'text' => 'გამარჯობა.', 'start_ms' => 1_600, 'end_ms' => 2_886],
+                ],
             ]]));
 });
 
@@ -185,7 +190,40 @@ test('prefers saved cues over the NeMo transcription result', function () {
                 'text' => 'ხელით შესწორებული ტექსტი',
                 'start_ms' => 200,
                 'end_ms' => 2_400,
+                'words' => [],
             ]]));
+});
+
+test('uses original word timings with corrected text for legacy saved cues', function () {
+    Storage::fake('local');
+    $videoProject = VideoProject::create([
+        'original_filename' => 'legacy.mp4',
+        'disk' => 'local',
+        'path' => 'video-projects/legacy/source.mp4',
+        'mime_type' => 'video/mp4',
+        'size_bytes' => 2_048,
+        'duration_ms' => 2_886,
+    ]);
+    $savedCue = $videoProject->captionCues()->create([
+        'order' => 1,
+        'text' => 'სწორი ორი, გამარჯობა.',
+        'start_ms' => 160,
+        'end_ms' => 2_886,
+    ]);
+    Storage::disk('local')->put(
+        "video-projects/{$videoProject->id}/transcription.nemo-fastconformer.raw.json",
+        file_get_contents(base_path('tests/Fixtures/nemo-transcription.json')),
+    );
+
+    $this->get(route('video-projects.show', $videoProject))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('cues.0.id', $savedCue->id)
+            ->where('cues.0.words', [
+                ['order' => 1, 'text' => 'სწორი', 'start_ms' => 160, 'end_ms' => 240],
+                ['order' => 2, 'text' => 'ორი,', 'start_ms' => 640, 'end_ms' => 960],
+                ['order' => 3, 'text' => 'გამარჯობა.', 'start_ms' => 1_600, 'end_ms' => 2_886],
+            ]));
 });
 
 test('does not hide malformed existing transcription data as an absent result', function () {

@@ -6,11 +6,14 @@ use InvalidArgumentException;
 
 final readonly class CaptionCue
 {
+    /** @param list<TranscriptionWord> $words */
     public function __construct(
         public int $order,
         public string $text,
         public int $startMs,
         public int $endMs,
+        /** @var list<TranscriptionWord> */
+        public array $words = [],
     ) {
         if ($this->order < 1) {
             throw new InvalidArgumentException('Caption cue order must be a positive integer.');
@@ -27,5 +30,6 @@ final readonly class CaptionCue
         if ($this->endMs <= $this->startMs) {
             throw new InvalidArgumentException('Caption cue end must be after its start.');
         }
+
     }
 }

@@ -28,10 +28,10 @@ test('it generates the expected cues from the project 4 word sequence', function
     $cues = (new GenerateCaptionCues)->handle($words);
 
     expect($cues)->toEqual([
-        new CaptionCue(1, 'ერთი ორი, სამი, ოთხი, ხუთი', 1680, 4480),
-        new CaptionCue(2, 'ექვსი შვიდი რვა ცხრა', 4720, 6880),
-        new CaptionCue(3, 'ათი გამარჯობა გაგიმარჯოს, როგორ ხარმე.', 7680, 11_040),
-        new CaptionCue(4, 'შელო მოხარმეც კარგა.', 11_600, 13_920),
+        new CaptionCue(1, 'ერთი ორი, სამი, ოთხი, ხუთი', 1680, 4480, array_slice($words, 0, 5)),
+        new CaptionCue(2, 'ექვსი შვიდი რვა ცხრა', 4720, 6880, array_slice($words, 5, 4)),
+        new CaptionCue(3, 'ათი გამარჯობა გაგიმარჯოს, როგორ ხარმე.', 7680, 11_040, array_slice($words, 9, 5)),
+        new CaptionCue(4, 'შელო მოხარმეც კარგა.', 11_600, 13_920, array_slice($words, 14, 3)),
     ]);
 });
 
@@ -93,7 +93,7 @@ test('it emits a single word even when it exceeds normal limits', function () {
     $cues = (new GenerateCaptionCues)->handle([$word]);
 
     expect($cues)->toEqual([
-        new CaptionCue(1, $word->text, 0, 4000),
+        new CaptionCue(1, $word->text, 0, 4000, [$word]),
     ]);
 });
 

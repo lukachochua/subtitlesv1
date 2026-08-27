@@ -19,7 +19,7 @@ class SplitCaptionCue
             $lockedCaptionCue = $videoProject->captionCues()
                 ->reorder()
                 ->lockForUpdate()
-                ->findOrFail($captionCue->getKey());
+                ->findOrFail($captionCue->id);
 
             if ($splitMs <= $lockedCaptionCue->start_ms || $splitMs >= $lockedCaptionCue->end_ms) {
                 throw new InvalidArgumentException('Split time must be inside the cue interval.');
@@ -35,6 +35,7 @@ class SplitCaptionCue
             $firstText = implode(' ', array_slice($words, 0, $splitWordIndex));
             $secondText = implode(' ', array_slice($words, $splitWordIndex));
             $originalEndMs = $lockedCaptionCue->end_ms;
+            $timedWords = $lockedCaptionCue->words()->reorder('order')->lockForUpdate()->get();
 
             $laterCues = $videoProject->captionCues()
                 ->reorder('order', 'desc')
@@ -51,12 +52,25 @@ class SplitCaptionCue
                 'end_ms' => $splitMs,
             ]);
 
-            return $videoProject->captionCues()->create([
+            $newCue = $videoProject->captionCues()->create([
                 'order' => $lockedCaptionCue->order + 1,
                 'text' => $secondText,
                 'start_ms' => $splitMs,
                 'end_ms' => $originalEndMs,
             ]);
+
+            if ($timedWords->count() === count($words)) {
+                $timedWords->slice($splitWordIndex)->values()->each(
+                    function ($word, int $index) use ($newCue): void {
+                        $word->forceFill([
+                            'caption_cue_id' => $newCue->id,
+                            'order' => $index + 1,
+                        ])->save();
+                    },
+                );
+            }
+
+            return $newCue;
         });
     }
 }

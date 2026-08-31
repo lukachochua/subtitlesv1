@@ -1,14 +1,18 @@
 # Current
 
+- Build the private `georgian-eval-v1` dataset from 10–20 short, human-verified clips and record the stable NeMo RNNT baseline with `transcription:evaluate`.
 - Manually test the complete upload → Generate captions → edit/style → quality-select → export/download V1 workflow with a new Georgian video.
 
 # Next
 
+- Research one current Georgian-capable LLM with reliable structured output, then run the isolated conservative 1→1 post-editing experiment after credentials and billing are explicitly configured.
+- Report clean-microphone and real-world/YouTube results separately, including WER, CER, fixed errors, introduced errors, and correction seconds per audio minute.
 - Manually trigger Export MP4 and download the result from project 5 in the browser.
 - Manually compare Clean, Social, News, and Minimal on project 5 and verify selected-state, Custom-state, save, and reload behavior.
 
 # Later
 
+- Test baseline, conservative loudness normalization, mild denoising, and speech filtering as separate audio-preparation variants only after the LLM experiment is measured.
 - Upload, store, display, and play one Georgian MP4.
 - Inspect uploaded media with ffprobe and extract ASR-ready audio with FFmpeg.
 - Select and test one Georgian-capable ASR provider using real audio and timestamp output.

@@ -795,3 +795,51 @@ This path avoids usage fees and keeps test media local while still providing a p
 - Georgian transcription quality and timing accuracy remain unproven until tested against real audio.
 - ElevenLabs Scribe v2, Google Chirp, OpenAI transcription models, Meta Omnilingual ASR, and larger Whisper models remain later benchmarks rather than current integrations.
 - A future application boundary must treat the Python runtime as a separate media-processing concern instead of adding Python dependencies to PHP.
+# Decision: Keep stable NeMo RNNT as the measured transcription control
+
+## Context
+
+Default RNNT currently outperforms tested NeMo beam, auxiliary CTC, and Whisper variants for Georgian. CTC also breaks the established word-timestamp contract.
+
+## Decision
+
+Keep `nvidia/stt_ka_fastconformer_hybrid_large_pc` on its normal RNNT decoder with timestamped hypotheses. Preserve raw NeMo JSON and measure every isolated experiment against it.
+
+## Consequences
+
+- Beam and CTC settings are absent from production transcription.
+- Larger beam sizes and more Whisper cycling require new evidence.
+- Experimental post-editing cannot overwrite raw ASR or automatically modify production captions.
+
+# Decision: Measure Georgian transcription with a private manifest and deterministic scorer
+
+## Context
+
+Listening and visual comparison do not provide reproducible error counts or human-effort tracking.
+
+## Decision
+
+Use a versioned, development-only manifest referencing private audio, verified transcripts, and preserved NeMo JSON. Score Unicode-normalized, punctuation-free text with word and character edit distance, retaining Georgian word forms. Optionally record correction time and audio duration.
+
+## Consequences
+
+- Private media and results remain outside the repository.
+- The normal test suite never invokes NeMo or paid APIs.
+- Dataset revisions are explicit and the evaluation set must never become training data.
+- Production promotion requires repeatable WER, CER, or correction-time improvement across representative clips.
+
+# Decision: Restrict the first LLM post-editor to validated one-token replacements
+
+## Context
+
+A text-only model may fix morphology and spelling-like errors but cannot acoustically verify plausible facts or proper nouns. Structural edits would invalidate existing word timing.
+
+## Decision
+
+Accept only structured, zero-based 1→1 replacement operations whose index and original token match raw timed words. Reject empty, whitespace-containing, malformed, duplicate, or out-of-range operations, and preserve each word's timestamps.
+
+## Consequences
+
+- The deterministic validation/application layer can be tested without an API.
+- Additions, deletions, splits, merges, and paraphrases are excluded from the first experiment.
+- A provider integration remains isolated until a benchmark demonstrates net benefit with very few new errors.

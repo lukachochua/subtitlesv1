@@ -1,0 +1,15 @@
+{
+    "dataset_version": "georgian-eval-v1",
+    "clips": [
+        {
+            "id": "clean-mic-01",
+            "audio": "/local/private/path/clean-mic-01.wav",
+            "reference": "აქ ჩაწერეთ ადამიანის მიერ გადამოწმებული სრული ქართული ტექსტი",
+            "category": "clean-microphone",
+            "notes": "Reference transcript verified by the speaker.",
+            "nemo_result": "/local/private/path/clean-mic-01.nemo.json",
+            "audio_duration_seconds": 60.0,
+            "manual_correction_seconds": 0.0
+        }
+    ]
+}
